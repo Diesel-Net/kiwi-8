@@ -1,6 +1,6 @@
 Chip8 v1.0
 
-A Chip-8 Emultaor written in C++ using the Simple 
+A Chip-8 Emulator written in C++ using the Simple 
 DirectMedia Layer library.
 
 Most games seem to work properly. Probably still a 
