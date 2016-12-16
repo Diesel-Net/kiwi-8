@@ -15,8 +15,9 @@ Control keys:
 	zxcv
 	
 	
-Note: You may build from scratch but be aware that the 
-makefiles expect the SDL libraries to be in a 
-folder named "frameworks" for it compile properly.
+Note: You may build from scratch but be aware that 
+the makefiles expect the SDL libraries to be in a 
+folder named "frameworks" for everything to compile 
+properly.
 
 Enjoy!
