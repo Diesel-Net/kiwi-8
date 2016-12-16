@@ -1,5 +1,4 @@
 Chip8 v1.0
-Thomas Daley
 
 A Chip-8 Emultaor written in C++ using the Simple 
 DirectMedia Layer library.
