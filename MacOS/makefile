@@ -7,19 +7,18 @@ CFLAGS = -std=c++11 -Wall
 INCS = -I$(CURDIR)/frameworks/sdl/include/
 LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework Carbon
 MAIN = main.mm
-OBJECTS = chip8.o renderer.o
 
 # These must be named consistently with Info.plist file:
 ICON = chip8.icns
 APPNAME = Chip8
 
 # Default target
-$(APPNAME): src/$(MAIN) $(OBJECTS)
+$(APPNAME): main.o objects
 	# Removing previous build
 	cd release; $(RM) -r *.app
 
 	# Compiling main executable
-	$(CC) $(CFLAGS) $(LIBS) $(INCS) $< $(OBJECTS) -o $@ $(LFLAGS)
+	$(CC) $(CFLAGS) $(LIBS) $(INCS) *.o -o $@ $(LFLAGS)
 
 	# Remove leftover objects 
 	$(RM) *.o
@@ -41,14 +40,11 @@ $(APPNAME): src/$(MAIN) $(OBJECTS)
 	mv $@.app release/$@.app
 
 # Build object files
-%.o:	src/%.c* 
-	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $< -o $@
+objects:	src/*.c* ../Core/*.c*
+	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
 
-%.o :	../Core/%.c*
-	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $< -o $@
-
-%.o :	src/%.mm
-	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $< -o $@
+main.o:	src/$(MAIN)
+	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $<
 
 # Tests the release version
 test:

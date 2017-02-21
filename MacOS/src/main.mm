@@ -10,13 +10,12 @@ on MacOS:
 */
 
 #include "../../Core/chip8.h"
+#include "fileDialog.mm"
+
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
 #include <limits.h>
-
-#include "fileDialog.mm"
-
 
 int main(int argc, char **argv){
 
