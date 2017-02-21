@@ -14,7 +14,7 @@ DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
 
 CC = CL
-CFLAGS = /EHsc 
+CFLAGS = /EHsc
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
 	   /I$(MAKEDIR)/frameworks/sdl2_image/include/ 
 
@@ -39,7 +39,6 @@ build_debug: objects resource
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\bin\$(ARCH)\SDL2.dll debug\SDL2.dll
 	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll debug\SDL2_image.dll
-	COPY ..\README.txt debug\README.txt
 	COPY resources\chip8.ico debug\chip8.ico
 
 build_release: objects resource
@@ -47,7 +46,6 @@ build_release: objects resource
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
 	COPY frameworks\sdl\bin\$(ARCH)\SDL2.dll release\SDL2.dll
 	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll release\SDL2_image.dll
-	COPY ..\README.txt release\README.txt
 	COPY resources\chip8.ico release\chip8.ico
 
 test_debug:
@@ -58,8 +56,8 @@ test_release:
 
 
 # Build object files
-objects:	src/*.cc src/*.h
-	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) src/*.cc
+objects:	src/*.c* ../Core/*.c*
+	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
 
 # Build resource file
 resource: src/chip8.rc

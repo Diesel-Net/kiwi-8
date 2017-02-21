@@ -1,12 +1,11 @@
 /* Screen renderer */
-
-#include "renderer.h"
-
-#include <windows.h>
-#include <iostream> 
+#include "../../Core/renderer.h"
 
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
+#include <stdio.h>
+
+#define MIN( a, b ) ( ( a < b) ? a : b )
 
 Renderer::Renderer(){
 
@@ -19,7 +18,6 @@ Renderer::~Renderer(){
 int Renderer::Initialize(int fullscreen, int R, int G, int B){
     SDL_Init(SDL_INIT_EVERYTHING);
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-
     
    	window = SDL_CreateWindow("Chip8", 
    							  SDL_WINDOWPOS_CENTERED, 
@@ -30,27 +28,24 @@ int Renderer::Initialize(int fullscreen, int R, int G, int B){
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-
     /* Load the window icon */
     image = IMG_Load("chip8.ico");
     SDL_SetWindowIcon(window, image);
 
     if (image == NULL) {
-        printf("Error loading window icon...\n");
+        fprintf(stderr, "Error loading window icon...\n");
     }
 
     /* Set to fullscreen mode if flag present */
     if (fullscreen) { 
         SetFullscreen();
     }
-
    
     this->R = R;
     this->G = G;
     this->B = B;
 
-
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 int Renderer::UpdateRenderSpace() {
@@ -64,7 +59,7 @@ int Renderer::UpdateRenderSpace() {
 	int ratio_w = (WINDOW_WIDTH / WIDTH);
 	int ratio_h = (WINDOW_HEIGHT / HEIGHT);
 
-	SCALE = min(ratio_w, ratio_h);
+	SCALE = MIN(ratio_w, ratio_h);
 
 	RENDER_WIDTH =  WIDTH * SCALE;
 	RENDER_HEIGHT = HEIGHT * SCALE;
@@ -82,7 +77,7 @@ int Renderer::UpdateRenderSpace() {
 
     SDL_UpdateWindowSurface(window);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Renderer::SetFullscreen(){
@@ -95,7 +90,7 @@ int Renderer::SetFullscreen(){
 
     UpdateRenderSpace();
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Renderer::SetWindowed() {
@@ -106,10 +101,10 @@ int Renderer::SetWindowed() {
 
     UpdateRenderSpace();
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
-int Renderer::RenderCycle(unsigned char **pixels){
+int Renderer::RenderFrame(unsigned char **pixels){
     /* Render the pixels */
     SDL_Rect rectangle; 
     rectangle.x = 0;
@@ -141,7 +136,7 @@ int Renderer::RenderCycle(unsigned char **pixels){
     } 
     /* Draw */
     SDL_RenderPresent(renderer);
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Renderer::CheckInput(unsigned char *key) {
@@ -156,7 +151,7 @@ int Renderer::CheckInput(unsigned char *key) {
             /* Close when the user clicks X */
             SDL_DestroyWindow(window);
             SDL_Quit();
-            return EXIT_FAILURE;
+            return 1;
         }
 
         /* Keystroke events */
@@ -168,7 +163,7 @@ int Renderer::CheckInput(unsigned char *key) {
                 /* Close if escape is held down */
                 SDL_DestroyWindow(window);
                 SDL_Quit();
-                return EXIT_FAILURE;
+                return 1;
             }
             if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
 
@@ -181,8 +176,6 @@ int Renderer::CheckInput(unsigned char *key) {
                 } else {
                     SetWindowed();
                 }
-
-                
             }
 
             /* Pressed keys */
@@ -301,5 +294,5 @@ int Renderer::CheckInput(unsigned char *key) {
             } 
         }
     }
-    return EXIT_SUCCESS;
+    return 0;
 }

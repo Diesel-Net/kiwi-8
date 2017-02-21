@@ -5,13 +5,14 @@ chip8.cc
 */
 
 #include "chip8.h"
-
 #include "renderer.h"
-#include <windows.h>
-#include <SDL2/SDL.h>
 
+#include <SDL2/SDL.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
-#include <iostream>
+
+
 
 /* Constructor */
 Chip8::Chip8() {
@@ -48,18 +49,18 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 
 	draw_flag = 1;
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Chip8::Run(){
 	for(;;) {
 		if (EmulateCycle()) {
-			return EXIT_FAILURE;
+			return 1;
 		}
 
 		SDL_Delay(1);
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Chip8::Load(const char *rom_name){
@@ -68,8 +69,8 @@ int Chip8::Load(const char *rom_name){
 	file = fopen(rom_name, "rb");
 	
 	if(file == NULL){
-		printf("Error loading file\n");
-		return EXIT_FAILURE;
+		fprintf(stderr, "Error loading file\n");
+		return 1;
 	}
 	/* Jump to the end of the file */
 	fseek(file, 0, SEEK_END); 
@@ -78,56 +79,56 @@ int Chip8::Load(const char *rom_name){
 	/* Jump back to the beginning of the file */           
 	rewind(file);                     
 
-	printf("size: %d bytes.\n", len);
+	fprintf(stderr, "size: %d bytes.\n", len);
 
 	if (len > MEM_SIZE - MEM_OFFSET) {
-		printf("Rom is too large or not formatted properly.\n");
-		return EXIT_FAILURE;
+		fprintf(stderr, "Rom is too large or not formatted properly.\n");
+		return 1;
 	}
 
 
 	/* Read the entire file starting from 0x200 */
 	if (!fread(memory + MEM_OFFSET, len, sizeof(unsigned char), file)) {
-		printf("Error while reading Rom into memory.\n");
-		return EXIT_FAILURE;
+		fprintf(stderr, "Error while reading Rom into memory.\n");
+		return 1;
 	}
 
 	fclose(file);
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 
 int Chip8::EmulateCycle(){
 	
 	if(FetchOpcode() || InterpretOpcode() || UpdateTimers() || CheckInput()) {
-		return EXIT_FAILURE;
+		return 1;
 	}
 
 	/* render the scene */
 	if (draw_flag) {
-		if (renderer.RenderCycle(pixels)) {
-			return EXIT_FAILURE;
+		if (renderer.RenderFrame(pixels)) {
+			return 1;
 		}
 		draw_flag = 0;
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Chip8::FetchOpcode() {
 	opcode = memory[PC] << 8 | memory[PC + 1];
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Chip8::CheckInput() {
 	if (renderer.CheckInput(key)) {
-		return EXIT_FAILURE;
+		return 1;
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Chip8::InterpretOpcode(){
-	printf ("Processing opcode: 0x%X\n", opcode);
+	fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
 
 	/* Decode opcodes */
 	switch (opcode & 0xF000) {
@@ -151,7 +152,7 @@ int Chip8::InterpretOpcode(){
 				break; 
 
 				default:
-					printf("Uknown opcode [0x0000]: 0x%X\n", opcode);
+					fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
 				break;
 			}
 		break;
@@ -295,7 +296,7 @@ int Chip8::InterpretOpcode(){
 				break;
 
 				default:
-					printf ("Unknown opcode [0x8000]: 0x%X\n", opcode);
+					fprintf (stderr, "Unknown opcode [0x8000]: 0x%X\n", opcode);
 				break;
 			}
 		break;
@@ -391,7 +392,7 @@ int Chip8::InterpretOpcode(){
 				break;
 
 				default:
-					printf ("Unknown opcode [0xE000]: 0x%X\n", opcode);
+					fprintf (stderr, "Unknown opcode [0xE000]: 0x%X\n", opcode);
 				break;
 			}
 		break;
@@ -418,7 +419,7 @@ int Chip8::InterpretOpcode(){
 
 					/* If we didn't received a keypress, skip this cycle and try again */
 					if(!keyPress)						
-						return EXIT_SUCCESS;
+						return 0;
 
 					PC += 2;					
 				}
@@ -475,13 +476,13 @@ int Chip8::InterpretOpcode(){
 				break;
 
 				default:
-					printf ("Unknown opcode [0xF000]: 0x%X\n", opcode);
+					fprintf (stderr, "Unknown opcode [0xF000]: 0x%X\n", opcode);
 				break;
 			}
 		break;
 
 	}
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Chip8::UpdateTimers(){
@@ -493,10 +494,10 @@ int Chip8::UpdateTimers(){
  
  	if(sound_timer > 0) {
     	if(sound_timer == 1) {
-      		printf("BEEP!\n");
+      		fprintf(stderr, "BEEP!\n");
     	}
     	--sound_timer;
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }

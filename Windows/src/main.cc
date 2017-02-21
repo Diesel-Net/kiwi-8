@@ -6,13 +6,12 @@ main.cc
 Purpose: Atari Chip-8 emulator
 */
 
-#include "chip8.h"
+#include "../../Core/chip8.h"
 
-#include <Commdlg.h>
 #include <windows.h>
-#include <stdlib.h>
+#include <Commdlg.h>
+#include <stdio.h>
 #include <string.h>
-#include <iostream>
 
 int main(int argc, char **argv){
 
@@ -35,7 +34,7 @@ int main(int argc, char **argv){
                             "       R G B\t\tRender color in RGB format, 3 numbers between 0-255\n\n\n\n"
                             "Enjoy!\n\n-Thomas Daley", "Chip8 v1.0" , MB_OKCANCEL);
         if (result == IDCANCEL) {
-            return EXIT_SUCCESS;
+            return 0;
         }
 
         OPENFILENAME ofn;
@@ -57,7 +56,7 @@ int main(int argc, char **argv){
         ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 
         if (!GetOpenFileName( &ofn)) {
-            return EXIT_SUCCESS;
+            return 0;
         }
 
         /* Change current working directory back to location of executable */
@@ -76,36 +75,36 @@ int main(int argc, char **argv){
     if (argc > 2 + fullscreen) {
         R = atoi(argv[2 + fullscreen]);
 
-        printf("R: %d\n", R);
+        fprintf(stderr, "R: %d\n", R);
     }
 
     if (argc > 3 + fullscreen) {
         G = atoi(argv[3 + fullscreen]);
 
-        printf("G: %d\n", G);
+        fprintf(stderr, "G: %d\n", G);
     }
     
 
     if (argc > 4 + fullscreen) {
         B = atoi(argv[4 + fullscreen]);
 
-        printf("B: %d\n", B);
+        fprintf(stderr, "B: %d\n", B);
     }
     
     Chip8 chip = Chip8();
 
     if (chip.Initialize(fullscreen, R, G, B)) {
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    printf("Loading %s\n", rom);
+    fprintf(stderr, "Loading %s\n", rom);
 
     if (chip.Load(rom)) {
-        return EXIT_FAILURE;
+        return 1;
     }
     
     chip.Run();
 
-    printf("Clean Exit.\n");
-    return EXIT_SUCCESS;
+    fprintf(stderr, "Clean Exit.\n");
+    return 0;
 }
