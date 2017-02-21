@@ -28,7 +28,7 @@ int main(int argc, char **argv){
         GetCurrentDirectory(MAX_PATH, cwd);
 
         int result = MessageBox (NULL , "Click OK to select a ROM file.\n\n"
-                            "Alternatively you may launch Chip8 with the command line instead.\n\n"
+                            "Alternatively, you may launch Chip8 with the command line.\n\n"
                             "Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"
                             "       -F\t\tLaunch in Fullscreen\n"
                             "       R G B\t\tRender color in RGB format, 3 numbers between 0-255\n\n\n\n"

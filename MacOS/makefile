@@ -48,11 +48,11 @@ main.o:	src/$(MAIN)
 
 # Tests the release version
 test:
-	open ./release/$(APPNAME).app --args "/Users/tomdaley92/Desktop/Chip8/Roms/Astro Dodge [Revival Studios, 2008].ch8" -F 197 23 100
+	open ./release/$(APPNAME).app --args "/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8" -F 197 23 100
 
 # Runs the program with an attached terminal (Application must be built prior)
 debug:
-	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) "../Roms/Astro Dodge [Revival Studios, 2008].ch8" 255 0 0
+	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) "../Roms/Chip-8 Pack/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8"
 
 # Removes latest build and object files
 clean:

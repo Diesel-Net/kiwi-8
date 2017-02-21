@@ -1,11 +1,11 @@
 /* Screen renderer */
 
 #include "../../Core/renderer.h"
-#include <unistd.h>
-#include <iostream> 
-#include <math.h>
+
 #include <SDL2/SDL.h>
 //#include <SDL_image.h>
+
+#define MIN( a, b ) ( ( a < b) ? a : b )
 
 Renderer::Renderer(){
 
@@ -38,7 +38,7 @@ int Renderer::Initialize(int fullscreen, int R, int G, int B){
     this->G = G;
     this->B = B;
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 int Renderer::UpdateRenderSpace() {
@@ -51,7 +51,7 @@ int Renderer::UpdateRenderSpace() {
 	int ratio_w = (WINDOW_WIDTH / WIDTH);
 	int ratio_h = (WINDOW_HEIGHT / HEIGHT);
 
-	SCALE = std::min(ratio_w, ratio_h);
+	SCALE = MIN(ratio_w, ratio_h);
 
 	RENDER_WIDTH =  WIDTH * SCALE;
 	RENDER_HEIGHT = HEIGHT * SCALE;
@@ -69,7 +69,7 @@ int Renderer::UpdateRenderSpace() {
 
     SDL_UpdateWindowSurface(window);
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Renderer::SetFullscreen(){
@@ -82,7 +82,7 @@ int Renderer::SetFullscreen(){
 
     UpdateRenderSpace();
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Renderer::SetWindowed() {
@@ -93,7 +93,7 @@ int Renderer::SetWindowed() {
 
     UpdateRenderSpace();
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 int Renderer::RenderFrame(unsigned char **pixels){
@@ -128,7 +128,7 @@ int Renderer::RenderFrame(unsigned char **pixels){
     } 
     /* Draw */
     SDL_RenderPresent(renderer);
-	return EXIT_SUCCESS;
+	return 0;
 }
 
 int Renderer::CheckInput(unsigned char *key) {
@@ -143,7 +143,7 @@ int Renderer::CheckInput(unsigned char *key) {
             /* Close when the user clicks X */
             SDL_DestroyWindow(window);
             SDL_Quit();
-            return EXIT_FAILURE;
+            return 1;
         }
 
         /* Keystroke events */
@@ -155,7 +155,7 @@ int Renderer::CheckInput(unsigned char *key) {
                 /* Close if escape is held down */
                 SDL_DestroyWindow(window);
                 SDL_Quit();
-                return EXIT_FAILURE;
+                return 1;
             }
             if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
 
@@ -288,5 +288,5 @@ int Renderer::CheckInput(unsigned char *key) {
             } 
         }
     }
-    return EXIT_SUCCESS;
+    return 0;
 }
