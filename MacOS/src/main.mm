@@ -9,7 +9,7 @@ on MacOS:
     open ./Chip8.app --args "/Users/tomdaley92/Desktop/Chip8/Roms/Brix [Andreas Gustafsson, 1990].ch8"
 */
 
-#include "chip8.h"
+#include "../../Core/chip8.h"
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>

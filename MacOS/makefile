@@ -35,18 +35,20 @@ $(APPNAME): src/$(MAIN) $(OBJECTS)
 	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@ 
 
 	# Moving the configured executable and copy other files into .app bundle
-	mv $@ $@.app/Contents/MacOS/$@
-	cp ../README.txt $@.app/Contents/MacOS/README.txt
 	cp resources/$(ICON) $@.app/Contents/Resources/$(ICON)
-	cp src/Info.plist $@.app/Contents/Info.plist
+	cp resources/Info.plist $@.app/Contents/Info.plist
+	mv $@ $@.app/Contents/MacOS/$@
 	mv $@.app release/$@.app
 
 # Build object files
-%.o:	src/%.cc src/%.h
+%.o:	src/%.c* 
+	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $< -o $@
+
+%.o :	../Core/%.c*
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $< -o $@
 
 %.o :	src/%.mm
-	$(CC) -c -o $@ $<
+	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $< -o $@
 
 # Tests the release version
 test:

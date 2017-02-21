@@ -1,6 +1,6 @@
 /* Screen renderer */
 
-#include "renderer.h"
+#include "../../Core/renderer.h"
 #include <unistd.h>
 #include <iostream> 
 #include <math.h>
@@ -96,7 +96,7 @@ int Renderer::SetWindowed() {
     return EXIT_SUCCESS;
 }
 
-int Renderer::RenderCycle(unsigned char **pixels){
+int Renderer::RenderFrame(unsigned char **pixels){
     /* Render the pixels */
     SDL_Rect rectangle; 
     rectangle.x = 0;
