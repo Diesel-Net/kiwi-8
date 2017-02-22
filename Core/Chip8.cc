@@ -19,6 +19,9 @@ Chip8::Chip8() {
 }
 
 Chip8::~Chip8() {
+	for (int i = 0; i < WIDTH; i++) {
+		free(vram[i]);
+	}
 	free(vram);
 }
 
@@ -57,7 +60,8 @@ int Chip8::Run(){
 			return 1;
 		}
 
-		SDL_Delay(1.5);
+		/* Terrible way to slow things down (temporary) */
+		SDL_Delay(1);
 	}
 	return 0;
 }

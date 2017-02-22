@@ -10,12 +10,24 @@ Renderer::Renderer(){
 }
 
 Renderer::~Renderer(){
+    for (int i = 0; i < WIDTH; i++) {
+        free(frame_buffer[i]);
+    }
+    free(frame_buffer);
     SDL_Quit();
 }
 
 void Renderer::Initialize(int fullscreen, int R, int G, int B){
     SDL_Init(SDL_INIT_EVERYTHING);
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+
+    frame_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+    memset(frame_buffer, 0, WIDTH * sizeof(unsigned char *));
+
+    for (int i = 0; i < WIDTH; i++) {
+        frame_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+        memset(frame_buffer[i], 0, HEIGHT * sizeof(unsigned char));
+    }
     
    	window = SDL_CreateWindow("Chip8", 
    							  SDL_WINDOWPOS_CENTERED, 
@@ -62,8 +74,7 @@ void Renderer::UpdateRenderSpace() {
 	}
 
 	printf("%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
-
-    SDL_UpdateWindowSurface(window);
+    RenderFrame(frame_buffer);
 }
 
 void Renderer::SetFullscreen(){
@@ -82,16 +93,16 @@ void Renderer::SetWindowed() {
 }
 
 void Renderer::RenderFrame(unsigned char **vram){
+    /* Clear the screen */
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
     /* Render the vram */
     SDL_Rect rectangle; 
     rectangle.x = 0;
     rectangle.y = 0;
     rectangle.w = SCALE;
     rectangle.h = SCALE;
-
-    /* Clear the screen */
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, R, G, B, 0);
 
@@ -100,12 +111,14 @@ void Renderer::RenderFrame(unsigned char **vram){
 
     		rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
 	        rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
+
+            frame_buffer[i][j] = vram[i][j];
 	  		
 	  		if (vram[i][j]) {
-	    		SDL_SetRenderDrawColor(renderer, R, G, B, 0);
+	    		SDL_SetRenderDrawColor(renderer, R, G, B, 255);
 		        SDL_RenderFillRect(renderer, &rectangle);
 	        } else {
-	        	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	        	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	        	SDL_RenderFillRect(renderer, &rectangle);
                 
 	        }   

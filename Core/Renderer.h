@@ -10,6 +10,7 @@ class Renderer {
 
 	private:
 
+		unsigned char **frame_buffer;
 		SDL_Renderer *renderer;
 
 		/* 64x32 Scaled by X amount */
