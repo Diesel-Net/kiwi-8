@@ -35,12 +35,12 @@ $(APPNAME): main.o objects
 
 	# Moving the configured executable and copy other files into .app bundle
 	cp resources/$(ICON) $@.app/Contents/Resources/$(ICON)
-	cp resources/Info.plist $@.app/Contents/Info.plist
+	cp src/Info.plist $@.app/Contents/Info.plist
 	mv $@ $@.app/Contents/MacOS/$@
 	mv $@.app release/$@.app
 
 # Build object files
-objects:	src/*.c* ../Core/*.c*
+objects:	../Core/*.c*
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
 
 main.o:	src/$(MAIN)

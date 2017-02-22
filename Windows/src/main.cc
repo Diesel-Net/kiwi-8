@@ -6,7 +6,7 @@ main.cc
 Purpose: Atari Chip-8 emulator
 */
 
-#include "../../Core/chip8.h"
+#include "../../Core/Chip8.h"
 
 #include <SDL_image.h>
 #include <windows.h>

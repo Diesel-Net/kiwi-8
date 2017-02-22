@@ -4,8 +4,8 @@ Date: September 18, 2016
 chip8.cc
 */
 
-#include "chip8.h"
-#include "renderer.h"
+#include "Chip8.h"
+#include "Renderer.h"
 #include "input.h"
 
 #include <SDL2/SDL.h>

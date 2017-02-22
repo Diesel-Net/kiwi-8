@@ -1,5 +1,4 @@
-/* Screen renderer */
-#include "renderer.h"
+#include "Renderer.h"
 
 #include <SDL2/SDL.h>
 #include <stdio.h>

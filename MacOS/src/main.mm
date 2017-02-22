@@ -9,7 +9,7 @@ on MacOS:
     open ./Chip8.app --args "/ABSOLUTE_PATH_TO_ROM.ch8" -F 255 255 255
 */
 
-#include "../../Core/chip8.h"
+#include "../../Core/Chip8.h"
 #include "fileDialog.mm"
 
 #include <string.h>

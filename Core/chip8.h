@@ -1,4 +1,4 @@
-#include "renderer.h"
+#include "Renderer.h"
 
 #ifndef CHIP8_H
 #define CHIP8_H
