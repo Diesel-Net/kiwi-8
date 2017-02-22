@@ -40,7 +40,7 @@ class Renderer {
 		void UpdateRenderSpace();
 		void SetFullscreen();
 		void SetWindowed();
-		void RenderFrame(unsigned char **pixels);
+		void RenderFrame(unsigned char **vram);
 		void Quit();
 };
 

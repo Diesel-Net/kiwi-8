@@ -81,8 +81,8 @@ void Renderer::SetWindowed() {
     UpdateRenderSpace();
 }
 
-void Renderer::RenderFrame(unsigned char **pixels){
-    /* Render the pixels */
+void Renderer::RenderFrame(unsigned char **vram){
+    /* Render the vram */
     SDL_Rect rectangle; 
     rectangle.x = 0;
     rectangle.y = 0;
@@ -101,7 +101,7 @@ void Renderer::RenderFrame(unsigned char **pixels){
     		rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
 	        rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
 	  		
-	  		if (pixels[i][j]) {
+	  		if (vram[i][j]) {
 	    		SDL_SetRenderDrawColor(renderer, R, G, B, 0);
 		        SDL_RenderFillRect(renderer, &rectangle);
 	        } else {

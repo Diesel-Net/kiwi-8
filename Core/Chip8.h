@@ -42,7 +42,7 @@ class Chip8 {
 		int draw_flag = 0;
 
 		/* 1-bit encoded screen pixels (32x64) */
-		unsigned char **pixels;
+		unsigned char **vram;
 
 		const unsigned char chip8_fontset[FONTS_SIZE] = { 
 			0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

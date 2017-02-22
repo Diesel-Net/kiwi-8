@@ -19,17 +19,17 @@ Chip8::Chip8() {
 }
 
 Chip8::~Chip8() {
-	free(pixels);
+	free(vram);
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
 	renderer.Initialize(fullscreen, R, G, B);
-	pixels = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-	memset(pixels, 0, WIDTH * sizeof(unsigned char *));
+	vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+	memset(vram, 0, WIDTH * sizeof(unsigned char *));
 
 	for (int i = 0; i < WIDTH; i++) {
-		pixels[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
-		memset(pixels[i], 0, HEIGHT * sizeof(unsigned char));
+		vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
 	}
 
 	/* Initialize registers and memory once */
@@ -105,7 +105,7 @@ int Chip8::EmulateCycle(){
 
 	/* render the scene */
 	if (draw_flag) {
-		renderer.RenderFrame(pixels);
+		renderer.RenderFrame(vram);
 		draw_flag = 0;
 	}
 
@@ -118,7 +118,7 @@ int Chip8::FetchOpcode() {
 }
 
 int Chip8::InterpretOpcode(){
-	//fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
+	fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
 
 	/* Decode opcodes */
 	switch (opcode & 0xF000) {
@@ -128,7 +128,7 @@ int Chip8::InterpretOpcode(){
 				case 0x0000: 
 					/* 0x00E0: Clears the screen */
 					for (int i = 0; i < WIDTH; i++) {
-						memset(pixels[i], 0, HEIGHT * sizeof(unsigned char));
+						memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
 					}
 					draw_flag = 1;
 					PC += 2;  
@@ -322,10 +322,10 @@ int Chip8::InterpretOpcode(){
 
 		/* opcode DXYN */
 		case 0xD000:
-			/* Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. 
-			Each row of 8 pixels is read as bit-coded starting from memory location I; 
+			/* Draws a sprite at coordinate (VX, VY) that has a width of 8 vram and a height of N vram. 
+			Each row of 8 vram is read as bit-coded starting from memory location I; 
 			I value doesn’t change after the execution of this instruction. As described above, 
-			VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, 
+			VF is set to 1 if any screen vram are flipped from set to unset when the sprite is drawn, 
 			and to 0 if that doesn’t happen */
 		{
 			unsigned short x = V[(opcode & 0x0F00) >> 8];
@@ -342,15 +342,15 @@ int Chip8::InterpretOpcode(){
 
 					if((pixel & (0x80 >> xline)) != 0) {
 						
-						if ((x + xline) < WIDTH && (y+ yline) < HEIGHT) {
-							if(pixels[x + xline][y + yline] == 1) {
-								//fprintf(stderr, "COLLISION!\n");
-								V[0xF] = 1;                                    
-							}
-
+						int true_x = (x + xline) % WIDTH;
+						int true_y = (y + yline) % HEIGHT;
 						
-							pixels[x + xline][y + yline] ^= 1;
+						if(vram[true_x][true_y] == 1) {
+								fprintf(stderr, "COLLISION!\n");
+								V[0xF] = 1;                                    
 						}
+						
+						vram[true_x][true_y] ^= 1;
 					}
 				}
 			}
