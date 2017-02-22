@@ -1,7 +1,7 @@
-#include "Renderer.h"
-
 #ifndef CHIP8_H
 #define CHIP8_H
+
+#include "Renderer.h"
 
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16

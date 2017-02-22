@@ -1,7 +1,7 @@
-#include <SDL2/SDL.h>
+#ifndef RENDERER_H
+#define RENDERER_H
 
-#ifndef RENDERER
-#define RENDERER
+#include <SDL2/SDL.h>
 
 #define WIDTH 64
 #define HEIGHT 32
@@ -30,19 +30,17 @@ class Renderer {
 		
 
 	public:
+
 		SDL_Window *window;
 
-		/* Constructor */
 		Renderer();
 		~Renderer();
 
-		/* functions */
-		int Initialize(int fullscreen, int R, int B, int G);
-		//SDL_window GetWindow();
-		int UpdateRenderSpace();
-		int SetFullscreen();
-		int SetWindowed();
-		int RenderFrame(unsigned char **pixels);
+		void Initialize(int fullscreen, int R, int B, int G);
+		void UpdateRenderSpace();
+		void SetFullscreen();
+		void SetWindowed();
+		void RenderFrame(unsigned char **pixels);
 		void Quit();
 };
 

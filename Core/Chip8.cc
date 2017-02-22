@@ -13,8 +13,6 @@ chip8.cc
 #include <string.h>
 #include <stdio.h>
 
-
-
 /* Constructor */
 Chip8::Chip8() {
 
@@ -107,9 +105,7 @@ int Chip8::EmulateCycle(){
 
 	/* render the scene */
 	if (draw_flag) {
-		if (renderer.RenderFrame(pixels)) {
-			return 1;
-		}
+		renderer.RenderFrame(pixels);
 		draw_flag = 0;
 	}
 
@@ -348,7 +344,7 @@ int Chip8::InterpretOpcode(){
 						
 						if ((x + xline) < WIDTH && (y+ yline) < HEIGHT) {
 							if(pixels[x + xline][y + yline] == 1) {
-								//printf("COLLISION!\n");
+								//fprintf(stderr, "COLLISION!\n");
 								V[0xF] = 1;                                    
 							}
 
@@ -368,7 +364,6 @@ int Chip8::InterpretOpcode(){
 			switch(opcode & 0x00FF) {
 				case 0x009E:
 					/* EX9E:	Skips the next instruction if the key stored in VX is pressed */
-				//printf("SKipping becuz key pressed\n");
 					if(key[V[(opcode & 0x0F00) >> 8]] != 0) {
 						PC += 2;
 					}
@@ -377,7 +372,6 @@ int Chip8::InterpretOpcode(){
 
 				case 0x00A1:
 					/* EXA1:	Skips the next instruction if the key stored in VX isn't pressed */
-				//printf("SKipping becuz key released\n");
 					if(key[V[(opcode & 0x0F00) >> 8]] == 0) {
 						PC += 2;
 					}

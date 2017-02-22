@@ -13,7 +13,7 @@ Renderer::~Renderer(){
     SDL_Quit();
 }
 
-int Renderer::Initialize(int fullscreen, int R, int G, int B){
+void Renderer::Initialize(int fullscreen, int R, int G, int B){
     SDL_Init(SDL_INIT_EVERYTHING);
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     
@@ -34,11 +34,9 @@ int Renderer::Initialize(int fullscreen, int R, int G, int B){
     this->R = R;
     this->G = G;
     this->B = B;
-
-    return 0;
 }
 
-int Renderer::UpdateRenderSpace() {
+void Renderer::UpdateRenderSpace() {
 
     SDL_DestroyRenderer(renderer); 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -66,35 +64,24 @@ int Renderer::UpdateRenderSpace() {
 	printf("%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
 
     SDL_UpdateWindowSurface(window);
-
-	return 0;
 }
 
-int Renderer::SetFullscreen(){
+void Renderer::SetFullscreen(){
 	/* Hide the mouse cursor */
 	SDL_ShowCursor(SDL_DISABLE);
-
 	SDL_MaximizeWindow(window);
-	
 	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-
     UpdateRenderSpace();
-
-	return 0;
 }
 
-int Renderer::SetWindowed() {
+void Renderer::SetWindowed() {
 	/* Show the mouse cursor */
 	SDL_ShowCursor(SDL_ENABLE);
-
     SDL_SetWindowFullscreen(window, 0);
-
     UpdateRenderSpace();
-
-    return 0;
 }
 
-int Renderer::RenderFrame(unsigned char **pixels){
+void Renderer::RenderFrame(unsigned char **pixels){
     /* Render the pixels */
     SDL_Rect rectangle; 
     rectangle.x = 0;
@@ -126,7 +113,6 @@ int Renderer::RenderFrame(unsigned char **pixels){
     } 
     /* Draw */
     SDL_RenderPresent(renderer);
-	return 0;
 }
 
 void Renderer::Quit() {
