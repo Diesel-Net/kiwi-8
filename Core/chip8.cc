@@ -6,6 +6,7 @@ chip8.cc
 
 #include "chip8.h"
 #include "renderer.h"
+#include "input.h"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
@@ -58,7 +59,7 @@ int Chip8::Run(){
 			return 1;
 		}
 
-		SDL_Delay(1);
+		SDL_Delay(1.5);
 	}
 	return 0;
 }
@@ -100,7 +101,7 @@ int Chip8::Load(const char *rom_name){
 
 int Chip8::EmulateCycle(){
 	
-	if(FetchOpcode() || InterpretOpcode() || UpdateTimers() || CheckInput()) {
+	if(FetchOpcode() || InterpretOpcode() || UpdateTimers() || check_input(&renderer, key)) {
 		return 1;
 	}
 
@@ -120,15 +121,8 @@ int Chip8::FetchOpcode() {
 	return 0;
 }
 
-int Chip8::CheckInput() {
-	if (renderer.CheckInput(key)) {
-		return 1;
-	}
-	return 0;
-}
-
 int Chip8::InterpretOpcode(){
-	fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
+	//fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
 
 	/* Decode opcodes */
 	switch (opcode & 0xF000) {

@@ -10,12 +10,12 @@ Most games seem to work properly, however there are
 still quite a few bugs here and there. 
 No audio is implemented. A work in progress.
 
-Control keys:
+Controls --> keybindings
 
-	1234          
-	qwert 
-	asdf
-	zxcv
+123C    -->    1234          
+456D    -->    qwert 
+789E    -->    asdf
+A0BF    -->    zxcv
 	
 	
 Note: If for any reason you need to build from scratch,

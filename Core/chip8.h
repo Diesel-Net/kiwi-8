@@ -39,7 +39,6 @@ class Chip8 {
 		/* HEX based keypad (0x0-0xF) */
 		unsigned char key[NUM_INPUT];
 
-		Renderer renderer = Renderer();
 		int draw_flag = 0;
 
 		/* 1-bit encoded screen pixels (32x64) */
@@ -66,11 +65,11 @@ class Chip8 {
 
 		int EmulateCycle();
 		int FetchOpcode();
-		int CheckInput();
 		int InterpretOpcode();
 		int UpdateTimers();
 
 	public:
+		Renderer renderer = Renderer();
 
 		/* Constructor */
 		Chip8();

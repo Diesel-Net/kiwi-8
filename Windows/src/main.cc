@@ -8,6 +8,7 @@ Purpose: Atari Chip-8 emulator
 
 #include "../../Core/chip8.h"
 
+#include <SDL_image.h>
 #include <windows.h>
 #include <Commdlg.h>
 #include <stdio.h>
@@ -96,6 +97,14 @@ int main(int argc, char **argv){
     if (chip.Initialize(fullscreen, R, G, B)) {
         return 1;
     }
+
+    /* Load the window icon, (Windows platform specific code) */
+    SDL_Surface *image;
+    image = IMG_Load("chip8.ico");
+    if (image == NULL) {
+        fprintf(stderr, "Error loading window icon...\n");
+    }
+    SDL_SetWindowIcon(chip.renderer.window, image);
 
     fprintf(stderr, "Loading %s\n", rom);
 

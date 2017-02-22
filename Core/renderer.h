@@ -10,10 +10,7 @@ class Renderer {
 
 	private:
 
-		SDL_Window *window;
 		SDL_Renderer *renderer;
-		SDL_Surface *image;
-		SDL_Event event;
 
 		/* 64x32 Scaled by X amount */
 		int SCALE = 12;
@@ -29,20 +26,24 @@ class Renderer {
 
     	int R, G, B;
 
-		int UpdateRenderSpace();
-		int SetFullscreen();
-		int SetWindowed();
+		
 		
 
 	public:
+		SDL_Window *window;
+
 		/* Constructor */
 		Renderer();
 		~Renderer();
 
 		/* functions */
 		int Initialize(int fullscreen, int R, int B, int G);
+		//SDL_window GetWindow();
+		int UpdateRenderSpace();
+		int SetFullscreen();
+		int SetWindowed();
 		int RenderFrame(unsigned char **pixels);
-		int CheckInput(unsigned char *key);
+		void Quit();
 };
 
 #endif
