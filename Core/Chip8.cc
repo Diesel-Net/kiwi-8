@@ -123,9 +123,9 @@ int Chip8::InterpretOpcode(){
 	/* Decode opcodes */
 	switch (opcode & 0xF000) {
 		case 0x0000:
-			switch (opcode & 0x000F) {
+			switch (opcode & 0x0FFF) {
 				
-				case 0x0000: 
+				case 0x00E0: 
 					/* 0x00E0: Clears the screen */
 					for (int i = 0; i < WIDTH; i++) {
 						memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -134,7 +134,7 @@ int Chip8::InterpretOpcode(){
 					PC += 2;  
 				break;
 
-				case 0x000E: 
+				case 0x00EE: 
 					/* 0x00EE: Returns from subroutine */         
 					--sp;			// 16 levels of stack, decrease stack pointer to prevent overwrite
 					PC = stack[sp];	// Put the stored return address from the stack back into the program counter					
@@ -333,7 +333,6 @@ int Chip8::InterpretOpcode(){
 			unsigned short height = opcode & 0x000F;
 			unsigned short pixel;
 
-			V[0xF] = 0;
 			for (int yline = 0; yline < height; yline++) {
 				
 				pixel = memory[I + yline];
@@ -346,8 +345,12 @@ int Chip8::InterpretOpcode(){
 						int true_y = (y + yline) % HEIGHT;
 						
 						if(vram[true_x][true_y] == 1) {
-								fprintf(stderr, "COLLISION!\n");
-								V[0xF] = 1;                                    
+							
+							fprintf(stderr, "COLLISION!\n");
+							V[0xF] = 1;                                    
+						} else {
+							
+							V[0xF] = 0;
 						}
 						
 						vram[true_x][true_y] ^= 1;
@@ -364,7 +367,7 @@ int Chip8::InterpretOpcode(){
 			switch(opcode & 0x00FF) {
 				case 0x009E:
 					/* EX9E:	Skips the next instruction if the key stored in VX is pressed */
-					if(key[V[(opcode & 0x0F00) >> 8]] != 0) {
+					if(key[V[(opcode & 0x0F00) >> 8]] == 1) {
 						PC += 2;
 					}
 					PC += 2;
@@ -392,25 +395,23 @@ int Chip8::InterpretOpcode(){
 					PC += 2;
 				break;
 
-				case 0x000A:
-				{
-					bool keyPress = false;
-
-					for(int i = 0; i < 16; ++i)
-					{
-						if(key[i] != 0)
-						{
+				case 0x000A: {
+					
+					int keyPress = 0;
+					for(int i = 0; i < 16; ++i) {
+						if(key[i] != 0) {
 							V[(opcode & 0x0F00) >> 8] = i;
-							keyPress = true;
+							keyPress = 1;
 						}
 					}
 
 					/* If we didn't received a keypress, skip this cycle and try again */
-					if(!keyPress)						
+					if(!keyPress) {					
 						return 0;
+					}
 
-					PC += 2;					
-				}
+					PC += 2;
+				}					
 				break;
 
 				case 0x0015: // FX15: Sets the delay timer to VX
