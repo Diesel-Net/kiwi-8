@@ -98,7 +98,8 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    /* Load the window icon, (Windows platform specific code) */
+    /*  Fixes a bug where SDL breaks/prevent windows from loading
+        the window icon normally */
     SDL_Surface *image;
     image = IMG_Load("chip8.ico");
     if (image == NULL) {
