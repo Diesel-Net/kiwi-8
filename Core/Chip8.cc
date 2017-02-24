@@ -1,7 +1,6 @@
 /*
 Author: Thomas Daley
 Date: September 18, 2016
-chip8.cc
 */
 
 #include "Chip8.h"

@@ -1,9 +1,6 @@
 /*
 Author: Thomas Daley
 Date: September 8, 2016
-main.cc
-
-Purpose: Atari Chip-8 emulator
 
 on MacOS: 
     open ./Chip8.app --args "/ABSOLUTE_PATH_TO_ROM.ch8" -F 255 255 255
