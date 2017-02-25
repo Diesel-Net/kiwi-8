@@ -1,9 +1,6 @@
 /*
 Author: Thomas Daley
 Date: September 8, 2016
-main.cc
-
-Purpose: Atari Chip-8 emulator
 */
 
 #include "../../Core/Chip8.h"
