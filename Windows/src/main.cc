@@ -96,7 +96,7 @@ int main(int argc, char **argv){
     }
 
     /*  Fixes a bug where SDL breaks/prevent windows from loading
-        the window icon normally */
+        the window icon normally - Loads window icon during runtime */
     SDL_Surface *image;
     image = IMG_Load("chip8.ico");
     if (image == NULL) {
@@ -104,8 +104,8 @@ int main(int argc, char **argv){
     }
     SDL_SetWindowIcon(chip.renderer.window, image);
 
-    fprintf(stderr, "Loading %s\n", rom);
 
+    fprintf(stderr, "Loading %s\n", rom);
     if (chip.Load(rom)) {
         return 1;
     }

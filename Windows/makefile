@@ -56,12 +56,12 @@ test_release:
 
 
 # Build object files
-objects:	src/*.c* ../Core/*.c*
+objects:	src\*.c* ..\Core\*.c*
 	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
 
 # Build resource file
-resource: src/chip8.rc
-	RC src/chip8.rc
+resource: src\chip8.rc resources\chip8.ico
+	RC src\chip8.rc
 	MOVE src\chip8.res chip8.res
 
 # Clean any leftover build files
