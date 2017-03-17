@@ -101,7 +101,6 @@ int Chip8::Load(const char *rom_name){
 
 
 int Chip8::EmulateCycle(){
-	
 	if(FetchOpcode() || InterpretOpcode() || UpdateTimers() || check_input(&renderer, key)) {
 		return 1;
 	}
