@@ -22,9 +22,26 @@ toggle fullscreen           alt + enter
 soft reset                  (not yet implemented)
 
 
-Note: If for any reason you need to build from scratch,
-be aware that the makefiles expect the SDL libraries to 
-be in a folder named "frameworks" for everything to 
-compile properly.
+To compile:
+
+    1) Open a terminal/command-prompt and navigate to either the 
+       Windows or MacOS directory.
+
+    On Windows:
+        Note: Microsoft Visual C++ Build Tools are assumed to be 
+        installed and added to PATH.
+        2) Type "vcvarsall x86".
+        3) Type "nmake".
+
+    On MacOS:
+        Note: GCC is assumed to be installed and added to PATH.
+        2) Type "make".
+
+Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"
+    -F      Launch in Fullscreen
+    R G B   Render color in RGB format, 3 numbers between 0-255
+
+    * If you launch the game with no arguments, you will be prompted
+      to choose a ROM to load on startup.
 
 Enjoy!
