@@ -52,7 +52,7 @@ test_release:
 
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
-	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) "../Roms/Chip-8 Pack/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8"
+	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME)
 
 # Removes latest build and object files
 clean:
