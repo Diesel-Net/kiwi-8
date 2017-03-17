@@ -37,7 +37,7 @@ To compile:
         Note: GCC is assumed to be installed and added to PATH.
         2) Type "make".
 
-Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"
+Usage: Chip8 PATH_TO_ROM [-F] [R G B]
     -F      Launch in Fullscreen
     R G B   Render color in RGB format, 3 numbers between 0-255
 
