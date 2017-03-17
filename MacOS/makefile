@@ -47,11 +47,11 @@ main.o:	src/$(MAIN)
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $<
 
 # Tests the release version
-test:
+test_release:
 	open ./release/$(APPNAME).app --args "/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8" -F 197 23 100
 
 # Runs the program with an attached terminal (Application must be built prior)
-debug:
+test_debug:
 	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) "../Roms/Chip-8 Pack/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8"
 
 # Removes latest build and object files
