@@ -4,9 +4,7 @@ A Chip-8 interpreter written in C++ using the Simple
 DirectMedia Layer library.
 
 For more information about the Chip-8 visit:
-
 https://en.wikipedia.org/wiki/CHIP-8
-http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
 I have included pre-built binaries for both Windows
 and Mac OS X (.exe file and .app bundle respectively)
@@ -47,6 +45,7 @@ How to compile:
            to Chip8/MacOS directory.
         2) Type "make".
 
+
 Usage: Chip8 PATH_TO_ROM [-F] [R G B]
     -F      Launch in Fullscreen
     R G B   Render color in RGB format, 3 numbers between 0-255
@@ -56,3 +55,4 @@ Usage: Chip8 PATH_TO_ROM [-F] [R G B]
           startup.
 
 
+Enjoy!
