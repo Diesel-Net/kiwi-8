@@ -29,7 +29,7 @@ int main(int argc, char **argv){
         int result = MessageBox (NULL , "Click OK to select a ROM file.\n\n"
                             "Alternatively, you may launch Chip8 with the command line.\n\n"
                             "Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"
-                            "       -F\t\tLaunch in Fullscreen\n"
+                            "       -F\t\tLaunch in fullscreen\n"
                             "       R G B\t\tRender color in RGB format, 3 numbers from 0-255\n\n\n\n"
                             "Enjoy!\n\n-Thomas Daley", "Chip8 v1.0" , MB_OKCANCEL);
         if (result == IDCANCEL) {
