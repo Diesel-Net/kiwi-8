@@ -48,7 +48,8 @@ How to compile:
 
 Usage: Chip8 PATH_TO_ROM [-F] [R G B]
     -F      Launch in Fullscreen
-    R G B   Render color in RGB format, 3 numbers between 0-255
+    R G B   Render color in RGB format, 3 numbers
+            from 0-255
 
     Note: If you launch the game with no arguments, 
           you will be prompted to load a ROM file on 
