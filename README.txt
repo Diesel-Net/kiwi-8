@@ -1,6 +1,6 @@
 Chip8 v1.0
 
-A Chip-8 interpreter written in C++ using the Simple 
+A CHIP-8 interpreter written in C++ using the Simple 
 DirectMedia Layer library.
 
 For more information about the Chip-8 visit:
@@ -31,18 +31,18 @@ How to compile:
         Microsoft's Visual C++ Build Tools 
         (vcvarsall.bat/nmake) are assumed to be 
         installed and added to PATH.
-        1) Open a command prompt window and navigate 
-           to Chip8/Windows directory.
-        2) Type "vcvarsall" to load the windows 
-           development evironment.
+        1) Open the command prompt and navigate to
+           the Chip8/Windows directory.
+        2) Type "vcvarsall x86" to load the windows 
+           development environment.
         3) Type "nmake".
 
     MacOS:
         Apple's Xcode command line tools 
         (g++/make) are assumed to be installed and 
         added to PATH.
-        1) Open a terminal and navigate 
-           to Chip8/MacOS directory.
+        1) Open the terminal and navigate 
+           to the Chip8/MacOS directory.
         2) Type "make".
 
 
