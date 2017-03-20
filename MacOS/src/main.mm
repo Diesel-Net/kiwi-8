@@ -32,12 +32,12 @@ int main(int argc, char **argv){
                                 "Alternatively, you may launch Chip8 with the command line.\n\n"
                                 "Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"
                                 "  -F\t\tLaunch in Fullscreen\n"
-                                "  R G B\tRender color in RGB format, 3 numbers \n\t\tbetween 0-255\n\n\n\n"
+                                "  R G B\tRender color in RGB format, 3 numbers \n\t\tfrom 0-255\n\n\n\n"
                                 "Enjoy!\n\n-Thomas Daley"];
         [alert setAlertStyle:NSWarningAlertStyle];
 
         if ([alert runModal] == NSAlertSecondButtonReturn) {
-            // Cancel clicked
+            /* Cancel clicked */
             return 0;  
         }
         [alert release];
