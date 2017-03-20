@@ -52,7 +52,7 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 }
 
 int Chip8::Load(const char *rom_name){
-	
+	int len;
 	FILE *file;
 	file = fopen(rom_name, "rb");
 	
@@ -63,7 +63,7 @@ int Chip8::Load(const char *rom_name){
 	/* Jump to the end of the file */
 	fseek(file, 0, SEEK_END); 
 	/* Get the current byte offset in the file */         
-	int len = ftell(file);  
+	len = ftell(file);  
 	/* Jump back to the beginning of the file */           
 	rewind(file);                     
 
@@ -73,7 +73,6 @@ int Chip8::Load(const char *rom_name){
 		fprintf(stderr, "Rom is too large or not formatted properly.\n");
 		return 1;
 	}
-
 
 	/* Read the entire file starting from 0x200 */
 	if (!fread(memory + MEM_OFFSET, len, sizeof(unsigned char), file)) {
@@ -85,52 +84,48 @@ int Chip8::Load(const char *rom_name){
 	return 0;
 }
 
-int Chip8::Run(){
+void Chip8::Run(){
 	unsigned int i = 0;
 	unsigned int j = 0;
 	unsigned int current_time;
+	int result;
+	
 	for(;;) {
 
 		input.Poll();
 		input.CheckKeys(keys);
 
-		if (input.CheckOS(&renderer)) {
-			return 0;
+		result = input.CheckOS(&renderer);
+
+		if (result == 1) {
+			return;
 		}
 
-		/* Safely slows down execution speed (1000ms/540hz ~= 1.85)*/
 		current_time = SDL_GetTicks();
 
+		/* Safely slows execution speed (1000ms/540hz ~= 1.85ms intervals)*/
 		if (current_time > i + 2) {
-			if (EmulateCycle()) {
-				return 1;
-			}
+			EmulateCycle();
 			i = current_time;
 		}
 
-		/* 1000ms/60hz ~= 16.66 */
+		/* 1000ms/60hz ~= 16.66 ms intervals */
 		if (current_time > j + 17) {
 			UpdateTimers();
 			j = current_time;
 		}
 	}
-	return 0;
 }
 
-int Chip8::EmulateCycle(){
+void Chip8::EmulateCycle(){
 	FetchOpcode();
-
-	if(InterpretOpcode()) {
-		return 1;
-	}
+	InterpretOpcode();
 
 	/* render the scene */
 	if (draw_flag) {
 		renderer.RenderFrame(vram);
 		draw_flag = 0;
 	}
-
-	return 0;
 }
 
 void Chip8::UpdateTimers(){
@@ -151,7 +146,7 @@ void Chip8::FetchOpcode() {
 	opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
-int Chip8::InterpretOpcode(){
+void Chip8::InterpretOpcode(){
 	fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
 
 	/* Decode opcodes */
@@ -441,7 +436,7 @@ int Chip8::InterpretOpcode(){
 
 					/* If we didn't received a keypress, skip this cycle and try again */
 					if(!keyPress) {					
-						return 0;
+						return;
 					}
 
 					PC += 2;
@@ -505,5 +500,4 @@ int Chip8::InterpretOpcode(){
 		break;
 
 	}
-	return 0;
 }

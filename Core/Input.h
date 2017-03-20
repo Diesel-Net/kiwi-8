@@ -9,6 +9,9 @@ class Input {
 		const Uint8 *state;
 
 	public:
+		Input();
+		~Input();
+
 		void Poll();
 		void CheckKeys(unsigned char *keys);
 		int CheckOS(Renderer *renderer);

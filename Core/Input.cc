@@ -2,6 +2,14 @@
 
 #include <SDL2/SDL.h>
 
+Input::Input() {
+    /* Empty constructor */
+}
+
+Input::~Input() {
+    /* Empty deconstructor */
+}
+
 void Input::Poll() {
     if (SDL_PollEvent(&event)) {
         state = SDL_GetKeyboardState(NULL);
@@ -140,6 +148,7 @@ int Input::CheckOS(Renderer *renderer) {
             renderer->Quit();
             return 1;
         }
+
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
 
             int flag = SDL_GetWindowFlags(renderer->window);

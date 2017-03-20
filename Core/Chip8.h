@@ -65,10 +65,10 @@ class Chip8 {
 			0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 		};
 
-		int EmulateCycle();
+		void EmulateCycle();
 		void UpdateTimers();
 		void FetchOpcode();
-		int InterpretOpcode();
+		void InterpretOpcode();
 
 	public:
 		Renderer renderer = Renderer();
@@ -79,7 +79,8 @@ class Chip8 {
 
 		int Initialize(int fullscreen, int R, int G, int B);
 		int Load(const char *rom_name);
-		int Run();
+		void Run();
+
 
 };
 
