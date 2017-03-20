@@ -27,9 +27,6 @@ class Renderer {
 
     	int R, G, B;
 
-		
-		
-
 	public:
 
 		SDL_Window *window;

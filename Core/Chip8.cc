@@ -4,8 +4,6 @@ Date: September 18, 2016
 */
 
 #include "Chip8.h"
-#include "Renderer.h"
-#include "input.h"
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
@@ -38,7 +36,7 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 	memset(V, 0 , NUM_REGISTERS);
 	memset(memory, 0, MEM_SIZE);
 	memset(stack, 0, STACK_DEPTH);
-	memset(key, 0, NUM_INPUT);
+	memset(keys, 0, NUM_KEYS);
 
 	/* Load fontset */
 	for(int i = 0; i < FONTS_SIZE; ++i) {
@@ -50,18 +48,6 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 
 	draw_flag = 1;
 
-	return 0;
-}
-
-int Chip8::Run(){
-	for(;;) {
-		if (EmulateCycle()) {
-			return 1;
-		}
-
-		/* Terrible way to slow things down (temporary) */
-		SDL_Delay(1);
-	}
 	return 0;
 }
 
@@ -99,9 +85,42 @@ int Chip8::Load(const char *rom_name){
 	return 0;
 }
 
+int Chip8::Run(){
+	unsigned int i = 0;
+	unsigned int j = 0;
+	unsigned int current_time;
+	for(;;) {
+
+		input.Poll();
+		input.CheckKeys(keys);
+
+		if (input.CheckOS(&renderer)) {
+			return 0;
+		}
+
+		/* Safely slows down execution speed (1000ms/540hz ~= 1.85)*/
+		current_time = SDL_GetTicks();
+
+		if (current_time > i + 2) {
+			if (EmulateCycle()) {
+				return 1;
+			}
+			i = current_time;
+		}
+
+		/* 1000ms/60hz ~= 16.66 */
+		if (current_time > j + 17) {
+			UpdateTimers();
+			j = current_time;
+		}
+	}
+	return 0;
+}
 
 int Chip8::EmulateCycle(){
-	if(FetchOpcode() || InterpretOpcode() || UpdateTimers() || check_input(&renderer, key)) {
+	FetchOpcode();
+
+	if(InterpretOpcode()) {
 		return 1;
 	}
 
@@ -114,9 +133,22 @@ int Chip8::EmulateCycle(){
 	return 0;
 }
 
-int Chip8::FetchOpcode() {
+void Chip8::UpdateTimers(){
+	/* Decrement timers at 60hz*/
+  	if(delay_timer > 0) {
+    	--delay_timer;
+	}
+ 
+ 	if(sound_timer > 0) {
+    	if(sound_timer == 1) {
+      		fprintf(stderr, "BEEP!\n");
+    	}
+    	--sound_timer;
+	}
+}
+
+void Chip8::FetchOpcode() {
 	opcode = memory[PC] << 8 | memory[PC + 1];
-	return 0;
 }
 
 int Chip8::InterpretOpcode(){
@@ -369,7 +401,7 @@ int Chip8::InterpretOpcode(){
 			switch(opcode & 0x00FF) {
 				case 0x009E:
 					/* EX9E:	Skips the next instruction if the key stored in VX is pressed */
-					if(key[V[(opcode & 0x0F00) >> 8]] == 1) {
+					if(keys[V[(opcode & 0x0F00) >> 8]] == 1) {
 						PC += 2;
 					}
 					PC += 2;
@@ -377,7 +409,7 @@ int Chip8::InterpretOpcode(){
 
 				case 0x00A1:
 					/* EXA1:	Skips the next instruction if the key stored in VX isn't pressed */
-					if(key[V[(opcode & 0x0F00) >> 8]] == 0) {
+					if(keys[V[(opcode & 0x0F00) >> 8]] == 0) {
 						PC += 2;
 					}
 					
@@ -401,7 +433,7 @@ int Chip8::InterpretOpcode(){
 					
 					int keyPress = 0;
 					for(int i = 0; i < 16; ++i) {
-						if(key[i] != 0) {
+						if(keys[i] != 0) {
 							V[(opcode & 0x0F00) >> 8] = i;
 							keyPress = 1;
 						}
@@ -473,22 +505,5 @@ int Chip8::InterpretOpcode(){
 		break;
 
 	}
-	return 0;
-}
-
-int Chip8::UpdateTimers(){
-	/* Update timers */
-	//printf ("delay: %d, sound: %d\n", delay_timer, sound_timer);
-  	if(delay_timer > 0) {
-    	--delay_timer;
-	}
- 
- 	if(sound_timer > 0) {
-    	if(sound_timer == 1) {
-      		fprintf(stderr, "BEEP!\n");
-    	}
-    	--sound_timer;
-	}
-
 	return 0;
 }

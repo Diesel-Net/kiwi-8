@@ -2,12 +2,13 @@
 #define CHIP8_H
 
 #include "Renderer.h"
+#include "Input.h"
 
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16
 #define MEM_OFFSET 512
-#define NUM_INPUT 16
+#define NUM_KEYS 16
 #define FONTS_SIZE 80
 
 class Chip8 {
@@ -37,7 +38,8 @@ class Chip8 {
 		unsigned short sp = 0;
 
 		/* HEX based keypad (0x0-0xF) */
-		unsigned char key[NUM_INPUT];
+		unsigned char keys[NUM_KEYS];
+		Input input = Input();
 
 		int draw_flag = 0;
 
@@ -64,9 +66,9 @@ class Chip8 {
 		};
 
 		int EmulateCycle();
-		int FetchOpcode();
+		void UpdateTimers();
+		void FetchOpcode();
 		int InterpretOpcode();
-		int UpdateTimers();
 
 	public:
 		Renderer renderer = Renderer();
