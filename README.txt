@@ -47,7 +47,7 @@ How to compile:
 
 
 Usage: Chip8 PATH_TO_ROM [-F] [R G B]
-    -F      Launch in Fullscreen
+    -F      Launch in fullscreen
     R G B   Render color in RGB format, 3 numbers
             from 0-255
 
