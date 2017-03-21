@@ -3,7 +3,7 @@ Chip8 v1.0
 A CHIP-8 interpreter written in C++ using the Simple 
 DirectMedia Layer library.
 
-For more information about the Chip-8 visit:
+For more information about the CHIP-8 visit:
 https://en.wikipedia.org/wiki/CHIP-8
 
 I have included pre-built binaries for both Windows
