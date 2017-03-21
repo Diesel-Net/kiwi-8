@@ -14,7 +14,7 @@ DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
 
 CC = CL
-CFLAGS = /EHsc
+CFLAGS = /EHsc /W3 /w44996
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
 	   /I$(MAKEDIR)/frameworks/sdl2_image/include/ 
 

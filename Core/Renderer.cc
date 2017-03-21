@@ -74,7 +74,7 @@ void Renderer::UpdateRenderSpace() {
 		RENDER_OFFSET_H /= 2;
 	}
 
-	printf("%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
+	fprintf(stderr, "%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
     RenderFrame(frame_buffer);
 }
 

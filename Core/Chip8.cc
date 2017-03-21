@@ -2,7 +2,6 @@
 Author: Thomas Daley
 Date: September 18, 2016
 */
-
 #include "Chip8.h"
 
 #include <SDL2/SDL.h>
@@ -88,7 +87,6 @@ void Chip8::Run(){
 	unsigned int i = 0;
 	unsigned int j = 0;
 	unsigned int current_time;
-	int result;
 	
 	for(;;) {
 

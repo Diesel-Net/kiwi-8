@@ -19,8 +19,8 @@ int Input::Poll(Renderer *renderer, unsigned char *keys) {
         if (CheckOS(renderer)) {
             return 1;
         }
-        return 0;
     }
+    return 0;
 }
 
 void Input::CheckKeys(unsigned char *keys) {
