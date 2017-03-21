@@ -472,7 +472,7 @@ void Chip8::InterpretOpcode(){
 				break;
 
 				case 0x0055: // FX55: Stores V0 to VX in memory starting at address I					
-					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i) {
+					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						memory[I + i] = V[i];	
 					}
 
@@ -482,7 +482,7 @@ void Chip8::InterpretOpcode(){
 				break;
 
 				case 0x0065: // FX65: Fills V0 to VX with values from memory starting at address I					
-					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); ++i)
+					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
 						V[i] = memory[I + i];			
 
 					// On the original interpreter, when the operation is done, I = I + X + 1.
