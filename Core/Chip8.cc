@@ -92,12 +92,7 @@ void Chip8::Run(){
 	
 	for(;;) {
 
-		input.Poll();
-		input.CheckKeys(keys);
-
-		result = input.CheckOS(&renderer);
-
-		if (result == 1) {
+		if (input.Poll(&renderer, keys)) {
 			return;
 		}
 
@@ -110,7 +105,7 @@ void Chip8::Run(){
 		}
 
 		/* 1000ms/60hz ~= 16.66 ms intervals */
-		if (current_time > j + 17) {
+		if (current_time > j + 16) {
 			UpdateTimers();
 			j = current_time;
 		}
@@ -120,7 +115,7 @@ void Chip8::Run(){
 void Chip8::EmulateCycle(){
 	FetchOpcode();
 	InterpretOpcode();
-
+		
 	/* render the scene */
 	if (draw_flag) {
 		renderer.RenderFrame(vram);
@@ -147,7 +142,7 @@ void Chip8::FetchOpcode() {
 }
 
 void Chip8::InterpretOpcode(){
-	fprintf(stderr, "Processing opcode: 0x%X\n", opcode);
+	fprintf(stderr, "opcode: 0x%X\n", opcode);
 
 	/* Decode opcodes */
 	switch (opcode & 0xF000) {
@@ -172,6 +167,8 @@ void Chip8::InterpretOpcode(){
 
 				default:
 					fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
+					//return 1;
+					PC+=2;
 				break;
 			}
 		break;
@@ -316,6 +313,7 @@ void Chip8::InterpretOpcode(){
 
 				default:
 					fprintf (stderr, "Unknown opcode [0x8000]: 0x%X\n", opcode);
+					PC+=2;
 				break;
 			}
 		break;
@@ -413,6 +411,7 @@ void Chip8::InterpretOpcode(){
 
 				default:
 					fprintf (stderr, "Unknown opcode [0xE000]: 0x%X\n", opcode);
+					PC+=2;
 				break;
 			}
 		break;
@@ -495,9 +494,9 @@ void Chip8::InterpretOpcode(){
 
 				default:
 					fprintf (stderr, "Unknown opcode [0xF000]: 0x%X\n", opcode);
+					PC+=2;
 				break;
 			}
 		break;
-
 	}
 }

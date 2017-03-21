@@ -10,13 +10,21 @@ Input::~Input() {
     /* Empty deconstructor */
 }
 
-void Input::Poll() {
-    if (SDL_PollEvent(&event)) {
+int Input::Poll(Renderer *renderer, unsigned char *keys) {
+    while (SDL_PollEvent(&event)) {
+
         state = SDL_GetKeyboardState(NULL);
+        
+        CheckKeys(keys);
+        if (CheckOS(renderer)) {
+            return 1;
+        }
+        return 0;
     }
 }
 
 void Input::CheckKeys(unsigned char *keys) {
+
     /* Pressed keys */
     if (event.type == SDL_KEYDOWN) {
 
@@ -25,7 +33,8 @@ void Input::CheckKeys(unsigned char *keys) {
         /* Check that state of the keys */
         if (state[SDL_SCANCODE_1]) {
             keys[0x1] = 1;
-        }
+        } 
+        
         if (state[SDL_SCANCODE_2]) {
             keys[0x2] = 1;
         }
