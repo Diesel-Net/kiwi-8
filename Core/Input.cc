@@ -12,12 +12,14 @@ Input::~Input() {
 
 int Input::Poll(Renderer *renderer, unsigned char *keys) {
     while (SDL_PollEvent(&event)) {
-
+        int response;
         state = SDL_GetKeyboardState(NULL);
         
         CheckKeys(keys);
-        if (CheckOS(renderer)) {
-            return 1;
+        response = CheckOS(renderer);
+        
+        if (response) {
+            return response;
         }
     }
     return 0;
@@ -156,6 +158,11 @@ int Input::CheckOS(Renderer *renderer) {
             /* Close if escape is held down */
             renderer->Quit();
             return 1;
+        }
+
+        if (state[SDL_SCANCODE_F5]) {
+            /* Soft reset if F5 is held down */
+            return -1;
         }
 
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {

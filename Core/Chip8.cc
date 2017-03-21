@@ -42,42 +42,48 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 		memory[i] = chip8_fontset[i];
 	}
 
+	I = 0;
+	PC = MEM_OFFSET;
+	sp = 0;
 	delay_timer = 0;
 	sound_timer = 0;
-
 	draw_flag = 1;
 
 	return 0;
 }
 
 int Chip8::Load(const char *rom_name){
-	int len;
+	
 	FILE *file;
 	file = fopen(rom_name, "rb");
 	
 	if(file == NULL){
-		fprintf(stderr, "Error loading file\n");
+		fprintf(stderr, "Error opening file\n");
 		return 1;
 	}
 	/* Jump to the end of the file */
 	fseek(file, 0, SEEK_END); 
 	/* Get the current byte offset in the file */         
-	len = ftell(file);  
+	rom_size = ftell(file);  
 	/* Jump back to the beginning of the file */           
 	rewind(file);                     
 
-	fprintf(stderr, "size: %d bytes.\n", len);
+	fprintf(stderr, "size: %d bytes.\n", rom_size);
+	rom = (unsigned char *) malloc(sizeof(unsigned char) * rom_size);
 
-	if (len > MEM_SIZE - MEM_OFFSET) {
+	if (rom_size > MEM_SIZE - MEM_OFFSET) {
 		fprintf(stderr, "Rom is too large or not formatted properly.\n");
 		return 1;
 	}
 
-	/* Read the entire file starting from 0x200 */
-	if (!fread(memory + MEM_OFFSET, len, sizeof(unsigned char), file)) {
-		fprintf(stderr, "Error while reading Rom into memory.\n");
+	/* Back-up Rom for Soft-Resets */
+	if (!fread(rom, rom_size, sizeof(unsigned char), file)) {
+		fprintf(stderr, "Error reading Rom file.\n");
 		return 1;
 	}
+
+	/* Read in the entire rom starting from 0x200 */
+	memcpy(memory + MEM_OFFSET, rom, rom_size);
 
 	fclose(file);
 	return 0;
@@ -87,11 +93,19 @@ void Chip8::Run(){
 	unsigned int i = 0;
 	unsigned int j = 0;
 	unsigned int current_time;
+	int result;
 	
 	for(;;) {
 
-		if (input.Poll(&renderer, keys)) {
+		result = input.Poll(&renderer, keys);
+
+		if (result == 1) {
+			/* Quit */
 			return;
+		} else if (result == -1) {
+			/* Soft reset */
+			SoftReset();
+			break;
 		}
 
 		current_time = SDL_GetTicks();
@@ -108,6 +122,38 @@ void Chip8::Run(){
 			j = current_time;
 		}
 	}
+
+	/* Soft reset */
+	Run();
+}
+
+void Chip8::SoftReset() {
+	/* Clear the vram */
+	for (int i = 0; i < WIDTH; i++) {
+		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
+	}
+
+	/* Clear registers, memory, stack, keys */
+	memset(V, 0 , NUM_REGISTERS);
+	memset(memory, 0, MEM_SIZE);
+	memset(stack, 0, STACK_DEPTH);
+	memset(keys, 0, NUM_KEYS);
+
+	/* Re-initialize program counter, stack pointer, timers */
+	I = 0;
+	PC = MEM_OFFSET;
+	sp = 0;
+	delay_timer = 0;
+	sound_timer = 0;
+	draw_flag = 1;
+
+	/* Reload fontset */
+	for(int i = 0; i < FONTS_SIZE; ++i) {
+		memory[i] = chip8_fontset[i];
+	}
+
+	/* Read in the entire rom starting from 0x200 */
+	memcpy(memory + MEM_OFFSET, rom, rom_size);
 }
 
 void Chip8::EmulateCycle(){

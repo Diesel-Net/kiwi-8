@@ -22,7 +22,7 @@ Controls        --->        keybindings
 A 0 B F                     z x c v
 quit                        esc
 toggle fullscreen           alt + enter
-soft reset                  (not yet implemented)
+soft reset                  f5
 
 
 How to compile:

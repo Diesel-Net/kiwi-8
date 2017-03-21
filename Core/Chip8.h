@@ -16,7 +16,7 @@ class Chip8 {
 	private:
 		
 		/* Two bytes for each instruction */
-		unsigned short opcode = 0;
+		unsigned short opcode;
 
 		/* 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
 		   0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
@@ -27,24 +27,28 @@ class Chip8 {
 		unsigned char V[NUM_REGISTERS]; 
 
 		/* Index register and program counter */
-		unsigned short I = 0;
-		unsigned short PC = MEM_OFFSET;
+		unsigned short I;
+		unsigned short PC;
 
-		unsigned char delay_timer = 0;
-		unsigned char sound_timer = 0;
+		unsigned char delay_timer;
+		unsigned char sound_timer;
 
 		/* stack with maximum of 16 levels */
 		unsigned short stack[STACK_DEPTH];
-		unsigned short sp = 0;
+		unsigned short sp;
 
 		/* HEX based keypad (0x0-0xF) */
 		unsigned char keys[NUM_KEYS];
 		Input input = Input();
 
-		int draw_flag = 0;
+		int draw_flag;
 
 		/* 1-bit encoded screen pixels (32x64) */
 		unsigned char **vram;
+
+		/* For soft-resetting */
+		unsigned char *rom;
+		int rom_size;
 
 		const unsigned char chip8_fontset[FONTS_SIZE] = { 
 			0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -65,6 +69,7 @@ class Chip8 {
 			0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 		};
 
+		void SoftReset();
 		void EmulateCycle();
 		void UpdateTimers();
 		void FetchOpcode();
