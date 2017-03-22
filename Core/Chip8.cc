@@ -15,10 +15,12 @@ Chip8::Chip8() {
 }
 
 Chip8::~Chip8() {
+	/* Cleanup */
 	for (int i = 0; i < WIDTH; i++) {
 		free(vram[i]);
 	}
 	free(vram);
+	free(rom);
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
@@ -103,7 +105,7 @@ void Chip8::Run(){
 			/* Quit */
 			return;
 		} else if (result == -1) {
-			/* Soft reset */
+			/* Soft-Reset */
 			SoftReset();
 			break;
 		}
@@ -123,7 +125,7 @@ void Chip8::Run(){
 		}
 	}
 
-	/* Soft reset */
+	/* Soft-Reset */
 	Run();
 }
 
@@ -139,7 +141,7 @@ void Chip8::SoftReset() {
 	memset(stack, 0, STACK_DEPTH);
 	memset(keys, 0, NUM_KEYS);
 
-	/* Re-initialize program counter, stack pointer, timers */
+	/* Re-initialize program counter, stack pointer, timers, etc. */
 	I = 0;
 	PC = MEM_OFFSET;
 	sp = 0;
@@ -168,16 +170,16 @@ void Chip8::EmulateCycle(){
 }
 
 void Chip8::UpdateTimers(){
-	/* Decrement timers at 60hz*/
+	/* Decrement timers, check sound timer */
   	if(delay_timer > 0) {
-    	--delay_timer;
+    	delay_timer--;
 	}
  
  	if(sound_timer > 0) {
     	if(sound_timer == 1) {
       		fprintf(stderr, "BEEP!\n");
     	}
-    	--sound_timer;
+    	sound_timer--;
 	}
 }
 
@@ -200,28 +202,28 @@ void Chip8::InterpretOpcode(){
 					}
 					draw_flag = 1;
 					PC += 2;  
-				break;
+					break;
 
 				case 0x00EE: 
 					/* 0x00EE: Returns from subroutine */         
 					--sp;			// 16 levels of stack, decrease stack pointer to prevent overwrite
 					PC = stack[sp];	// Put the stored return address from the stack back into the program counter					
 					PC += 2;		// Don't forget to increase the program counter!
-				break; 
+					break; 
 
 				default:
 					fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
-					//return 1;
+					//return;
 					PC+=2;
-				break;
+					break;
 			}
-		break;
+			break;
 
 		/* opcode 0x1NNN */
 		case 0x1000:
 			/* Jumps to address NNN */
 			PC = opcode & 0x0FFF;
-		break;
+			break;
 
 		/* opcode 0x2NNN */
 		case 0x2000:
@@ -229,7 +231,7 @@ void Chip8::InterpretOpcode(){
 			stack[sp] = PC;
 			++sp;
 			PC = opcode & 0x0FFF;
-		break;
+			break;
 
 		/* opcode 0x3XNN */
 		case 0x3000:
@@ -238,7 +240,7 @@ void Chip8::InterpretOpcode(){
 				PC += 2;
 			}
 			PC += 2;
-		break;
+			break;
 		
 		/* opcode 0x4XNN */
 		case 0x4000:
@@ -247,7 +249,7 @@ void Chip8::InterpretOpcode(){
 				PC += 2;
 			}
 			PC += 2;
-		break;
+			break;
 
 		/* opcode 0x5XY0 */
 		case 0x5000:
@@ -256,21 +258,21 @@ void Chip8::InterpretOpcode(){
 				PC += 2;
 			}
 			PC += 2;
-		break;
+			break;
 
 		/* opcode 0x6XNN */
 		case 0x6000:
 			/* Sets VX to NN */
 			V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
 			PC += 2;
-		break;
+			break;
 
 		/* opcode 0x7XNN */
 		case 0x7000:
 			/* Adds NN to VX */
 			V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
 			PC += 2;
-		break;
+			break;
 
 		/* opcode 0x8XYN */
 		case 0x8000:
@@ -280,28 +282,28 @@ void Chip8::InterpretOpcode(){
 					/* Sets VX to the value of VY */
 					V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
 					PC += 2;
-				break;
+					break;
 
 				/* opcode 0x8XY1 */
 				case 0x0001:
 					/* Sets VX to VX or VY */
 					V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
 					PC += 2;
-				break;
+					break;
 
 				/* opcode 0x8XY2 */
 				case 0x0002:
 					/* Sets VX to VX and VY */
 					V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
 					PC += 2;
-				break;
+					break;
 
 				/* opcode 0x8XY3 */
 				case 0x0003:
 					/* Sets VX to VX xor VY */
 					V[(opcode & 0x0F00) >> 8] ^= V[(opcode & 0x00F0) >> 4];
 					PC += 2;
-				break;
+					break;
 
 				/* opcode 0x8XY4 */
 				case 0x0004:
@@ -315,13 +317,13 @@ void Chip8::InterpretOpcode(){
 
 					V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4]; 
 					PC += 2;
-				break;
+					break;
 
 				/* opcode 0x8XY5 */
 				case 0x0005:
 					/* VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't */
 					if(V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 8]) {
-						V[0xF] = 0; // there is a borrow
+						V[0xF] = 0; /* there is a borrow */
 					}
 					else {
 						V[0xF] = 1;					
@@ -329,17 +331,19 @@ void Chip8::InterpretOpcode(){
 
 					V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
 					PC += 2;
-				break;
+					break;
 
-				case 0x0006: // 0x8XY6: Shifts VX right by one. VF is set to the value of the least significant bit of VX before the shift
+				case 0x0006: /* 0x8XY6: Shifts VX right by one. VF is set to the value of the least significant 
+							bit of VX before the shift. */
 					V[0xF] = V[(opcode & 0x0F00) >> 8] & 0x1;
 					V[(opcode & 0x0F00) >> 8] >>= 1;
 					PC += 2;
-				break;
+					break;
 
-				case 0x0007: // 0x8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1 when there isn't
+				case 0x0007: /* 0x8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, 
+							and 1 when there isn't. */
 					if (V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4]) {	// VY-VX
-						V[0xF] = 0; // there is a borrow
+						V[0xF] = 0; /* there is a borrow */
 					}
 					else {
 						V[0xF] = 1;
@@ -347,20 +351,21 @@ void Chip8::InterpretOpcode(){
 
 					V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8];				
 					PC += 2;
-				break;
+					break;
 
-				case 0x000E: // 0x8XYE: Shifts VX left by one. VF is set to the value of the most significant bit of VX before the shift
+				case 0x000E: /* 0x8XYE: Shifts VX left by one. VF is set to the value of the most significant 
+							bit of VX before the shift. */
 					V[0xF] = V[(opcode & 0x0F00) >> 8] >> 7;
 					V[(opcode & 0x0F00) >> 8] <<= 1;
 					PC += 2;
-				break;
+					break;
 
 				default:
 					fprintf (stderr, "Unknown opcode [0x8000]: 0x%X\n", opcode);
 					PC+=2;
-				break;
+					break;
 			}
-		break;
+			break;
 
 		/* opcode 0x9XY0 */
 		case 0x9000:
@@ -369,27 +374,27 @@ void Chip8::InterpretOpcode(){
 				PC +=2;
 			}
 			PC += 2;
-		break;
+			break;
 
 		/* opcode ANNN */
 		case 0xA000:
 			/* Sets I to the address NNN */
 			I = opcode & 0x0FFF;
 			PC += 2;
-		break;
+			break;
 
 		/* opcode BNNN */
 		case 0xB000:
 			/* Jumps to the address NNN plus V0 */
 			PC = (opcode & 0x0FFF) + V[0];
-		break;
+			break;
 
 		/* opcode CXNN */
 		case 0xC000:
 			/* Sets VX to the result of a bitwise and operation on a random number and NN */
 			V[(opcode & 0x0F00) >> 8] = (rand() % 0xFF) & (opcode & 0x00FF);
 			PC += 2;
-		break;
+			break;
 
 		/* opcode DXYN */
 		case 0xD000:
@@ -431,8 +436,8 @@ void Chip8::InterpretOpcode(){
 						
 			draw_flag = true;			
 			PC += 2;
+			break;
 		}
-		break;
 
 		case 0xE000:
 			switch(opcode & 0x00FF) {
@@ -442,7 +447,7 @@ void Chip8::InterpretOpcode(){
 						PC += 2;
 					}
 					PC += 2;
-				break;
+					break;
 
 				case 0x00A1:
 					/* EXA1:	Skips the next instruction if the key stored in VX isn't pressed */
@@ -451,21 +456,21 @@ void Chip8::InterpretOpcode(){
 					}
 					
 					PC += 2;
-				break;
+					break;
 
 				default:
 					fprintf (stderr, "Unknown opcode [0xE000]: 0x%X\n", opcode);
 					PC+=2;
-				break;
+					break;
 			}
-		break;
+			break;
 
 		case 0xF000:
 			switch (opcode & 0x00FF) {
 				case 0x0007:
 					V[(opcode & 0x0F00) >> 8] = delay_timer;
 					PC += 2;
-				break;
+					break;
 
 				case 0x000A: {
 					
@@ -483,64 +488,70 @@ void Chip8::InterpretOpcode(){
 					}
 
 					PC += 2;
+					break;
 				}					
-				break;
+				
 
-				case 0x0015: // FX15: Sets the delay timer to VX
+				case 0x0015: /* FX15: Sets the delay timer to VX */
 					delay_timer = V[(opcode & 0x0F00) >> 8];
 					PC += 2;
-				break;
+					break;
 
-				case 0x0018: // FX18: Sets the sound timer to VX
+				case 0x0018: /* FX18: Sets the sound timer to VX */
 					sound_timer = V[(opcode & 0x0F00) >> 8];
 					PC += 2;
-				break;
+					break;
 
-				case 0x001E: // FX1E: Adds VX to I
-					if(I + V[(opcode & 0x0F00) >> 8] > 0xFFF)	// VF is set to 1 when range overflow (I+VX>0xFFF), and 0 when there isn't.
+				case 0x001E: /* FX1E: Adds VX to I */
+					/* VF is set to 1 when range overflow (I+VX>0xFFF), and 0 when there isn't. */
+					if (I + V[(opcode & 0x0F00) >> 8] > 0xFFF) {
 						V[0xF] = 1;
-					else
+					} else {
 						V[0xF] = 0;
+					}
+
 					I += V[(opcode & 0x0F00) >> 8];
 					PC += 2;
-				break;
+					break;
 
-				case 0x0029: // FX29: Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font
+				case 0x0029: /* FX29: Sets I to the location of the sprite for the character in VX. 
+							Characters 0-F (in hexadecimal) are represented by a 4x5 font. */
 					I = V[(opcode & 0x0F00) >> 8] * 0x5;
 					PC += 2;
-				break;
+					break;
 
-				case 0x0033: // FX33: Stores the Binary-coded decimal representation of VX at the addresses I, I plus 1, and I plus 2
+				case 0x0033: /* FX33: Stores the Binary-coded decimal representation of VX at the 
+							addresses I, I plus 1, and I plus 2 */
 					memory[I] = V[(opcode & 0x0F00) >> 8] / 100;
 					memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
 					memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;					
 					PC += 2;
-				break;
+					break;
 
-				case 0x0055: // FX55: Stores V0 to VX in memory starting at address I					
+				case 0x0055: /* FX55: Stores V0 to VX in memory starting at address I */				
 					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						memory[I + i] = V[i];	
 					}
 
-					// On the original interpreter, when the operation is done, I = I + X + 1.
+					/* On the original interpreter, when the operation is done, I = I + X + 1. */
 					I += ((opcode & 0x0F00) >> 8) + 1;
 					PC += 2;
-				break;
+					break;
 
-				case 0x0065: // FX65: Fills V0 to VX with values from memory starting at address I					
+				case 0x0065: /* FX65: Fills V0 to VX with values from memory starting at address I. */				
 					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
 						V[i] = memory[I + i];			
 
-					// On the original interpreter, when the operation is done, I = I + X + 1.
+					/* On the original interpreter, when the operation is done, I = I + X + 1. */
 					I += ((opcode & 0x0F00) >> 8) + 1;
 					PC += 2;
-				break;
+					break;
 
 				default:
 					fprintf (stderr, "Unknown opcode [0xF000]: 0x%X\n", opcode);
 					PC+=2;
-				break;
+					break;
 			}
-		break;
-	}
+			break;
+	} /* End of switch */
 }

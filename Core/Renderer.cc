@@ -116,10 +116,12 @@ void Renderer::RenderFrame(unsigned char **vram){
             frame_buffer[i][j] = vram[i][j];
 	  		
 	  		if (vram[i][j]) {
+                /* Foreground */
 	    		SDL_SetRenderDrawColor(renderer, R, G, B, 255);
 		        SDL_RenderFillRect(renderer, &rectangle);
 	        } else {
-	        	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                /* Background */
+	        	SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
 	        	SDL_RenderFillRect(renderer, &rectangle);
                 
 	        }   
