@@ -3,6 +3,8 @@
 
 #include "Renderer.h"
 
+#include <SDL2/SDL.h>
+
 class Input {
 	private:
 		SDL_Event event;
@@ -15,7 +17,7 @@ class Input {
 		Input();
 		~Input();
 
-		int Poll(Renderer *renderer, unsigned char *keys);
+		int Poll(Renderer *renderer, unsigned char *keys, SDL_mutex *data_lock);
 		
 };
 

@@ -7,7 +7,7 @@
 #define MIN( a, b ) ( ( a < b) ? a : b )
 
 Renderer::Renderer(){
-
+    /* Empty constructor */
 }
 
 Renderer::~Renderer(){

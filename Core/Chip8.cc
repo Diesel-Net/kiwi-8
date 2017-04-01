@@ -9,6 +9,55 @@ Date: September 18, 2016
 #include <string.h>
 #include <stdio.h>
 
+int TimerThread(void *data) {
+	Chip8 *chip = (Chip8 *)data;
+	unsigned int t1 = 0;
+	unsigned int t2 = 0;
+	unsigned int elapsed;
+
+	/* 60hz ~= 16.66 ms intervals */
+	unsigned int interval = 17;
+
+	for (;;) {
+		t1 = SDL_GetTicks();
+		elapsed = t2 - t1;
+		if (elapsed < interval) {
+			SDL_Delay(interval - elapsed);
+		}
+
+		chip->UpdateTimers();
+		t2 = SDL_GetTicks();
+	}
+
+	return 0;
+}
+
+int CycleThread(void *data) {
+	Chip8 *chip = (Chip8 *)data;
+	unsigned int t1 = 0;
+	unsigned int t2 = 0;
+	unsigned int elapsed;
+
+	/* Slows execution speed (540hz ~= 1.85ms intervals) */
+	unsigned int interval = 2;
+
+	for (;;) {
+
+		t1 = SDL_GetTicks();
+		elapsed = t2 - t1;
+		if (elapsed < interval) {
+			SDL_Delay(interval - elapsed);
+		}
+
+		chip->EmulateCycle();
+		t2 = SDL_GetTicks();
+	}
+
+	
+
+	return 0;
+}
+
 /* Constructor */
 Chip8::Chip8() {
 
@@ -92,94 +141,97 @@ int Chip8::Load(const char *rom_name){
 }
 
 void Chip8::Run(){
-	unsigned int i = 0;
-	unsigned int j = 0;
-	unsigned int current_time;
 	int result;
 	
+	/* Start the two other threads */
+	timer_thread = SDL_CreateThread(TimerThread, "Chip8Timer", this);
+	cycle_thread = SDL_CreateThread(CycleThread, "Chip8Cycle", this);
+
 	for(;;) {
 
-		result = input.Poll(&renderer, keys);
-
+		result = input.Poll(&renderer, keys, data_lock);
 		if (result == 1) {
 			/* Quit */
 			return;
 		} else if (result == -1) {
-			/* Soft-Reset */
 			SoftReset();
-			break;
-		}
-
-		current_time = SDL_GetTicks();
-
-		/* Safely slows execution speed (1000ms/540hz ~= 1.85ms intervals)*/
-		if (current_time > i + 2) {
-			EmulateCycle();
-			i = current_time;
-		}
-
-		/* 1000ms/60hz ~= 16.66 ms intervals */
-		if (current_time > j + 16) {
-			UpdateTimers();
-			j = current_time;
 		}
 	}
-
-	/* Soft-Reset */
-	Run();
 }
 
 void Chip8::SoftReset() {
-	/* Clear the vram */
-	for (int i = 0; i < WIDTH; i++) {
-		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
-	}
+	if (SDL_LockMutex(data_lock) == 0) {
 
-	/* Clear registers, memory, stack, keys */
-	memset(V, 0 , NUM_REGISTERS);
-	memset(memory, 0, MEM_SIZE);
-	memset(stack, 0, STACK_DEPTH);
-	memset(keys, 0, NUM_KEYS);
+		/* Clear the vram */
+		for (int i = 0; i < WIDTH; i++) {
+			memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
+		}
 
-	/* Re-initialize program counter, stack pointer, timers, etc. */
-	I = 0;
-	PC = MEM_OFFSET;
-	sp = 0;
-	delay_timer = 0;
-	sound_timer = 0;
-	draw_flag = 1;
+		/* Clear registers, memory, stack, keys */
+		memset(V, 0 , NUM_REGISTERS);
+		memset(memory, 0, MEM_SIZE);
+		memset(stack, 0, STACK_DEPTH);
+		memset(keys, 0, NUM_KEYS);
 
-	/* Reload fontset */
-	for(int i = 0; i < FONTS_SIZE; ++i) {
-		memory[i] = chip8_fontset[i];
-	}
+		/* Re-initialize program counter, stack pointer, timers, etc. */
+		I = 0;
+		PC = MEM_OFFSET;
+		sp = 0;
+		delay_timer = 0;
+		sound_timer = 0;
+		draw_flag = 1;
 
-	/* Read in the entire rom starting from 0x200 */
-	memcpy(memory + MEM_OFFSET, rom, rom_size);
-}
+		/* Reload fontset */
+		for(int i = 0; i < FONTS_SIZE; ++i) {
+			memory[i] = chip8_fontset[i];
+		}
 
-void Chip8::EmulateCycle(){
-	FetchOpcode();
-	InterpretOpcode();
+		/* Read in the entire rom starting from 0x200 */
+		memcpy(memory + MEM_OFFSET, rom, rom_size);
 		
-	/* render the scene */
-	if (draw_flag) {
-		renderer.RenderFrame(vram);
-		draw_flag = 0;
+		SDL_UnlockMutex(data_lock);
+	} else {
+		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
 	}
 }
 
 void Chip8::UpdateTimers(){
-	/* Decrement timers, check sound timer */
-  	if(delay_timer > 0) {
-    	delay_timer--;
+	
+	if (SDL_LockMutex(data_lock) == 0) {
+		
+		/* Decrement timers, check sound timer */
+	  	if(delay_timer > 0) {
+	    	delay_timer--;
+		}
+	 
+	 	if(sound_timer > 0) {
+	    	if(sound_timer == 1) {
+	      		fprintf(stderr, "BEEP!\n");
+	    	}
+	    	sound_timer--;
+		}
+
+		SDL_UnlockMutex(data_lock);
+	} else {
+		fprintf(stderr, "Error: Unable to lock mutex on timer thread.\n");
 	}
- 
- 	if(sound_timer > 0) {
-    	if(sound_timer == 1) {
-      		fprintf(stderr, "BEEP!\n");
-    	}
-    	sound_timer--;
+}
+
+void Chip8::EmulateCycle(){
+
+	if (SDL_LockMutex(data_lock) == 0) {
+	
+		FetchOpcode();
+		InterpretOpcode();
+			
+		/* render the scene */
+		if (draw_flag) {
+			renderer.RenderFrame(vram);
+			draw_flag = 0;
+		}
+		SDL_UnlockMutex(data_lock);
+	} else {
+		fprintf(stderr, "Error: Unable to lock mutex on cycle thread.\n");
 	}
 }
 

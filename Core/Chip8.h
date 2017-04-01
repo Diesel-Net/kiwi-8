@@ -4,6 +4,8 @@
 #include "Renderer.h"
 #include "Input.h"
 
+#include <SDL2/SDL.h>
+
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16
@@ -11,10 +13,13 @@
 #define NUM_KEYS 16
 #define FONTS_SIZE 80
 
+/* Thread functions  */
+int TimerThread(void *data);
+int CycleThread(void *data);
+
 class Chip8 {
 
 	private:
-		
 		/* Two bytes for each instruction */
 		unsigned short opcode;
 
@@ -69,14 +74,24 @@ class Chip8 {
 			0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 		};
 
+		/* Threads */
+		SDL_Thread *timer_thread;
+		SDL_Thread *cycle_thread;
+
+		/* Mutex shared by all the threads */
+		SDL_mutex *data_lock = SDL_CreateMutex();
+
 		void SoftReset();
-		void EmulateCycle();
-		void UpdateTimers();
 		void FetchOpcode();
 		void InterpretOpcode();
 
 	public:
+		/* Exposed publicly for windows icon fix (see main.cc) */
 		Renderer renderer = Renderer();
+
+		/* Exposed publicly for timer/cycle threads */
+		void UpdateTimers();
+		void EmulateCycle();
 
 		/* Constructor */
 		Chip8();

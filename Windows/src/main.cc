@@ -116,7 +116,6 @@ int main(int argc, char **argv){
     }
     
     chip.Run();
-
-    fprintf(stderr, "Clean Exit.\n");
+    fprintf(stderr, "Main thread terminated cleanly.\n");
     return 0;
 }

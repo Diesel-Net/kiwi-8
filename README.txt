@@ -29,7 +29,7 @@ How to compile:
 
     Windows:
         Microsoft's Visual C++ Build Tools 
-        (vcvarsall.bat/nmake) are assumed to be 
+        (vcvarsall/cl/nmake) are assumed to be 
         installed and added to PATH.
         1) Open the command prompt and navigate to
            the Chip8/Windows directory.
@@ -39,7 +39,7 @@ How to compile:
 
     MacOS:
         Apple's Xcode command line tools 
-        (g++/make) are assumed to be installed and 
+        (clang/make) are assumed to be installed and 
         added to PATH.
         1) Open the terminal and navigate 
            to the Chip8/MacOS directory.

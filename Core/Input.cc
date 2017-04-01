@@ -1,6 +1,7 @@
 #include "Input.h"
 
 #include <SDL2/SDL.h>
+#include <stdio.h>
 
 Input::Input() {
     /* Empty constructor */
@@ -10,17 +11,28 @@ Input::~Input() {
     /* Empty deconstructor */
 }
 
-int Input::Poll(Renderer *renderer, unsigned char *keys) {
-    while (SDL_PollEvent(&event)) {
+int Input::Poll(Renderer *renderer, unsigned char *keys, SDL_mutex *data_lock) {
+    
+    /* Wait indefinitley for the next event */
+    if (SDL_WaitEvent(&event)) {
         int response;
         state = SDL_GetKeyboardState(NULL);
         
-        CheckKeys(keys);
-        response = CheckOS(renderer);
+        if (SDL_LockMutex(data_lock) == 0) {
+            CheckKeys(keys);
+            response = CheckOS(renderer);
+            SDL_UnlockMutex(data_lock);
+        } else {
+            fprintf(stderr, "Couldn't lock mutex, terminating main thread.\n");
+            return 1;
+        }
         
         if (response) {
             return response;
         }
+    } else {
+        fprintf(stderr, "Error waiting for next event.\n");
+        return 1;
     }
     return 0;
 }

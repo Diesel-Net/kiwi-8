@@ -19,7 +19,6 @@ INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
 	   /I$(MAKEDIR)/frameworks/sdl2_image/include/ 
 
 LIBS = user32.lib \
-	   gdi32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
 	   SDL2_image.lib \
