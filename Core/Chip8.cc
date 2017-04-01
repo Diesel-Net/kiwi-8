@@ -19,6 +19,7 @@ int TimerThread(void *data) {
 	unsigned int interval = 17;
 
 	for (;;) {
+		
 		t1 = SDL_GetTicks();
 		elapsed = t2 - t1;
 		if (elapsed < interval) {

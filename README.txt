@@ -39,7 +39,7 @@ How to compile:
 
     MacOS:
         Apple's Xcode command line tools 
-        (clang/make) are assumed to be installed and 
+        (clang++/make) are assumed to be installed and 
         added to PATH.
         1) Open the terminal and navigate 
            to the Chip8/MacOS directory.

@@ -2,7 +2,7 @@
 # Date: September 8, 2016
 # Purpose: Builds the application into a standalone .app bundle for distribution
 
-CC = clang
+CC = clang++
 CFLAGS = -std=c++11 -Wall
 INCS = -I$(CURDIR)/frameworks/sdl/include/
 LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework Carbon
