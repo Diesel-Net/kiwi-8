@@ -9,30 +9,6 @@ Date: September 18, 2016
 #include <string.h>
 #include <stdio.h>
 
-int TimerThread(void *data) {
-	Chip8 *chip = (Chip8 *)data;
-	unsigned int t1 = 0;
-	unsigned int t2 = 0;
-	unsigned int elapsed;
-
-	/* 60hz ~= 16.66 ms intervals */
-	unsigned int interval = 17;
-
-	for (;;) {
-		
-		t1 = SDL_GetTicks();
-		elapsed = t2 - t1;
-		if (elapsed < interval) {
-			SDL_Delay(interval - elapsed);
-		}
-
-		chip->UpdateTimers();
-		t2 = SDL_GetTicks();
-	}
-
-	return 0;
-}
-
 int CycleThread(void *data) {
 	Chip8 *chip = (Chip8 *)data;
 	unsigned int t1 = 0;
@@ -54,7 +30,29 @@ int CycleThread(void *data) {
 		t2 = SDL_GetTicks();
 	}
 
-	
+	return 0;
+}
+
+int TimerThread(void *data) {
+	Chip8 *chip = (Chip8 *)data;
+	unsigned int t1 = 0;
+	unsigned int t2 = 0;
+	unsigned int elapsed;
+
+	/* 60hz ~= 16.66 ms intervals */
+	unsigned int interval = 17;
+
+	for (;;) {
+		
+		t1 = SDL_GetTicks();
+		elapsed = t2 - t1;
+		if (elapsed < interval) {
+			SDL_Delay(interval - elapsed);
+		}
+
+		chip->UpdateTimers();
+		t2 = SDL_GetTicks();
+	}
 
 	return 0;
 }
@@ -145,8 +143,8 @@ void Chip8::Run(){
 	int result;
 	
 	/* Start the two other threads */
-	timer_thread = SDL_CreateThread(TimerThread, "Chip8Timer", this);
 	cycle_thread = SDL_CreateThread(CycleThread, "Chip8Cycle", this);
+	timer_thread = SDL_CreateThread(TimerThread, "Chip8Timer", this);
 
 	for(;;) {
 
