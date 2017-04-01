@@ -7,7 +7,7 @@ For more information about the CHIP-8 visit:
 https://en.wikipedia.org/wiki/CHIP-8
 
 I have included pre-built binaries for both Windows
-and Mac OS X (.exe file and .app bundle respectively)
+and MacOS (.exe file and .app bundle respectively)
 
 Most games are playable, however there are 
 still quite a few bugs here and there. 
