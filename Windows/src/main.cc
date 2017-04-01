@@ -31,7 +31,7 @@ int main(int argc, char **argv){
                             "Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"
                             "       -F\t\tLaunch in fullscreen\n"
                             "       R G B\t\tRender color in RGB format, 3 numbers from 0-255\n\n\n\n"
-                            "Enjoy!\n\n-Thomas Daley", "Chip8 v1.0" , MB_OKCANCEL);
+                            "Enjoy!\n\n-Thomas Daley", "Chip8 v1.01" , MB_OKCANCEL);
         if (result == IDCANCEL) {
             return 0;
         }
