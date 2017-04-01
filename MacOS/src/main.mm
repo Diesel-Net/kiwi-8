@@ -34,7 +34,7 @@ int main(int argc, char **argv){
                                 "  -F\t\tLaunch in fullscreen\n"
                                 "  R G B\tRender color in RGB format, 3 numbers \n\t\tfrom 0-255\n\n\n\n"
                                 "Enjoy!\n\n-Thomas Daley"];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        //[alert setAlertStyle:NSWarningAlertStyle];
 
         if ([alert runModal] == NSAlertSecondButtonReturn) {
             /* Cancel clicked */
