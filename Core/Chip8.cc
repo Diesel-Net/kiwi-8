@@ -59,7 +59,7 @@ int TimerThread(void *data) {
 
 /* Constructor */
 Chip8::Chip8() {
-
+	SDL_Init(SDL_INIT_EVERYTHING);
 }
 
 Chip8::~Chip8() {
@@ -69,6 +69,7 @@ Chip8::~Chip8() {
 	}
 	free(vram);
 	free(rom);
+	SDL_Quit();
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
@@ -151,7 +152,7 @@ void Chip8::Run(){
 		result = input.Poll(&renderer, keys, data_lock);
 		if (result == 1) {
 			/* Quit */
-			return;
+			break;
 		} else if (result == -1) {
 			SoftReset();
 		}

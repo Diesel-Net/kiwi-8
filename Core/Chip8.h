@@ -100,8 +100,6 @@ class Chip8 {
 		int Initialize(int fullscreen, int R, int G, int B);
 		int Load(const char *rom_name);
 		void Run();
-
-
 };
 
 #endif

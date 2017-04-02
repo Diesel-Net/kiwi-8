@@ -36,10 +36,8 @@ class Renderer {
 
 		void Initialize(int fullscreen, int R, int B, int G);
 		void UpdateRenderSpace();
-		void SetFullscreen();
-		void SetWindowed();
+		void ToggleFullscreen();
 		void RenderFrame(unsigned char **vram);
-		void Quit();
 };
 
 #endif

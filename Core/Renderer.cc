@@ -15,11 +15,12 @@ Renderer::~Renderer(){
         free(frame_buffer[i]);
     }
     free(frame_buffer);
-    SDL_Quit();
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 }
+    
 
 void Renderer::Initialize(int fullscreen, int R, int G, int B){
-    SDL_Init(SDL_INIT_EVERYTHING);
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
     frame_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
@@ -41,7 +42,7 @@ void Renderer::Initialize(int fullscreen, int R, int G, int B){
 
     /* Set to fullscreen mode if flag present */
     if (fullscreen) { 
-        SetFullscreen();
+        ToggleFullscreen();
     }
    
     this->R = R;
@@ -78,19 +79,28 @@ void Renderer::UpdateRenderSpace() {
     RenderFrame(frame_buffer);
 }
 
-void Renderer::SetFullscreen(){
-	/* Hide the mouse cursor */
-	SDL_ShowCursor(SDL_DISABLE);
-	SDL_MaximizeWindow(window);
-	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-    UpdateRenderSpace();
-}
+void Renderer::ToggleFullscreen() {
+    unsigned int flag = SDL_GetWindowFlags(window);
 
-void Renderer::SetWindowed() {
-	/* Show the mouse cursor */
-	SDL_ShowCursor(SDL_ENABLE);
-    SDL_SetWindowFullscreen(window, 0);
-    UpdateRenderSpace();
+    if ((flag & SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+
+        /* Set Windowed */
+        SDL_SetWindowFullscreen(window, 0);
+
+        /* Show the mouse cursor */
+        SDL_ShowCursor(SDL_ENABLE);
+
+    } else {
+        
+        /* Set Fullscreen */
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+        /* Hide the mouse cursor */
+        SDL_ShowCursor(SDL_DISABLE);
+    }
+
+
+    //UpdateRenderSpace();
 }
 
 void Renderer::RenderFrame(unsigned char **vram){
@@ -121,7 +131,7 @@ void Renderer::RenderFrame(unsigned char **vram){
 		        SDL_RenderFillRect(renderer, &rectangle);
 	        } else {
                 /* Background */
-	        	SDL_SetRenderDrawColor(renderer, 25, 25, 25, 255);
+	        	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	        	SDL_RenderFillRect(renderer, &rectangle);
                 
 	        }   
@@ -129,9 +139,4 @@ void Renderer::RenderFrame(unsigned char **vram){
     } 
     /* Draw */
     SDL_RenderPresent(renderer);
-}
-
-void Renderer::Quit() {
-    SDL_DestroyWindow(window);
-    SDL_Quit();
 }

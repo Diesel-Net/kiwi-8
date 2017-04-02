@@ -12,10 +12,11 @@ Input::~Input() {
 }
 
 int Input::Poll(Renderer *renderer, unsigned char *keys, SDL_mutex *data_lock) {
+    int response = 1;
     
     /* Wait indefinitley for the next event */
     if (SDL_WaitEvent(&event)) {
-        int response;
+        
         state = SDL_GetKeyboardState(NULL);
         
         if (SDL_LockMutex(data_lock) == 0) {
@@ -24,25 +25,18 @@ int Input::Poll(Renderer *renderer, unsigned char *keys, SDL_mutex *data_lock) {
             SDL_UnlockMutex(data_lock);
         } else {
             fprintf(stderr, "Couldn't lock mutex, terminating main thread.\n");
-            return 1;
         }
         
-        if (response) {
-            return response;
-        }
     } else {
         fprintf(stderr, "Error waiting for next event.\n");
-        return 1;
     }
-    return 0;
+    return response;
 }
 
 void Input::CheckKeys(unsigned char *keys) {
 
     /* Pressed keys */
     if (event.type == SDL_KEYDOWN) {
-
-        //std::cout << "You just pressed the " << (char)event.key.keysym.sym << " key" << std::endl;
 
         /* Check that state of the keys */
         if (state[SDL_SCANCODE_1]) {
@@ -98,8 +92,6 @@ void Input::CheckKeys(unsigned char *keys) {
 
     /* Released keys */
     if (event.type == SDL_KEYUP) {
-
-        //std::cout << "You just released the " << (char)event.key.keysym.sym << " key" << std::endl;
 
         /* Check that state of the keys */
         if (!state[SDL_SCANCODE_1]) {
@@ -158,17 +150,13 @@ int Input::CheckOS(Renderer *renderer) {
     /* Quit event */
     if (event.type == SDL_QUIT){
         /* Close when the user clicks X */
-        renderer->Quit();
         return 1;
     }
 
     /* Keystroke events */
     if (event.type == SDL_KEYDOWN) {
-        
-
         if (state[SDL_SCANCODE_ESCAPE]) {
             /* Close if escape is held down */
-            renderer->Quit();
             return 1;
         }
 
@@ -178,22 +166,12 @@ int Input::CheckOS(Renderer *renderer) {
         }
 
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
-
-            int flag = SDL_GetWindowFlags(renderer->window);
-            flag = flag ^ SDL_WINDOW_FULLSCREEN;
-
-            if (flag & SDL_WINDOW_FULLSCREEN) {
-                
-                renderer->SetFullscreen();
-            } else {
-                renderer->SetWindowed();
-            }
+            renderer->ToggleFullscreen();
         }
     }
 
     /* Window events */
     if (event.window.type == SDL_WINDOWEVENT){
-
         if (event.window.event == SDL_WINDOWEVENT_RESIZED){  
             /* Update the current rendering screen space */
             renderer->UpdateRenderSpace();
