@@ -81,6 +81,9 @@ class Chip8 {
 		/* Mutex shared by all the threads */
 		SDL_mutex *data_lock = SDL_CreateMutex();
 
+		/* For thread signaling */
+		int terminated;
+
 		void SoftReset();
 		void FetchOpcode();
 		void InterpretOpcode();
@@ -100,6 +103,7 @@ class Chip8 {
 		int Initialize(int fullscreen, int R, int G, int B);
 		int Load(const char *rom_name);
 		void Run();
+		int SignalTerminate();
 };
 
 #endif

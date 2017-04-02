@@ -73,21 +73,15 @@ int main(int argc, char **argv){
 
     if (argc > 2 + fullscreen) {
         R = atoi(argv[2 + fullscreen]);
-
-        fprintf(stderr, "R: %d\n", R);
     }
 
     if (argc > 3 + fullscreen) {
         G = atoi(argv[3 + fullscreen]);
-
-        fprintf(stderr, "G: %d\n", G);
     }
     
 
     if (argc > 4 + fullscreen) {
         B = atoi(argv[4 + fullscreen]);
-
-        fprintf(stderr, "B: %d\n", B);
     }
     
     Chip8 chip = Chip8();
@@ -109,13 +103,11 @@ int main(int argc, char **argv){
     }
     SDL_SetWindowIcon(chip.renderer.window, image);
     
-
-    fprintf(stderr, "Loading %s\n", rom);
     if (chip.Load(rom)) {
         return 1;
     }
     
     chip.Run();
-    fprintf(stderr, "Main thread terminated cleanly.\n");
+    fprintf(stderr, "Main thread terminated.\n");
     return 0;
 }

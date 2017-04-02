@@ -28,8 +28,14 @@ int CycleThread(void *data) {
 
 		chip->EmulateCycle();
 		t2 = SDL_GetTicks();
+
+		/* Check if main thread is still running */
+		if (chip->SignalTerminate()) {
+			break;
+		}
 	}
 
+	fprintf(stderr, "Cycle thread terminated.\n");
 	return 0;
 }
 
@@ -52,8 +58,14 @@ int TimerThread(void *data) {
 
 		chip->UpdateTimers();
 		t2 = SDL_GetTicks();
+
+		/* Check if main thread is still running */
+		if (chip->SignalTerminate()) {
+			break;
+		}
 	}
 
+	fprintf(stderr, "Timer thread terminated.\n");
 	return 0;
 }
 
@@ -119,7 +131,7 @@ int Chip8::Load(const char *rom_name){
 	/* Jump back to the beginning of the file */           
 	rewind(file);                     
 
-	fprintf(stderr, "size: %d bytes.\n", rom_size);
+	//fprintf(stderr, "size: %d bytes.\n", rom_size);
 	rom = (unsigned char *) malloc(sizeof(unsigned char) * rom_size);
 
 	if (rom_size > MEM_SIZE - MEM_OFFSET) {
@@ -141,6 +153,7 @@ int Chip8::Load(const char *rom_name){
 }
 
 void Chip8::Run(){
+	terminated = 0;
 	int result;
 	
 	/* Start the two other threads */
@@ -157,6 +170,24 @@ void Chip8::Run(){
 			SoftReset();
 		}
 	}
+
+	if (SDL_LockMutex(data_lock) == 0) {
+		terminated = 1;
+		SDL_UnlockMutex(data_lock);
+	} else {
+		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
+	}
+}
+
+int Chip8::SignalTerminate() {
+	int result = 1;
+	if (SDL_LockMutex(data_lock) == 0) {
+		result = terminated;
+		SDL_UnlockMutex(data_lock);
+	} else {
+		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
+	}
+	return result;
 }
 
 void Chip8::SoftReset() {
@@ -240,7 +271,7 @@ void Chip8::FetchOpcode() {
 }
 
 void Chip8::InterpretOpcode(){
-	fprintf(stderr, "opcode: 0x%X\n", opcode);
+	//fprintf(stderr, "opcode: 0x%X\n", opcode);
 
 	/* Decode opcodes */
 	switch (opcode & 0xF000) {
@@ -264,8 +295,7 @@ void Chip8::InterpretOpcode(){
 					break; 
 
 				default:
-					fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
-					//return;
+					//fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
 					PC+=2;
 					break;
 			}
@@ -413,7 +443,7 @@ void Chip8::InterpretOpcode(){
 					break;
 
 				default:
-					fprintf (stderr, "Unknown opcode [0x8000]: 0x%X\n", opcode);
+					//fprintf (stderr, "Unknown opcode [0x8000]: 0x%X\n", opcode);
 					PC+=2;
 					break;
 			}
@@ -474,7 +504,7 @@ void Chip8::InterpretOpcode(){
 						
 						if(vram[true_x][true_y] == 1) {
 							
-							fprintf(stderr, "COLLISION!\n");
+							//fprintf(stderr, "COLLISION!\n");
 							V[0xF] = 1;                                    
 						} else {
 							
@@ -511,7 +541,7 @@ void Chip8::InterpretOpcode(){
 					break;
 
 				default:
-					fprintf (stderr, "Unknown opcode [0xE000]: 0x%X\n", opcode);
+					//fprintf (stderr, "Unknown opcode [0xE000]: 0x%X\n", opcode);
 					PC+=2;
 					break;
 			}
@@ -600,7 +630,7 @@ void Chip8::InterpretOpcode(){
 					break;
 
 				default:
-					fprintf (stderr, "Unknown opcode [0xF000]: 0x%X\n", opcode);
+					//fprintf (stderr, "Unknown opcode [0xF000]: 0x%X\n", opcode);
 					PC+=2;
 					break;
 			}

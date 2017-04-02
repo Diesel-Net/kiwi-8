@@ -21,7 +21,7 @@ Renderer::~Renderer(){
     
 
 void Renderer::Initialize(int fullscreen, int R, int G, int B){
-    int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    int window_mode = SDL_WINDOW_RESIZABLE;
 
     frame_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     memset(frame_buffer, 0, WIDTH * sizeof(unsigned char *));
@@ -82,25 +82,18 @@ void Renderer::UpdateRenderSpace() {
 void Renderer::ToggleFullscreen() {
     unsigned int flag = SDL_GetWindowFlags(window);
 
-    if ((flag & SDL_WINDOW_FULLSCREEN_DESKTOP)) {
+    if (flag & SDL_WINDOW_FULLSCREEN_DESKTOP) {
 
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
-
-        /* Show the mouse cursor */
         SDL_ShowCursor(SDL_ENABLE);
 
     } else {
         
         /* Set Fullscreen */
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
-        /* Hide the mouse cursor */
         SDL_ShowCursor(SDL_DISABLE);
     }
-
-
-    //UpdateRenderSpace();
 }
 
 void Renderer::RenderFrame(unsigned char **vram){
@@ -126,15 +119,11 @@ void Renderer::RenderFrame(unsigned char **vram){
             frame_buffer[i][j] = vram[i][j];
 	  		
 	  		if (vram[i][j]) {
-                /* Foreground */
+
+                /* Render Foreground */
 	    		SDL_SetRenderDrawColor(renderer, R, G, B, 255);
 		        SDL_RenderFillRect(renderer, &rectangle);
-	        } else {
-                /* Background */
-	        	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	        	SDL_RenderFillRect(renderer, &rectangle);
-                
-	        }   
+	        } 
     	}
     } 
     /* Draw */
