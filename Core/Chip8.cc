@@ -289,7 +289,7 @@ void Chip8::InterpretOpcode(){
 
 				case 0x00EE: 
 					/* 0x00EE: Returns from subroutine */         
-					--sp;			// 16 levels of stack, decrease stack pointer to prevent overwrite
+					sp--;			// 16 levels of stack, decrease stack pointer to prevent overwrite
 					PC = stack[sp];	// Put the stored return address from the stack back into the program counter					
 					PC += 2;		// Don't forget to increase the program counter!
 					break; 
@@ -491,6 +491,8 @@ void Chip8::InterpretOpcode(){
 			unsigned short height = opcode & 0x000F;
 			unsigned short pixel;
 
+			V[0xF] = 0;
+
 			for (int yline = 0; yline < height; yline++) {
 				
 				pixel = memory[I + yline];
@@ -506,9 +508,6 @@ void Chip8::InterpretOpcode(){
 							
 							//fprintf(stderr, "COLLISION!\n");
 							V[0xF] = 1;                                    
-						} else {
-							
-							V[0xF] = 0;
 						}
 						
 						vram[true_x][true_y] ^= 1;
