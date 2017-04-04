@@ -20,6 +20,23 @@ int CycleThread(void *data);
 class Chip8 {
 
 	private:
+		/* Two quirks of the Chip8 CPU. 
+		   Some games assume these are enabled to run correctly.
+
+		   Load/store quirks - Instructions OxFX55 and 0xF65 increments 
+		   value of I register but some CHIP-8 programs assumes that 
+		   they don't. Enabling this quirk causes I regsiter to become 
+		   unchanged after the instruction.
+
+		   Shift quirks - Shift instructions originally shift register 
+		   VY and store results in register VX. Some CHIP-8 programs 
+		   incorrectly assumes that the VX register is shifted by this 
+		   instruction, and VY remains unmodified. Enabling this quirk
+		   causes VX to become shifted and VY remain untouched. */
+		int load_store_quirk = 0;
+		int shift_quirk = 0;
+
+
 		/* Two bytes for each instruction */
 		unsigned short opcode;
 
@@ -82,7 +99,7 @@ class Chip8 {
 		SDL_mutex *data_lock = SDL_CreateMutex();
 
 		/* For thread signaling */
-		int terminated;
+		int is_running;
 
 		void SoftReset();
 		void FetchOpcode();
@@ -103,7 +120,9 @@ class Chip8 {
 		int Initialize(int fullscreen, int R, int G, int B);
 		int Load(const char *rom_name);
 		void Run();
-		int SignalTerminate();
+		void SignalTerminate();
+		int IsRunning();
+		
 };
 
 #endif

@@ -30,7 +30,7 @@ int CycleThread(void *data) {
 		t2 = SDL_GetTicks();
 
 		/* Check if main thread is still running */
-		if (chip->SignalTerminate()) {
+		if (!chip->IsRunning()) {
 			break;
 		}
 	}
@@ -60,7 +60,7 @@ int TimerThread(void *data) {
 		t2 = SDL_GetTicks();
 
 		/* Check if main thread is still running */
-		if (chip->SignalTerminate()) {
+		if (!chip->IsRunning()) {
 			break;
 		}
 	}
@@ -72,6 +72,7 @@ int TimerThread(void *data) {
 /* Constructor */
 Chip8::Chip8() {
 	SDL_Init(SDL_INIT_EVERYTHING);
+	is_running = 0;
 }
 
 Chip8::~Chip8() {
@@ -153,8 +154,10 @@ int Chip8::Load(const char *rom_name){
 }
 
 void Chip8::Run(){
-	terminated = 0;
+	is_running = 1;
 	int result;
+	int cycle_thread_return;
+	int timer_thread_return;
 	
 	/* Start the two other threads */
 	cycle_thread = SDL_CreateThread(CycleThread, "Chip8Cycle", this);
@@ -171,21 +174,29 @@ void Chip8::Run(){
 		}
 	}
 
+	/* Tell the worker threads im done, and wait for them to finish */
+	SignalTerminate();
+	SDL_WaitThread(cycle_thread, &cycle_thread_return);
+	SDL_WaitThread(timer_thread, &timer_thread_return);
+}
+
+void Chip8::SignalTerminate() {
+	/* Signal main thread termination to worker threads */
 	if (SDL_LockMutex(data_lock) == 0) {
-		terminated = 1;
+		is_running = 0;
 		SDL_UnlockMutex(data_lock);
 	} else {
 		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
 	}
 }
 
-int Chip8::SignalTerminate() {
-	int result = 1;
+int Chip8::IsRunning() {
+	int result = 0;
 	if (SDL_LockMutex(data_lock) == 0) {
-		result = terminated;
+		result = is_running;
 		SDL_UnlockMutex(data_lock);
 	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
+		fprintf(stderr, "Error: Unable to lock mutex thread.\n");
 	}
 	return result;
 }
@@ -295,6 +306,7 @@ void Chip8::InterpretOpcode(){
 					break; 
 
 				default:
+				/* 0x0NNN: SYS addr */
 					//fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
 					PC+=2;
 					break;
@@ -418,7 +430,13 @@ void Chip8::InterpretOpcode(){
 				case 0x0006: /* 0x8XY6: Shifts VX right by one. VF is set to the value of the least significant 
 							bit of VX before the shift. */
 					V[0xF] = V[(opcode & 0x0F00) >> 8] & 0x1;
-					V[(opcode & 0x0F00) >> 8] >>= 1;
+
+					if(shift_quirk) {
+						V[(opcode & 0x0F00) >> 8] >>= 1;
+					} else {
+						V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] >> 1;
+					}
+					
 					PC += 2;
 					break;
 
@@ -438,7 +456,13 @@ void Chip8::InterpretOpcode(){
 				case 0x000E: /* 0x8XYE: Shifts VX left by one. VF is set to the value of the most significant 
 							bit of VX before the shift. */
 					V[0xF] = V[(opcode & 0x0F00) >> 8] >> 7;
-					V[(opcode & 0x0F00) >> 8] <<= 1;
+
+					if(shift_quirk) {
+						V[(opcode & 0x0F00) >> 8] <<= 1;
+					} else {
+						V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] << 1;
+					}
+					
 					PC += 2;
 					break;
 
@@ -615,16 +639,23 @@ void Chip8::InterpretOpcode(){
 					}
 
 					/* On the original interpreter, when the operation is done, I = I + X + 1. */
-					I += ((opcode & 0x0F00) >> 8) + 1;
+					if (!load_store_quirk) {
+						I += ((opcode & 0x0F00) >> 8) + 1;
+					}
+					
 					PC += 2;
 					break;
 
 				case 0x0065: /* FX65: Fills V0 to VX with values from memory starting at address I. */				
-					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++)
+					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						V[i] = memory[I + i];			
+					}
 
 					/* On the original interpreter, when the operation is done, I = I + X + 1. */
-					I += ((opcode & 0x0F00) >> 8) + 1;
+					if (!load_store_quirk) {
+						I += ((opcode & 0x0F00) >> 8) + 1;
+					}
+
 					PC += 2;
 					break;
 

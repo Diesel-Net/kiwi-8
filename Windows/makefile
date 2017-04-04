@@ -48,7 +48,7 @@ build_release: objects resource
 	COPY resources\chip8.ico release\chip8.ico
 
 test_debug:
-	cd debug & $(APPNAME).exe "C:/Roms/CHIP-8/Chip-8 Demos/Trip8 Demo (2008) [Revival Studios].ch8" 66 134 244
+	cd debug & $(APPNAME).exe "C:/Roms/CHIP-8/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8" 66 134 244
 
 test_release: 
 	cd release & $(APPNAME).exe 

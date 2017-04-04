@@ -1,0 +1,23 @@
+CHIP-8 CPU quirks documented well here:
+
+    https://github.com/mir3z/chip8-emu
+
+    Load/store quirks - Instructions LD [I], Vx and LD Vx, [I] 
+    increments value of I register but some CHIP-8 programs 
+    assumes that they don't.
+	
+    Shift quirks - Shift instructions originally shift register 
+    VY and store results in register VX. Some CHIP-8 programs 
+    incorrectly assumes that the VX register is shifted by this 
+    instruction, and VY remains unmodified.
+
+Things to try:
+
+    -10 steps(fetch + decode + execute) per cycle?
+        - 1 step = (fetch + decode + execute)?
+        - Any documentation to back this up?
+
+	-Release key immediatley after being pressed
+        - After a key is pressed, the next cycle shouldn't 
+          modify the key states?
+          - THis may fix Clock-Program.ch8
