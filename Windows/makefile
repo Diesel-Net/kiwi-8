@@ -51,7 +51,9 @@ test_debug:
 	cd debug & $(APPNAME).exe 
 
 test_release: 
-	cd release & $(APPNAME).exe "C:/Roms/CHIP-8/Chip-8 Programs/BMP Viewer - Hello (C8 example) [Hap, 2005].ch8" 66 134 244
+	cd release & $(APPNAME).exe \
+	"C:/Roms/CHIP-8/Chip-8 Programs/BMP Viewer - Hello (C8 example) [Hap, 2005].ch8" \
+	66 134 244
 
 
 # Build object files

@@ -27,7 +27,7 @@ int main(int argc, char **argv){
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
         [alert addButtonWithTitle:@"Cancel"];
-        [alert setMessageText:@"Chip8 v1.01"];
+        [alert setMessageText:@VERSION];
         [alert setInformativeText:@"Click OK to select a ROM file.\n\n"
                                 "Alternatively, you may launch Chip8 with the command line.\n\n"
                                 "Usage: Chip8 PATH_TO_ROM [-F] [R G B]\n"

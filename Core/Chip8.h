@@ -6,6 +6,7 @@
 
 #include <SDL2/SDL.h>
 
+#define VERSION "Chip8 v1.02"
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16

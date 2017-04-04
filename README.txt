@@ -1,4 +1,4 @@
-Chip8 v1.01
+Chip8 v1.02
 
 A CHIP-8 interpreter written in C++ using the Simple 
 DirectMedia Layer library.
