@@ -25,7 +25,7 @@ class Chip8 {
 
 		   Load/store quirks - Instructions OxFX55 and 0xF65 increments 
 		   value of I register but some CHIP-8 programs assumes that 
-		   they don't. Enabling this quirk causes I regsiter to become 
+		   they don't. Enabling this quirk causes I register to become 
 		   unchanged after the instruction.
 
 		   Shift quirks - Shift instructions originally shift register 
