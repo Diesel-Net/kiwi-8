@@ -13,6 +13,7 @@ int CPUThread(void *data) {
 	Chip8 *chip = (Chip8 *)data;
 	unsigned int t1 = 0;
 	unsigned int t2 = 0;
+	unsigned int t3 = 0;
 	unsigned int elapsed;
 
 	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
@@ -29,6 +30,13 @@ int CPUThread(void *data) {
 
 		chip->EmulateCycle();
 		t2 = SDL_GetTicks();
+
+		
+	    if (t2 > t3 + 1000) {
+	        fprintf(stderr, "FPS: %d\n", chip->renderer.GetFPS());
+	        t3 = SDL_GetTicks();
+	        chip->renderer.SetFPS(0);
+	    }
 
 		/* Check if main thread is still running */
 		if (!chip->IsRunning()) {
@@ -52,16 +60,15 @@ Chip8::~Chip8() {
 		free(vram[i]);
 	}
 	free(vram);
-	free(rom);
 	SDL_Quit();
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
 	/* Create renderer, init vram */
-	renderer.Initialize(fullscreen, R, G, B);
 	vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-	memset(vram, 0, WIDTH * sizeof(unsigned char *));
+	renderer.Initialize(vram, fullscreen, R, G, B);
 
+	memset(vram, 0, WIDTH * sizeof(unsigned char *));
 	for (int i = 0; i < WIDTH; i++) {
 		vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
 		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -91,6 +98,7 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 int Chip8::Load(const char *rom_name){
 	/* Open the file */
 	FILE *file;
+	int rom_size;
 	file = fopen(rom_name, "rb");
 	
 	if(file == NULL){
@@ -105,21 +113,17 @@ int Chip8::Load(const char *rom_name){
 	rewind(file);                     
 
 	//fprintf(stderr, "size: %d bytes.\n", rom_size);
-	rom = (unsigned char *) malloc(sizeof(unsigned char) * rom_size);
 
 	if (rom_size > MEM_SIZE - MEM_OFFSET) {
 		fprintf(stderr, "Rom is too large or not formatted properly.\n");
 		return 1;
 	}
 
-	/* Back-up Rom for Soft-Resets */
-	if (!fread(rom, rom_size, sizeof(unsigned char), file)) {
+	/* Read in the entire rom starting from 0x200 */
+	if (!fread(memory + MEM_OFFSET, rom_size, sizeof(unsigned char), file)) {
 		fprintf(stderr, "Error reading Rom file.\n");
 		return 1;
 	}
-
-	/* Read in the entire rom starting from 0x200 */
-	memcpy(memory + MEM_OFFSET, rom, rom_size);
 
 	fclose(file);
 	return 0;
@@ -178,9 +182,8 @@ void Chip8::SoftReset() {
 			memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
 		}
 
-		/* Clear registers, memory, stack, keys */
+		/* Clear registers, stack, keys */
 		memset(V, 0 , NUM_REGISTERS);
-		memset(memory, 0, MEM_SIZE);
 		memset(stack, 0, STACK_DEPTH);
 		memset(keys, 0, NUM_KEYS);
 
@@ -191,14 +194,6 @@ void Chip8::SoftReset() {
 		delay_timer = 0;
 		sound_timer = 0;
 		draw_flag = 1;
-
-		/* Reload fontset */
-		for(int i = 0; i < FONTS_SIZE; ++i) {
-			memory[i] = chip8_fontset[i];
-		}
-
-		/* Read in the entire rom starting from 0x200 */
-		memcpy(memory + MEM_OFFSET, rom, rom_size);
 		
 		SDL_UnlockMutex(data_lock);
 	} else {
@@ -232,10 +227,8 @@ void Chip8::EmulateCycle(){
 			
 		/* Render the scene */
 		if (draw_flag) {
-			renderer.RenderFrame(vram);
+			renderer.RenderFrame();
 			draw_flag = 0;
-		} else if (sixty_fps_hack) {
-			renderer.RenderFrameBuffer();
 		}
 
 		SDL_UnlockMutex(data_lock);

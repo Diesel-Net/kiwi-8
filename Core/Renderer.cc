@@ -8,30 +8,19 @@
 
 Renderer::Renderer(){
     fps = 0;
-    t1 = 0;
-    t2 = 0;
 }
 
 Renderer::~Renderer(){
-    for (int i = 0; i < WIDTH; i++) {
-        free(frame_buffer[i]);
-    }
-    free(frame_buffer);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 }
     
 
-void Renderer::Initialize(int fullscreen, int R, int G, int B){
+void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G, int B){
     int window_mode = SDL_WINDOW_RESIZABLE;
 
-    frame_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-    memset(frame_buffer, 0, WIDTH * sizeof(unsigned char *));
-
-    for (int i = 0; i < WIDTH; i++) {
-        frame_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
-        memset(frame_buffer[i], 0, HEIGHT * sizeof(unsigned char));
-    }
+    /* No need to copy the vram, simply assign a pointer to it */
+    this->vram_ptr = vram_ptr;
     
    	window = SDL_CreateWindow("Chip8", 
    							  SDL_WINDOWPOS_CENTERED, 
@@ -77,10 +66,8 @@ void Renderer::UpdateRenderSpace() {
 		RENDER_OFFSET_H /= 2;
 	}
 
-    /* Render WIDTH x HEIGHT should always be the greatest multiple 
-    of 64 x 32 that fits in the window */
 	fprintf(stderr, "%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
-    RenderFrame(frame_buffer);
+    RenderFrame();
 }
 
 void Renderer::ToggleFullscreen() {
@@ -99,12 +86,7 @@ void Renderer::ToggleFullscreen() {
     }
 }
 
-void Renderer::RenderFrame(unsigned char **frame){
-
-    if (frame == frame_buffer) {
-        return RenderFrameBuffer();
-
-    }
+void Renderer::RenderFrame(){
 
     /* Clear the screen */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -124,10 +106,8 @@ void Renderer::RenderFrame(unsigned char **frame){
 
     		rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
 	        rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
-
-            frame_buffer[i][j] = frame[i][j];
 	  		
-	  		if (frame[i][j]) {
+	  		if (vram_ptr[i][j]) {
 
                 /* Fill the pixel */
 		        SDL_RenderFillRect(renderer, &rectangle);
@@ -139,45 +119,15 @@ void Renderer::RenderFrame(unsigned char **frame){
     UpdateFPS();
 }
 
-void Renderer::RenderFrameBuffer() {
-    /* Clear the screen */
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    SDL_Rect rectangle; 
-    rectangle.x = 0;
-    rectangle.y = 0;
-    rectangle.w = SCALE;
-    rectangle.h = SCALE;
-
-    /* Set the foreground color */
-    SDL_SetRenderDrawColor(renderer, R, G, B, 0);
-
-    for (int i = 0; i < WIDTH; i++){
-        for (int j = 0; j < HEIGHT; j++){
-
-            rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
-            rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
-
-            if (frame_buffer[i][j]) {
-
-                /* Fill the pixel */
-                SDL_RenderFillRect(renderer, &rectangle);
-            } 
-        }
-    } 
-    /* Draw anything rendered since last call */
-    SDL_RenderPresent(renderer);
-    UpdateFPS();
-}
-
 void Renderer::UpdateFPS() {
     /* Update fps measurement */
     fps++;
-    t1 = SDL_GetTicks();
-    if (t1 > t2 + 1000) {
-        fprintf(stderr, "FPS: %d\n", fps);
-        t2 = SDL_GetTicks();
-        fps = 0;
-    }
+}
+
+int Renderer::GetFPS() {
+    return fps;
+}
+
+void Renderer::SetFPS(int fps) {
+    this->fps = fps;
 }

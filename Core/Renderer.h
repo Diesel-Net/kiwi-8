@@ -10,8 +10,10 @@ class Renderer {
 
 	private:
 
-		unsigned char **frame_buffer;
 		SDL_Renderer *renderer;
+
+		/* A pointer to the chip8 vram */
+		unsigned char **vram_ptr;
 
 		/* 64x32 Scaled by X amount */
 		int SCALE = 12;
@@ -29,7 +31,6 @@ class Renderer {
 
     	/* For fps measuring */
     	int fps;
-    	int t1, t2;
 
     	void UpdateFPS();
 
@@ -40,11 +41,12 @@ class Renderer {
 		Renderer();
 		~Renderer();
 
-		void Initialize(int fullscreen, int R, int B, int G);
+		void Initialize(unsigned char **vram_ptr, int fullscreen, int R, int B, int G);
 		void UpdateRenderSpace();
 		void ToggleFullscreen();
-		void RenderFrame(unsigned char **frame);
-		void RenderFrameBuffer();
+		void RenderFrame();
+		int GetFPS();
+		void SetFPS(int fps);
 };
 
 #endif

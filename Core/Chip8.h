@@ -13,8 +13,8 @@
 #define NUM_KEYS 16
 #define FONTS_SIZE 80
 #define SPEED 60 /* hz */
-#define INSTRUCTIONS_PER_SEC 600 /* Safe to change */
-#define STEPS_PER_CYCLE (INSTRUCTIONS_PER_SEC / SPEED)
+#define STEPS_PER_CYCLE 10
+#define INSTRUCTIONS_PER_SEC SPEED * STEPS_PER_CYCLE
 
 /* Thread functions  */
 int TimerThread(void *data);
@@ -38,7 +38,6 @@ class Chip8 {
 		   causes VX to become shifted and VY remain untouched. */
 		int load_store_quirk = 0;
 		int shift_quirk = 0;
-		int sixty_fps_hack = 0;
 
 		/* Two bytes for each instruction */
 		unsigned short opcode;
@@ -70,10 +69,6 @@ class Chip8 {
 
 		/* 1-bit encoded screen pixels (32x64) */
 		unsigned char **vram;
-
-		/* For soft-resetting */
-		unsigned char *rom;
-		int rom_size;
 
 		const unsigned char chip8_fontset[FONTS_SIZE] = { 
 			0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
