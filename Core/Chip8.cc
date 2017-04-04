@@ -16,14 +16,14 @@ int CPUThread(void *data) {
 	unsigned int elapsed;
 
 	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
-	unsigned int interval = 16;
+	unsigned int interval = 1000 / SPEED;
 
 	for (;;) {
 
 		t1 = SDL_GetTicks();
 		elapsed = t2 - t1;
 		if (elapsed < interval) {
-			fprintf(stderr, "CPU thread sleeping for %u ms\n", (interval - elapsed));
+			//fprintf(stderr, "CPU thread sleeping for %u ms\n", (interval - elapsed));
 			SDL_Delay(interval - elapsed);
 		}
 
@@ -57,12 +57,7 @@ Chip8::~Chip8() {
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
-
-	if (is_initialized && is_running) {
-		fprintf(stderr, "Cannot initialize while the interpreter is running.\n");
-		return 1;
-	}
-
+	/* Create renderer, init vram */
 	renderer.Initialize(fullscreen, R, G, B);
 	vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
 	memset(vram, 0, WIDTH * sizeof(unsigned char *));
@@ -90,12 +85,11 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 	sound_timer = 0;
 	draw_flag = 1;
 
-	is_initialized = 1;
 	return 0;
 }
 
 int Chip8::Load(const char *rom_name){
-	
+	/* Open the file */
 	FILE *file;
 	file = fopen(rom_name, "rb");
 	
@@ -213,23 +207,22 @@ void Chip8::SoftReset() {
 }
 
 void Chip8::UpdateTimers(){
-		/* Decrement timers, check sound timer */
-	  	if(delay_timer > 0) {
-	    	delay_timer--;
-		}
-	 
-	 	if(sound_timer > 0) {
-	    	if(sound_timer == 1) {
-	      		fprintf(stderr, "BEEP!\n");
-	    	}
-	    	sound_timer--;
-		}
+	/* Decrement timers, check sound timer */
+  	if(delay_timer > 0) {
+    	delay_timer--;
+	}
+ 
+ 	if(sound_timer > 0) {
+    	if(sound_timer == 1) {
+      		fprintf(stderr, "BEEP!\n");
+    	}
+    	sound_timer--;
+	}
 }
 
 void Chip8::EmulateCycle(){
 
 	if (SDL_LockMutex(data_lock) == 0) {
-		
 		for (int i = 0; i < STEPS_PER_CYCLE; i++) {
 			FetchOpcode();
 			InterpretOpcode();
@@ -237,11 +230,14 @@ void Chip8::EmulateCycle(){
 
 		UpdateTimers();
 			
-		/* render the scene */
+		/* Render the scene */
 		if (draw_flag) {
 			renderer.RenderFrame(vram);
 			draw_flag = 0;
+		} else if (sixty_fps_hack) {
+			renderer.RenderFrameBuffer();
 		}
+
 		SDL_UnlockMutex(data_lock);
 	} else {
 		fprintf(stderr, "Error: Unable to lock mutex on CPU thread.\n");
@@ -519,6 +515,7 @@ void Chip8::InterpretOpcode(){
 
 		case 0xE000:
 			switch(opcode & 0x00FF) {
+				
 				case 0x009E:
 					/* EX9E:	Skips the next instruction if the key stored in VX is pressed */
 					if(keys[V[(opcode & 0x0F00) >> 8]] == 1) {

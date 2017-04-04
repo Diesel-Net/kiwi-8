@@ -27,6 +27,12 @@ class Renderer {
 
     	int R, G, B;
 
+    	/* For fps measuring */
+    	int fps;
+    	int t1, t2;
+
+    	void UpdateFPS();
+
 	public:
 
 		SDL_Window *window;
@@ -37,7 +43,8 @@ class Renderer {
 		void Initialize(int fullscreen, int R, int B, int G);
 		void UpdateRenderSpace();
 		void ToggleFullscreen();
-		void RenderFrame(unsigned char **vram);
+		void RenderFrame(unsigned char **frame);
+		void RenderFrameBuffer();
 };
 
 #endif

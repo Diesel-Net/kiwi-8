@@ -7,7 +7,9 @@
 #define MIN( a, b ) ( ( a < b) ? a : b )
 
 Renderer::Renderer(){
-    /* Empty constructor */
+    fps = 0;
+    t1 = 0;
+    t2 = 0;
 }
 
 Renderer::~Renderer(){
@@ -97,18 +99,24 @@ void Renderer::ToggleFullscreen() {
     }
 }
 
-void Renderer::RenderFrame(unsigned char **vram){
+void Renderer::RenderFrame(unsigned char **frame){
+
+    if (frame == frame_buffer) {
+        return RenderFrameBuffer();
+
+    }
+
     /* Clear the screen */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    /* Render the vram */
     SDL_Rect rectangle; 
     rectangle.x = 0;
     rectangle.y = 0;
     rectangle.w = SCALE;
     rectangle.h = SCALE;
 
+    /* Set the foreground color */
     SDL_SetRenderDrawColor(renderer, R, G, B, 0);
 
     for (int i = 0; i < WIDTH; i++){
@@ -117,16 +125,59 @@ void Renderer::RenderFrame(unsigned char **vram){
     		rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
 	        rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
 
-            frame_buffer[i][j] = vram[i][j];
+            frame_buffer[i][j] = frame[i][j];
 	  		
-	  		if (vram[i][j]) {
+	  		if (frame[i][j]) {
 
-                /* Render Foreground */
-	    		SDL_SetRenderDrawColor(renderer, R, G, B, 255);
+                /* Fill the pixel */
 		        SDL_RenderFillRect(renderer, &rectangle);
 	        } 
     	}
     } 
-    /* Draw */
+    /* Draw anything rendered since last call */
     SDL_RenderPresent(renderer);
+    UpdateFPS();
+}
+
+void Renderer::RenderFrameBuffer() {
+    /* Clear the screen */
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Rect rectangle; 
+    rectangle.x = 0;
+    rectangle.y = 0;
+    rectangle.w = SCALE;
+    rectangle.h = SCALE;
+
+    /* Set the foreground color */
+    SDL_SetRenderDrawColor(renderer, R, G, B, 0);
+
+    for (int i = 0; i < WIDTH; i++){
+        for (int j = 0; j < HEIGHT; j++){
+
+            rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
+            rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
+
+            if (frame_buffer[i][j]) {
+
+                /* Fill the pixel */
+                SDL_RenderFillRect(renderer, &rectangle);
+            } 
+        }
+    } 
+    /* Draw anything rendered since last call */
+    SDL_RenderPresent(renderer);
+    UpdateFPS();
+}
+
+void Renderer::UpdateFPS() {
+    /* Update fps measurement */
+    fps++;
+    t1 = SDL_GetTicks();
+    if (t1 > t2 + 1000) {
+        fprintf(stderr, "FPS: %d\n", fps);
+        t2 = SDL_GetTicks();
+        fps = 0;
+    }
 }

@@ -12,7 +12,9 @@
 #define MEM_OFFSET 512
 #define NUM_KEYS 16
 #define FONTS_SIZE 80
-#define STEPS_PER_CYCLE 10 /* 60hz * 10 ~= 600 instructions/sec */
+#define SPEED 60 /* hz */
+#define INSTRUCTIONS_PER_SEC 600 /* Safe to change */
+#define STEPS_PER_CYCLE (INSTRUCTIONS_PER_SEC / SPEED)
 
 /* Thread functions  */
 int TimerThread(void *data);
@@ -36,6 +38,7 @@ class Chip8 {
 		   causes VX to become shifted and VY remain untouched. */
 		int load_store_quirk = 0;
 		int shift_quirk = 0;
+		int sixty_fps_hack = 0;
 
 		/* Two bytes for each instruction */
 		unsigned short opcode;
@@ -99,7 +102,6 @@ class Chip8 {
 
 		/* For thread signaling */
 		int is_running;
-		int is_initialized;
 
 		void SoftReset();
 		void FetchOpcode();

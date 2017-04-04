@@ -90,7 +90,6 @@ int main(int argc, char **argv){
         return 1;
     }
 
-
     /*  SDL2 provides no way of loading the Windows ICON 
         resource that is embedded in the executable at 
         compile time. The code below loads the window 

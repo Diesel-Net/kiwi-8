@@ -14,7 +14,7 @@ DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
 
 CC = CL
-CFLAGS = /EHsc /W3 /w44996
+CFLAGS = /W3 /w44996
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
 	   /I$(MAKEDIR)/frameworks/sdl2_image/include/ 
 
@@ -48,10 +48,10 @@ build_release: objects resource
 	COPY resources\chip8.ico release\chip8.ico
 
 test_debug:
-	cd debug & $(APPNAME).exe "C:/Roms/CHIP-8/Chip-8 Games/Astro Dodge [Revival Studios, 2008].ch8" 66 134 244
+	cd debug & $(APPNAME).exe 
 
 test_release: 
-	cd release & $(APPNAME).exe 
+	cd release & $(APPNAME).exe "C:/Roms/CHIP-8/Chip-8 Programs/BMP Viewer - Hello (C8 example) [Hap, 2005].ch8" 66 134 244
 
 
 # Build object files
