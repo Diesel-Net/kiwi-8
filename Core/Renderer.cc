@@ -75,14 +75,15 @@ void Renderer::UpdateRenderSpace() {
 		RENDER_OFFSET_H /= 2;
 	}
 
+    /* Render WIDTH x HEIGHT should always be the greatest multiple 
+    of 64 x 32 that fits in the window */
 	fprintf(stderr, "%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
     RenderFrame(frame_buffer);
 }
 
 void Renderer::ToggleFullscreen() {
-    unsigned int flag = SDL_GetWindowFlags(window);
 
-    if (flag & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
 
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);

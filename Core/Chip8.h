@@ -12,6 +12,7 @@
 #define MEM_OFFSET 512
 #define NUM_KEYS 16
 #define FONTS_SIZE 80
+#define STEPS_PER_CYCLE 10 /* 60hz * 10 ~= 600 instructions/sec */
 
 /* Thread functions  */
 int TimerThread(void *data);
@@ -35,7 +36,6 @@ class Chip8 {
 		   causes VX to become shifted and VY remain untouched. */
 		int load_store_quirk = 0;
 		int shift_quirk = 0;
-
 
 		/* Two bytes for each instruction */
 		unsigned short opcode;
@@ -91,27 +91,29 @@ class Chip8 {
 			0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 		};
 
-		/* Threads */
-		SDL_Thread *timer_thread;
-		SDL_Thread *cycle_thread;
+		/* A single thread for processing opcodes */
+		SDL_Thread *cpu_thread;
 
-		/* Mutex shared by all the threads */
+		/* Let's thread-safe-ify things */
 		SDL_mutex *data_lock = SDL_CreateMutex();
 
 		/* For thread signaling */
 		int is_running;
+		int is_initialized;
 
 		void SoftReset();
 		void FetchOpcode();
 		void InterpretOpcode();
+		void UpdateTimers();
+		void SignalTerminate();
 
 	public:
 		/* Exposed publicly for windows icon fix (see main.cc) */
 		Renderer renderer = Renderer();
 
-		/* Exposed publicly for timer/cycle threads */
-		void UpdateTimers();
+		/* Exposed publicly for CPU thread and for debugging(stepping) */
 		void EmulateCycle();
+		int IsRunning();
 
 		/* Constructor */
 		Chip8();
@@ -120,8 +122,7 @@ class Chip8 {
 		int Initialize(int fullscreen, int R, int G, int B);
 		int Load(const char *rom_name);
 		void Run();
-		void SignalTerminate();
-		int IsRunning();
+		
 		
 };
 

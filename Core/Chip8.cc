@@ -9,20 +9,21 @@ Date: September 18, 2016
 #include <string.h>
 #include <stdio.h>
 
-int CycleThread(void *data) {
+int CPUThread(void *data) {
 	Chip8 *chip = (Chip8 *)data;
 	unsigned int t1 = 0;
 	unsigned int t2 = 0;
 	unsigned int elapsed;
 
-	/* Slows execution speed (540hz ~= 1.85ms intervals) */
-	unsigned int interval = 2;
+	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
+	unsigned int interval = 16;
 
 	for (;;) {
 
 		t1 = SDL_GetTicks();
 		elapsed = t2 - t1;
 		if (elapsed < interval) {
+			fprintf(stderr, "CPU thread sleeping for %u ms\n", (interval - elapsed));
 			SDL_Delay(interval - elapsed);
 		}
 
@@ -35,37 +36,7 @@ int CycleThread(void *data) {
 		}
 	}
 
-	fprintf(stderr, "Cycle thread terminated.\n");
-	return 0;
-}
-
-int TimerThread(void *data) {
-	Chip8 *chip = (Chip8 *)data;
-	unsigned int t1 = 0;
-	unsigned int t2 = 0;
-	unsigned int elapsed;
-
-	/* 60hz ~= 16.66 ms intervals */
-	unsigned int interval = 17;
-
-	for (;;) {
-		
-		t1 = SDL_GetTicks();
-		elapsed = t2 - t1;
-		if (elapsed < interval) {
-			SDL_Delay(interval - elapsed);
-		}
-
-		chip->UpdateTimers();
-		t2 = SDL_GetTicks();
-
-		/* Check if main thread is still running */
-		if (!chip->IsRunning()) {
-			break;
-		}
-	}
-
-	fprintf(stderr, "Timer thread terminated.\n");
+	fprintf(stderr, "CPU thread terminated.\n");
 	return 0;
 }
 
@@ -86,6 +57,12 @@ Chip8::~Chip8() {
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
+
+	if (is_initialized && is_running) {
+		fprintf(stderr, "Cannot initialize while the interpreter is running.\n");
+		return 1;
+	}
+
 	renderer.Initialize(fullscreen, R, G, B);
 	vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
 	memset(vram, 0, WIDTH * sizeof(unsigned char *));
@@ -113,6 +90,7 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 	sound_timer = 0;
 	draw_flag = 1;
 
+	is_initialized = 1;
 	return 0;
 }
 
@@ -156,12 +134,10 @@ int Chip8::Load(const char *rom_name){
 void Chip8::Run(){
 	is_running = 1;
 	int result;
-	int cycle_thread_return;
-	int timer_thread_return;
+	int cpu_thread_return;
 	
 	/* Start the two other threads */
-	cycle_thread = SDL_CreateThread(CycleThread, "Chip8Cycle", this);
-	timer_thread = SDL_CreateThread(TimerThread, "Chip8Timer", this);
+	cpu_thread = SDL_CreateThread(CPUThread, "Chip8CPU", this);
 
 	for(;;) {
 
@@ -174,10 +150,9 @@ void Chip8::Run(){
 		}
 	}
 
-	/* Tell the worker threads im done, and wait for them to finish */
+	/* Tell worker threads im done, and wait for them to finish */
 	SignalTerminate();
-	SDL_WaitThread(cycle_thread, &cycle_thread_return);
-	SDL_WaitThread(timer_thread, &timer_thread_return);
+	SDL_WaitThread(cpu_thread, &cpu_thread_return);
 }
 
 void Chip8::SignalTerminate() {
@@ -238,9 +213,6 @@ void Chip8::SoftReset() {
 }
 
 void Chip8::UpdateTimers(){
-	
-	if (SDL_LockMutex(data_lock) == 0) {
-		
 		/* Decrement timers, check sound timer */
 	  	if(delay_timer > 0) {
 	    	delay_timer--;
@@ -252,19 +224,18 @@ void Chip8::UpdateTimers(){
 	    	}
 	    	sound_timer--;
 		}
-
-		SDL_UnlockMutex(data_lock);
-	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on timer thread.\n");
-	}
 }
 
 void Chip8::EmulateCycle(){
 
 	if (SDL_LockMutex(data_lock) == 0) {
-	
-		FetchOpcode();
-		InterpretOpcode();
+		
+		for (int i = 0; i < STEPS_PER_CYCLE; i++) {
+			FetchOpcode();
+			InterpretOpcode();
+		}
+
+		UpdateTimers();
 			
 		/* render the scene */
 		if (draw_flag) {
@@ -273,7 +244,7 @@ void Chip8::EmulateCycle(){
 		}
 		SDL_UnlockMutex(data_lock);
 	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on cycle thread.\n");
+		fprintf(stderr, "Error: Unable to lock mutex on CPU thread.\n");
 	}
 }
 
@@ -306,8 +277,10 @@ void Chip8::InterpretOpcode(){
 					break; 
 
 				default:
-				/* 0x0NNN: SYS addr */
-					//fprintf(stderr, "Uknown opcode [0x0000]: 0x%X\n", opcode);
+					/* 0x0NNN: SYS addr - Jump to a machine code routine at nnn. 
+					   This instruction is only used on the old computers on which 
+					   Chip-8 was originally implemented. It is ignored by modern 
+					   interpreters. */
 					PC+=2;
 					break;
 			}
@@ -455,7 +428,7 @@ void Chip8::InterpretOpcode(){
 
 				case 0x000E: /* 0x8XYE: Shifts VX left by one. VF is set to the value of the most significant 
 							bit of VX before the shift. */
-					V[0xF] = V[(opcode & 0x0F00) >> 8] >> 7;
+					V[0xF] = V[(opcode & 0x0F00) >> 8] & 0x8;
 
 					if(shift_quirk) {
 						V[(opcode & 0x0F00) >> 8] <<= 1;
@@ -503,13 +476,13 @@ void Chip8::InterpretOpcode(){
 			break;
 
 		/* opcode DXYN */
-		case 0xD000:
+		case 0xD000: {
 			/* Draws a sprite at coordinate (VX, VY) that has a width of 8 vram and a height of N vram. 
 			Each row of 8 vram is read as bit-coded starting from memory location I; 
 			I value doesn’t change after the execution of this instruction. As described above, 
 			VF is set to 1 if any screen vram are flipped from set to unset when the sprite is drawn, 
 			and to 0 if that doesn’t happen */
-		{
+		
 			unsigned short x = V[(opcode & 0x0F00) >> 8];
 			unsigned short y = V[(opcode & 0x00F0) >> 4];
 			unsigned short height = opcode & 0x000F;
@@ -572,13 +545,14 @@ void Chip8::InterpretOpcode(){
 
 		case 0xF000:
 			switch (opcode & 0x00FF) {
+				
 				case 0x0007:
 					V[(opcode & 0x0F00) >> 8] = delay_timer;
 					PC += 2;
 					break;
 
 				case 0x000A: {
-					
+				
 					int keyPress = 0;
 					for(int i = 0; i < 16; ++i) {
 						if(keys[i] != 0) {
@@ -595,7 +569,6 @@ void Chip8::InterpretOpcode(){
 					PC += 2;
 					break;
 				}					
-				
 
 				case 0x0015: /* FX15: Sets the delay timer to VX */
 					delay_timer = V[(opcode & 0x0F00) >> 8];
@@ -637,12 +610,10 @@ void Chip8::InterpretOpcode(){
 					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						memory[I + i] = V[i];	
 					}
-
 					/* On the original interpreter, when the operation is done, I = I + X + 1. */
 					if (!load_store_quirk) {
 						I += ((opcode & 0x0F00) >> 8) + 1;
 					}
-					
 					PC += 2;
 					break;
 
@@ -650,12 +621,10 @@ void Chip8::InterpretOpcode(){
 					for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
 						V[i] = memory[I + i];			
 					}
-
 					/* On the original interpreter, when the operation is done, I = I + X + 1. */
 					if (!load_store_quirk) {
 						I += ((opcode & 0x0F00) >> 8) + 1;
 					}
-
 					PC += 2;
 					break;
 
