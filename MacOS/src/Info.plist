@@ -14,6 +14,8 @@
 		<string>chip</string>
 		<key>CFBundleVersion</key>
 		<string>1.0</string>
+		<key>NSHighResolutionCapable</key>
+		<true/>
 		<key>NSHumanReadableCopyright</key>
 		<string>Copyright © 2016 Thomas Daley. All rights reserved.</string>
 

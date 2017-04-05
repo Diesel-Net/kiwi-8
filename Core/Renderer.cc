@@ -17,7 +17,7 @@ Renderer::~Renderer(){
     
 
 void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G, int B){
-    int window_mode = SDL_WINDOW_RESIZABLE;
+    int window_mode = SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS;
 
     /* No need to copy the vram, simply assign a pointer to it */
     this->vram_ptr = vram_ptr;
@@ -69,7 +69,7 @@ void Renderer::UpdateRenderSpace() {
 
 void Renderer::ToggleFullscreen() {
 
-    if (SDL_GetWindowFlags(window) & FULLSCREEN) {
+    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
 
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
@@ -78,15 +78,15 @@ void Renderer::ToggleFullscreen() {
     } else {
         
         /* Set Fullscreen */
-        SDL_SetWindowFullscreen(window, FULLSCREEN);
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_DISABLE);
     }
 
     /* MacOS likes the two lines below, fullscreen toggling is 
        buggy for MacOS in SDL2 right now, this is a temporary 
        fix until I update sdl libs  */
-    SDL_DestroyRenderer(renderer);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    //SDL_DestroyRenderer(renderer);
+    //renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     
 }
 
@@ -117,7 +117,8 @@ void Renderer::RenderFrame(){
 		        SDL_RenderFillRect(renderer, &rectangle);
 	        } 
     	}
-    } 
+    }
+    
     /* Draw anything rendered since last call */
     SDL_RenderPresent(renderer);
     frames++;
