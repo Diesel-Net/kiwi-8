@@ -81,6 +81,12 @@ void Renderer::ToggleFullscreen() {
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_DISABLE);
     }
+
+    /* MacOS likes the two lines below, fullscreen toggling is 
+       buggy for MacOS in SDL2 right now, this is a temporary 
+       fix until I update sdl libs  */
+    SDL_DestroyRenderer(renderer);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 }
 
 void Renderer::RenderFrame(){
