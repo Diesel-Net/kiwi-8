@@ -13,30 +13,29 @@ int CPUThread(void *data) {
 	Chip8 *chip = (Chip8 *)data;
 	unsigned int t1 = 0;
 	unsigned int t2 = 0;
-	unsigned int t3 = 0;
 	unsigned int elapsed;
+	unsigned int remaining;
+	unsigned int fps;
 
 	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
-	unsigned int interval = 1000 / SPEED;
+	unsigned int interval = 1000 / (SPEED);
 
 	for (;;) {
 
 		t1 = SDL_GetTicks();
 		elapsed = t2 - t1;
+		remaining = interval - elapsed;
 		if (elapsed < interval) {
-			//fprintf(stderr, "CPU thread sleeping for %u ms\n", (interval - elapsed));
-			SDL_Delay(interval - elapsed);
+			//fprintf(stderr, "CPU thread sleeping for %u ms\n", remaining);
+			SDL_Delay(remaining);
+			elapsed = interval;
 		}
+
+		fps = chip->renderer.FPS(elapsed);
+		//fprintf(stderr, "FPS: %u\n", fps);
 
 		chip->EmulateCycle();
 		t2 = SDL_GetTicks();
-
-		
-	    if (t2 > t3 + 1000) {
-	        fprintf(stderr, "FPS: %d\n", chip->renderer.GetFPS());
-	        t3 = SDL_GetTicks();
-	        chip->renderer.SetFPS(0);
-	    }
 
 		/* Check if main thread is still running */
 		if (!chip->IsRunning()) {
@@ -137,7 +136,7 @@ void Chip8::Run(){
 	/* Start the two other threads */
 	cpu_thread = SDL_CreateThread(CPUThread, "Chip8CPU", this);
 
-	for(;;) {
+	for (;;) {
 
 		result = input.Poll(&renderer, keys, data_lock);
 		if (result == 1) {

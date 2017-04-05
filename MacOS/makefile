@@ -48,11 +48,13 @@ main.o:	src/$(MAIN)
 
 # Tests the release version
 test_release:
-	open ./release/$(APPNAME).app --args "/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Programs/Clock Program [Bill Fisher, 1981].ch8" -F 197 23 100
+	open ./release/$(APPNAME).app --args \
+	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Demos/Trip8 Demo (2008) [Revival Studios].ch8" \
+	 -F 197 23 100
 
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
-	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) "/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Programs/Fishie [Hap, 2005].ch8" 197 23 100
+	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) 
 
 # Removes latest build and object files
 clean:

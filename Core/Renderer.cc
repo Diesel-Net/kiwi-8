@@ -7,7 +7,7 @@
 #define MIN( a, b ) ( ( a < b) ? a : b )
 
 Renderer::Renderer(){
-    fps = 0;
+    frames = 0;
 }
 
 Renderer::~Renderer(){
@@ -116,18 +116,12 @@ void Renderer::RenderFrame(){
     } 
     /* Draw anything rendered since last call */
     SDL_RenderPresent(renderer);
-    UpdateFPS();
+    frames++;
 }
 
-void Renderer::UpdateFPS() {
-    /* Update fps measurement */
-    fps++;
-}
-
-int Renderer::GetFPS() {
+unsigned int Renderer::FPS(unsigned int elapsed) {
+    /* elapsed - time in miliseconds between successive calls to this function */
+    int fps = (1000 / elapsed) * frames;
+    frames = 0;
     return fps;
-}
-
-void Renderer::SetFPS(int fps) {
-    this->fps = fps;
 }

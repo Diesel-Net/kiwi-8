@@ -30,9 +30,7 @@ class Renderer {
     	int R, G, B;
 
     	/* For fps measuring */
-    	int fps;
-
-    	void UpdateFPS();
+    	unsigned int frames;
 
 	public:
 
@@ -45,8 +43,7 @@ class Renderer {
 		void UpdateRenderSpace();
 		void ToggleFullscreen();
 		void RenderFrame();
-		int GetFPS();
-		void SetFPS(int fps);
+		unsigned int FPS(unsigned int elapsed);
 };
 
 #endif

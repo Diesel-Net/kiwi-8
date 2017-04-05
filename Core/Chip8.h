@@ -13,17 +13,16 @@
 #define MEM_OFFSET 512
 #define NUM_KEYS 16
 #define FONTS_SIZE 80
-#define SPEED 60 /* hz */
-#define STEPS_PER_CYCLE 10
-#define INSTRUCTIONS_PER_SEC SPEED * STEPS_PER_CYCLE
+#define STEPS_PER_CYCLE 10 /* ~600 inst/sec if running at 60hz */
+#define SPEED 60 /* hz - Cycle Speed */
 
-/* Thread functions  */
-int TimerThread(void *data);
-int CycleThread(void *data);
+/* prototype for SDL thread proc */
+int CPUThread(void *data);
 
 class Chip8 {
 
 	private:
+
 		/* Two quirks of the Chip8 CPU. 
 		   Some games assume these are enabled to run correctly.
 
@@ -37,8 +36,8 @@ class Chip8 {
 		   incorrectly assumes that the VX register is shifted by this 
 		   instruction, and VY remains unmodified. Enabling this quirk
 		   causes VX to become shifted and VY remain untouched. */
-		int load_store_quirk = 0;
-		int shift_quirk = 0;
+		unsigned int load_store_quirk = 0;
+		unsigned int shift_quirk = 0;
 
 		/* Two bytes for each instruction */
 		unsigned short opcode;
