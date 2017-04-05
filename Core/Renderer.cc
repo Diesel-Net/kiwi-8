@@ -50,7 +50,7 @@ void Renderer::UpdateRenderSpace() {
 	int ratio_h = (WINDOW_HEIGHT / HEIGHT);
 
 	SCALE = MIN(ratio_w, ratio_h);
-
+    
 	RENDER_WIDTH =  WIDTH * SCALE;
 	RENDER_HEIGHT = HEIGHT * SCALE;
 
@@ -69,7 +69,7 @@ void Renderer::UpdateRenderSpace() {
 
 void Renderer::ToggleFullscreen() {
 
-    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
 
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
@@ -78,7 +78,7 @@ void Renderer::ToggleFullscreen() {
     } else {
         
         /* Set Fullscreen */
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
         SDL_ShowCursor(SDL_DISABLE);
     }
 
@@ -109,7 +109,7 @@ void Renderer::RenderFrame(){
 
     		rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
 	        rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
-	  		
+
 	  		if (vram_ptr[i][j]) {
 
                 /* Fill the pixel */
