@@ -37,14 +37,14 @@ all: clean build_debug build_release
 build_debug: objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
-	COPY frameworks\sdl\bin\$(ARCH)\SDL2.dll debug\SDL2.dll
+	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll debug\SDL2.dll
 	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll debug\SDL2_image.dll
 	COPY resources\chip8.ico debug\chip8.ico
 
 build_release: objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
-	COPY frameworks\sdl\bin\$(ARCH)\SDL2.dll release\SDL2.dll
+	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll release\SDL2.dll
 	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll release\SDL2_image.dll
 	COPY resources\chip8.ico release\chip8.ico
 
