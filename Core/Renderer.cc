@@ -43,9 +43,6 @@ void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G
 
 void Renderer::UpdateRenderSpace() {
 
-    SDL_DestroyRenderer(renderer); 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
 	/* Get the current window size */	
 	SDL_GetWindowSize(window, &WINDOW_WIDTH, &WINDOW_HEIGHT);
 	

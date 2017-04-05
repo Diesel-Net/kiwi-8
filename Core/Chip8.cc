@@ -208,7 +208,7 @@ void Chip8::UpdateTimers(){
  
  	if(sound_timer > 0) {
     	if(sound_timer == 1) {
-      		fprintf(stderr, "BEEP!\n");
+      		//fprintf(stderr, "BEEP!\n");
     	}
     	sound_timer--;
 	}

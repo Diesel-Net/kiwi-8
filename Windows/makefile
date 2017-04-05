@@ -22,7 +22,8 @@ LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
 	   SDL2_image.lib \
-	   Comdlg32.lib
+	   Comdlg32.lib \
+	   opengl32.lib
 
 LFLAGS = /link \
 		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \

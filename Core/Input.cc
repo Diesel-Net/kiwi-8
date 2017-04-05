@@ -172,10 +172,21 @@ int Input::CheckOS(Renderer *renderer) {
 
     /* Window events */
     if (event.window.type == SDL_WINDOWEVENT){
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED){  
+        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){  
             /* Update the current rendering screen space */
             renderer->UpdateRenderSpace();
         } 
+        if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+            /* TODO: Resume the emulator, if paused */
+            renderer->UpdateRenderSpace();
+        } 
+        if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+            /* TODO: Add a toggle for "pause on focus loss" */
+        }
+        
+        if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+            return 1;
+        }
     }
 
     return 0;
