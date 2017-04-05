@@ -39,7 +39,7 @@ while test $# -gt 0; do
       echo $exec_prefix
       ;;
     --version)
-      echo 2.0.4
+      echo 2.0.5
       ;;
     --cflags)
       echo -I${prefix}/include/SDL2  -D_THREAD_SAFE
@@ -49,7 +49,7 @@ while test $# -gt 0; do
       ;;
     --static-libs)
 #    --libs|--static-libs)
-      echo -L${exec_prefix}/lib  -lSDL2   -lm -liconv  -Wl,-framework,ForceFeedback -lobjc -Wl,-framework,CoreVideo -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,IOKit -Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox -Wl,-framework,AudioUnit
+      echo -L${exec_prefix}/lib  -lSDL2   -lm -liconv  -Wl,-framework,CoreAudio -Wl,-framework,AudioToolbox -Wl,-framework,ForceFeedback -lobjc -Wl,-framework,CoreVideo -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,IOKit
       ;;
     *)
       echo "${usage}" 1>&2
