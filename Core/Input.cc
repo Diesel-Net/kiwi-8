@@ -167,6 +167,7 @@ int Input::CheckOS(Renderer *renderer) {
 
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
             renderer->ToggleFullscreen();
+            fprintf(stderr, "HERE\n");
         }
     }
 

@@ -69,7 +69,7 @@ void Renderer::UpdateRenderSpace() {
 
 void Renderer::ToggleFullscreen() {
 
-    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN) {
+    if (SDL_GetWindowFlags(window) & FULLSCREEN) {
 
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
@@ -78,7 +78,7 @@ void Renderer::ToggleFullscreen() {
     } else {
         
         /* Set Fullscreen */
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+        SDL_SetWindowFullscreen(window, FULLSCREEN);
         SDL_ShowCursor(SDL_DISABLE);
     }
 
@@ -87,6 +87,7 @@ void Renderer::ToggleFullscreen() {
        fix until I update sdl libs  */
     SDL_DestroyRenderer(renderer);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    
 }
 
 void Renderer::RenderFrame(){

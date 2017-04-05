@@ -1,6 +1,14 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#ifdef _WIN32
+#define FULLSCREEN SDL_WINDOW_FULLSCREEN_DESKTOP
+#endif
+
+#ifdef __APPLE__
+#define FULLSCREEN SDL_WINDOW_FULLSCREEN
+#endif
+
 #include <SDL2/SDL.h>
 
 #define WIDTH 64
