@@ -44,7 +44,7 @@ void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G
 }
 
 void Renderer::Refresh() {
-    fprintf(stderr, "Refresh()\n");
+    //fprintf(stderr, "Refresh()\n");
 
     /* Destroy the renderer, create a new one, otherwise screen goes black if context is lost */
     SDL_DestroyRenderer(renderer);
@@ -58,7 +58,7 @@ void Renderer::Refresh() {
 }
 
 void Renderer::Resize(int x, int y) {
-    fprintf(stderr, "Resize()\n");
+    //fprintf(stderr, "Resize()\n");
 	
     /* Get the current window size */
     WINDOW_WIDTH = x;

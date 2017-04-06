@@ -105,13 +105,6 @@ class Chip8 {
 		void SignalTerminate();
 
 	public:
-		/* Exposed publicly for windows icon fix (see main.cc) */
-		Renderer renderer = Renderer();
-
-		/* Exposed publicly for CPU thread and for debugging(stepping) */
-		void EmulateCycle();
-		int IsRunning();
-
 		/* Constructor */
 		Chip8();
 		~Chip8();
@@ -119,8 +112,13 @@ class Chip8 {
 		int Initialize(int fullscreen, int R, int G, int B);
 		int Load(const char *rom_name);
 		void Run();
-		
-		
+
+		/* Exposed publicly for windows icon fix (see main.cc) */
+		Renderer renderer = Renderer();
+
+		/* Exposed publicly for CPU thread and for debugging(stepping) */
+		void EmulateCycle();
+		int IsRunning();
 };
 
 #endif

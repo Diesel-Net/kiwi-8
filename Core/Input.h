@@ -10,8 +10,8 @@ class Input {
 		SDL_Event event;
 		const Uint8 *state;
 
-		void CheckKeys(unsigned char *keys);
 		int CheckOS(Renderer *renderer);
+		void CheckKeys(unsigned char *keys);
 
 	public:
 		Input();

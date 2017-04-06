@@ -35,123 +35,11 @@ int Input::Poll(Renderer *renderer, unsigned char *keys, SDL_mutex *data_lock) {
     return response;
 }
 
-void Input::CheckKeys(unsigned char *keys) {
-
-    /* Pressed keys */
-    if (event.type == SDL_KEYDOWN) {
-
-        /* Check that state of the keys */
-        if (state[SDL_SCANCODE_1]) {
-            keys[0x1] = 1;
-        } 
-        
-        if (state[SDL_SCANCODE_2]) {
-            keys[0x2] = 1;
-        }
-        if (state[SDL_SCANCODE_3]) {
-            keys[0x3] = 1;
-        }
-        if (state[SDL_SCANCODE_4]) {
-            keys[0xC] = 1;
-        }
-        if (state[SDL_SCANCODE_Q]) {
-            keys[0x4] = 1;
-        }
-        if (state[SDL_SCANCODE_W]) {
-            keys[0x5] = 1;
-        }
-        if (state[SDL_SCANCODE_E]) {
-            keys[0x6] = 1;
-        }
-        if (state[SDL_SCANCODE_R]) {
-            keys[0xD] = 1;
-        }
-        if (state[SDL_SCANCODE_A]) {
-            keys[0x7] = 1;
-        }
-        if (state[SDL_SCANCODE_S]) {
-            keys[0x8] = 1;
-        }
-        if (state[SDL_SCANCODE_D]) {
-            keys[0x9] = 1;
-        }
-        if (state[SDL_SCANCODE_F]) {
-            keys[0xE] = 1;
-        }
-        if (state[SDL_SCANCODE_Z]) {
-            keys[0xA] = 1;
-        }
-        if (state[SDL_SCANCODE_X]) {
-            keys[0x0] = 1;
-        }
-        if (state[SDL_SCANCODE_C]) {
-            keys[0xB] = 1;
-        }
-        if (state[SDL_SCANCODE_V]) {
-            keys[0xF] = 1;
-        }
-    }
-
-    /* Released keys */
-    if (event.type == SDL_KEYUP) {
-
-        /* Check that state of the keys */
-        if (!state[SDL_SCANCODE_1]) {
-            keys[0x1] = 0;
-        }
-        if (!state[SDL_SCANCODE_2]) {
-            keys[0x2] = 0;
-        }
-        if (!state[SDL_SCANCODE_3]) {
-            keys[0x3]= 0;
-        }
-        if (!state[SDL_SCANCODE_4]) {
-            keys[0xC] = 0;
-        }
-        if (!state[SDL_SCANCODE_Q]) {
-            keys[0x4] = 0;
-        }
-        if (!state[SDL_SCANCODE_W]) {
-            keys[0x5] = 0;
-        }
-        if (!state[SDL_SCANCODE_E]) {
-            keys[0x6] = 0;
-        }
-        if (!state[SDL_SCANCODE_R]) {
-            keys[0xD] = 0;
-        }
-        if (!state[SDL_SCANCODE_A]) {
-            keys[0x7] = 0;
-        }
-        if (!state[SDL_SCANCODE_S]) {
-            keys[0x8] = 0;
-        }
-        if (!state[SDL_SCANCODE_D]) {
-            keys[0x9] = 0;
-        }
-        if (!state[SDL_SCANCODE_F]) {
-            keys[0xE] = 0;
-        }
-        if (!state[SDL_SCANCODE_Z]) {
-            keys[0xA] = 0;
-        }
-        if (!state[SDL_SCANCODE_X]) {
-            keys[0x0] = 0;
-        }
-        if (!state[SDL_SCANCODE_C]) {
-            keys[0xB] = 0;
-        }
-        if (!state[SDL_SCANCODE_V]) {
-            keys[0xF] = 0;
-        }
-    }
-} 
-
 int Input::CheckOS(Renderer *renderer) {
 
     /* Quit event */
     if (event.type == SDL_QUIT){
-        /* Close when the user clicks X */
+        /* Close when the user clicks "X" */
         return 1;
     }
 
@@ -187,9 +75,54 @@ int Input::CheckOS(Renderer *renderer) {
         }
         
         if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+            /* The window manager requests that the window be closed */
             return 1;
         }
     }
 
     return 0;
+}
+
+void Input::CheckKeys(unsigned char *keys) {
+    /* Check that state of the keys */
+
+    /* Pressed keys */
+    if (event.type == SDL_KEYDOWN) {
+        keys[0x1] = state[SDL_SCANCODE_1];
+        keys[0x2] = state[SDL_SCANCODE_2];
+        keys[0x3] = state[SDL_SCANCODE_3];
+        keys[0xC] = state[SDL_SCANCODE_4];
+        keys[0x4] = state[SDL_SCANCODE_Q];
+        keys[0x5] = state[SDL_SCANCODE_W];
+        keys[0x6] = state[SDL_SCANCODE_E];
+        keys[0xD] = state[SDL_SCANCODE_R];
+        keys[0x7] = state[SDL_SCANCODE_A];
+        keys[0x8] = state[SDL_SCANCODE_S];
+        keys[0x9] = state[SDL_SCANCODE_D];
+        keys[0xE] = state[SDL_SCANCODE_F];
+        keys[0xA] = state[SDL_SCANCODE_Z];
+        keys[0x0] = state[SDL_SCANCODE_X];
+        keys[0xB] = state[SDL_SCANCODE_C];
+        keys[0xF] = state[SDL_SCANCODE_V];
+    }
+
+    /* Released keys */
+    if (event.type == SDL_KEYUP) {
+        keys[0x1] = !state[SDL_SCANCODE_1];
+        keys[0x2] = !state[SDL_SCANCODE_2];
+        keys[0x3] = !state[SDL_SCANCODE_3];
+        keys[0xC] = !state[SDL_SCANCODE_4];
+        keys[0x4] = !state[SDL_SCANCODE_Q];
+        keys[0x5] = !state[SDL_SCANCODE_W];
+        keys[0x6] = !state[SDL_SCANCODE_E];
+        keys[0xD] = !state[SDL_SCANCODE_R];
+        keys[0x7] = !state[SDL_SCANCODE_A];
+        keys[0x8] = !state[SDL_SCANCODE_S];
+        keys[0x9] = !state[SDL_SCANCODE_D];
+        keys[0xE] = !state[SDL_SCANCODE_F];
+        keys[0xA] = !state[SDL_SCANCODE_Z];
+        keys[0x0] = !state[SDL_SCANCODE_X];
+        keys[0xB] = !state[SDL_SCANCODE_C];
+        keys[0xF] = !state[SDL_SCANCODE_V];
+    }
 }
