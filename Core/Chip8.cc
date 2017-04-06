@@ -65,13 +65,14 @@ Chip8::~Chip8() {
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
 	/* Create renderer, init vram */
 	vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-	renderer.Initialize(vram, fullscreen, R, G, B);
 
 	memset(vram, 0, WIDTH * sizeof(unsigned char *));
 	for (int i = 0; i < WIDTH; i++) {
 		vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
 		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
 	}
+
+	renderer.Initialize(vram, fullscreen, R, G, B);
 
 	/* Initialize registers and memory once */
 	memset(V, 0 , NUM_REGISTERS);
