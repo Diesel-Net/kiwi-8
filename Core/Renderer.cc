@@ -7,7 +7,7 @@
 #define MIN( a, b ) ( ( a < b) ? a : b )
 
 Renderer::Renderer(){
-    frames = 0;
+    /* Empty */
 }
 
 Renderer::~Renderer(){
@@ -31,14 +31,6 @@ void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    /*
-    SDL_Rect viewport;
-    viewport.x = 0;
-    viewport.y = 0;
-    viewport.w = WIDTH;
-    viewport.h = HEIGHT;
-    SDL_RenderSetViewport(renderer, &viewport); */
-
     /* Set to fullscreen mode if flag present */
     if (fullscreen) { 
         ToggleFullscreen();
@@ -51,44 +43,37 @@ void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G
     Resize(WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
-void Renderer::Resize(int x, int y) {
-	/* Get the current window size */	
-	//SDL_GetWindowSize(window, &WINDOW_WIDTH, &WINDOW_HEIGHT);
-    if(x > 0) {
-        WINDOW_WIDTH = x;
-    }
+void Renderer::Refresh() {
+    fprintf(stderr, "Refresh()\n");
 
-    if(y > 0) {
-        WINDOW_HEIGHT = y;
-    }
+    /* Destroy the renderer, create a new one, otherwise screen goes black if context is lost */
+    SDL_DestroyRenderer(renderer);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    /* The two lines below are needed When opengl is under the hood (e.g. needed for MacOS not Windows).
-       On Windows this is not needed because SDL_Renderer will use Direct3D under the hood */
-    if(RENDERER_OPENGL) {
-        SDL_DestroyRenderer(renderer);
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    }
-	
-	float ratio_w = (float)WINDOW_WIDTH / WIDTH;
-	float ratio_h = (float)WINDOW_HEIGHT / HEIGHT;
+    /* Scale up the image */
+    SDL_RenderSetScale(renderer, SCALE_W, SCALE_H);
 
-	SCALE = MIN(ratio_w, ratio_h);
-
-    SDL_RenderSetScale(renderer, ratio_w, ratio_h);
-
-    /*
-	RENDER_OFFSET_W = (WINDOW_WIDTH - RENDER_WIDTH);
-	RENDER_OFFSET_H = (WINDOW_HEIGHT - RENDER_HEIGHT);
-	if (RENDER_OFFSET_W > 0) {
-		RENDER_OFFSET_W /= 2;
-	}
-	if (RENDER_OFFSET_H > 0) {
-		RENDER_OFFSET_H /= 2;
-	} */
-
-	//fprintf(stderr, "%d(%d) X %d(%d)\n", WINDOW_WIDTH, RENDER_WIDTH, WINDOW_HEIGHT, RENDER_HEIGHT);
+    /* Render the frame */
     RenderFrame();
+}
+
+void Renderer::Resize(int x, int y) {
     fprintf(stderr, "Resize()\n");
+	
+    /* Get the current window size */
+    WINDOW_WIDTH = x;
+    WINDOW_HEIGHT = y;
+	
+	SCALE_W = (float)WINDOW_WIDTH / WIDTH;
+	SCALE_H = (float)WINDOW_HEIGHT / HEIGHT;
+
+    /* maintain aspect ratio */
+    if (keep_aspect_ratio) {
+        SCALE_W = MIN(SCALE_W, SCALE_H);
+        SCALE_H = SCALE_W;
+    }
+
+    Refresh();
 }
 
 void Renderer::ToggleFullscreen() {
@@ -109,17 +94,9 @@ void Renderer::ToggleFullscreen() {
 
 void Renderer::RenderFrame(){
 
-    /* Clear the screen */
+    /* Clear the screen (Set the background color) */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
-    SDL_Rect rectangle; 
-    rectangle.x = 0;
-    rectangle.y = 0;
-    //rectangle.w = SCALE;
-    //rectangle.h = SCALE;
-    rectangle.w = 1;
-    rectangle.h = 1;
 
     /* Set the foreground color */
     SDL_SetRenderDrawColor(renderer, R, G, B, 0);
@@ -127,27 +104,14 @@ void Renderer::RenderFrame(){
     for (int i = 0; i < WIDTH; i++){
     	for (int j = 0; j < HEIGHT; j++){
 
-    		//rectangle.x = (i * SCALE) + RENDER_OFFSET_W;
-	        //rectangle.y = (j * SCALE) + RENDER_OFFSET_H;
-            rectangle.x = i;
-            rectangle.y = j;
-
 	  		if (vram_ptr[i][j]) {
 
-                /* Fill the pixel */
-		        SDL_RenderFillRect(renderer, &rectangle);
+                /* Fill the foreground pixel */
+                SDL_RenderDrawPoint(renderer, i, j);
 	        } 
     	}
     }
 
     /* Draw anything rendered since last call */
     SDL_RenderPresent(renderer);
-    frames++;
-}
-
-unsigned int Renderer::FPS(unsigned int elapsed) {
-    /* elapsed - time in miliseconds between successive calls to this function */
-    int fps = (1000 / elapsed) * frames;
-    frames = 0;
-    return fps;
 }

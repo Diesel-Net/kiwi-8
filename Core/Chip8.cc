@@ -15,7 +15,6 @@ int CPUThread(void *data) {
 	unsigned int t2 = 0;
 	unsigned int elapsed;
 	unsigned int remaining;
-	unsigned int fps;
 
 	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
 	unsigned int interval = 1000 / (SPEED);
@@ -23,6 +22,7 @@ int CPUThread(void *data) {
 	for (;;) {
 
 		t1 = SDL_GetTicks();
+
 		elapsed = t2 - t1;
 		remaining = interval - elapsed;
 		if (elapsed < interval) {
@@ -31,16 +31,14 @@ int CPUThread(void *data) {
 			elapsed = interval;
 		}
 
-		fps = chip->renderer.FPS(elapsed);
-		//fprintf(stderr, "FPS: %u\n", fps);
-
 		chip->EmulateCycle();
-		t2 = SDL_GetTicks();
 
 		/* Check if main thread is still running */
 		if (!chip->IsRunning()) {
 			break;
 		}
+
+		t2 = SDL_GetTicks();
 	}
 
 	fprintf(stderr, "CPU thread terminated.\n");
@@ -216,8 +214,8 @@ void Chip8::UpdateTimers(){
 }
 
 void Chip8::EmulateCycle(){
-
 	if (SDL_LockMutex(data_lock) == 0) {
+
 		for (int i = 0; i < STEPS_PER_CYCLE; i++) {
 			FetchOpcode();
 			InterpretOpcode();
@@ -501,7 +499,7 @@ void Chip8::InterpretOpcode(){
 				}
 			}
 						
-			draw_flag = true;			
+			draw_flag = 1;	
 			PC += 2;
 			break;
 		}

@@ -65,7 +65,7 @@ class Chip8 {
 		unsigned char keys[NUM_KEYS];
 		Input input = Input();
 
-		int draw_flag;
+		unsigned int draw_flag;
 
 		/* 1-bit encoded screen pixels (32x64) */
 		unsigned char **vram;

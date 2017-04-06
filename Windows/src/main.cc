@@ -10,6 +10,7 @@ Date: September 8, 2016
 #include <windows.h>
 #include <Commdlg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int main(int argc, char **argv){
@@ -91,7 +92,7 @@ int main(int argc, char **argv){
     }
 
     /*  SDL2 provides no way of loading the Windows ICON 
-        resource that is embedded in the executable at 
+        resource that is embedded into the executable at 
         compile time. The code below loads the window 
         icon from a file during runtime, but it requires 
         an SDL2 extension library - SDL_image 2.0  */

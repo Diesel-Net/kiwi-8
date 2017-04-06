@@ -20,8 +20,10 @@ int Input::Poll(Renderer *renderer, unsigned char *keys, SDL_mutex *data_lock) {
         state = SDL_GetKeyboardState(NULL);
         
         if (SDL_LockMutex(data_lock) == 0) {
+            
             CheckKeys(keys);
             response = CheckOS(renderer);
+
             SDL_UnlockMutex(data_lock);
         } else {
             fprintf(stderr, "Couldn't lock mutex, terminating main thread.\n");
@@ -47,7 +49,7 @@ void Input::CheckKeys(unsigned char *keys) {
             keys[0x2] = 1;
         }
         if (state[SDL_SCANCODE_3]) {
-            keys[0x3]= 1;
+            keys[0x3] = 1;
         }
         if (state[SDL_SCANCODE_4]) {
             keys[0xC] = 1;
@@ -178,9 +180,7 @@ int Input::CheckOS(Renderer *renderer) {
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
             /* TODO: Resume the emulator, if paused */
-
-            // The line below for Windows (Ctrl+Alt+Delete) bug
-            renderer->Resize(0, 0);
+            renderer->Refresh();
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
             /* TODO: Add a toggle for "pause on focus loss" */
