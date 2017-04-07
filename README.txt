@@ -10,7 +10,7 @@ I have included pre-built binaries for both Windows
 and MacOS (.exe file and .app bundle respectively)
 
 Most games are playable, however there are 
-still quite a few bugs here and there. 
+still a couple bugs here and there. 
 No audio is implemented. A work in progress.
 
 Compatibility discussed here:
@@ -53,7 +53,7 @@ Usage: Chip8 PATH_TO_ROM [-F] [R G B]
     R G B   Render color in RGB format, 3 numbers
             from 0-255
 
-    Note: If you launch the game with no arguments, 
+    Note: If you launch the program with no arguments, 
           you will be prompted to load a ROM file on 
           startup.
 
