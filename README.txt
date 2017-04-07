@@ -13,8 +13,9 @@ Most games are playable, however there are
 still a couple bugs here and there. 
 No audio is implemented. A work in progress.
 
-Compatibility discussed here:
+ROM Compatibility discussed here:
 https://github.com/tomdaley92/Chip8/issues/9
+
 
 Controls        --->        keybindings
 
