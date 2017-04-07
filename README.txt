@@ -10,7 +10,7 @@ I have included pre-built binaries for both Windows
 and MacOS (.exe file and .app bundle respectively)
 
 Most games are playable, however there are 
-still a couple bugs here and there. 
+still some issues with a select few. 
 No audio is implemented. A work in progress.
 
 ROM Compatibility discussed here:
