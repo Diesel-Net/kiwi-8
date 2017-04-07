@@ -1,7 +1,7 @@
 Chip8 v1.02
 
-A CHIP-8 interpreter written in C++ using the Simple 
-DirectMedia Layer library.
+A CHIP-8 interpreter written in C++ using the 
+Simple DirectMedia Layer library.
 
 For more information about the CHIP-8 visit:
 https://en.wikipedia.org/wiki/CHIP-8
@@ -34,16 +34,16 @@ How to compile:
         Microsoft's Visual C++ Build Tools 
         (vcvarsall/cl/nmake) are assumed to be 
         installed and added to PATH.
-        1) Open the command prompt and navigate to
-           the Chip8/Windows directory.
-        2) Type "vcvarsall x86" to load the windows 
-           development environment.
+        1) Open the command prompt and navigate 
+           to the Chip8/Windows directory.
+        2) Type "vcvarsall x86" to load the 
+           windows development environment.
         3) Type "nmake".
 
     MacOS:
         Apple's Xcode command line tools 
-        (clang++/make) are assumed to be installed and 
-        added to PATH.
+        (clang++/make) are assumed to be 
+        installed and added to PATH.
         1) Open the terminal and navigate 
            to the Chip8/MacOS directory.
         2) Type "make".
@@ -51,12 +51,12 @@ How to compile:
 
 Usage: Chip8 PATH_TO_ROM [-F] [R G B]
     -F      Launch in fullscreen
-    R G B   Render color in RGB format, 3 numbers
-            from 0-255
+    R G B   Render color in RGB format, 
+            3 numbers from 0-255
 
-    Note: If you launch the program with no arguments, 
-          you will be prompted to load a ROM file on 
-          startup.
+    Note: If you launch the program with no 
+          arguments, you will be prompted to 
+          load a ROM file on startup.
 
 
 Enjoy!
