@@ -1,5 +1,5 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
 #include <SDL2/SDL.h>
 
@@ -7,7 +7,7 @@
 #define HEIGHT 32
 #define SCALE 12 /* 64x32 Scaled by X amount */
 
-class Renderer {
+class Display {
 
 	private:
 
@@ -16,24 +16,22 @@ class Renderer {
 		/* A pointer to the chip8 vram */
 		unsigned char **vram_ptr;
 		
-		float SCALE_W = SCALE;
-		float SCALE_H = SCALE;
+		float SCALE_W;
+		float SCALE_H;
 		
-    	int WINDOW_WIDTH = WIDTH * (int)SCALE_W;
-    	int WINDOW_HEIGHT = HEIGHT * (int)SCALE_H;
-
-    	/* flag set to 1 if aspect ratio should be maintained in the rendering */
-    	unsigned int keep_aspect_ratio = 0;
+    	int WINDOW_WIDTH;
+    	int WINDOW_HEIGHT;
 
     	/* RGB color for rendering foreground */
     	int R, G, B;
 
 	public:
 
+		/* Exposed publicly for windows icon fix (see main.cc) */
 		SDL_Window *window;
 
-		Renderer();
-		~Renderer();
+		Display();
+		~Display();
 
 		void Initialize(unsigned char **vram_ptr, int fullscreen, int R, int B, int G);
 		void Resize(int x, int y);

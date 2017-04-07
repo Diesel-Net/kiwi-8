@@ -1,23 +1,18 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include "Renderer.h"
+#include "Display.h"
 #include "Input.h"
-
 #include <SDL2/SDL.h>
 
-#define VERSION "Chip8 v1.02"
+#define TITLE "Chip8 v1.02"
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16
 #define MEM_OFFSET 512
-#define NUM_KEYS 16
 #define FONTS_SIZE 80
 #define STEPS_PER_CYCLE 10 /* ~600 inst/sec if running at 60hz */
 #define SPEED 60 /* hz - Cycle Speed */
-
-/* prototype for SDL thread proc */
-int CPUThread(void *data);
 
 class Chip8 {
 
@@ -61,9 +56,7 @@ class Chip8 {
 		unsigned short stack[STACK_DEPTH];
 		unsigned short sp;
 
-		/* HEX based keypad (0x0-0xF) */
-		unsigned char keys[NUM_KEYS];
-		Input input = Input();
+		Input *input;
 
 		unsigned int draw_flag;
 
@@ -93,16 +86,19 @@ class Chip8 {
 		SDL_Thread *cpu_thread;
 
 		/* Let's thread-safe-ify things */
-		SDL_mutex *data_lock = SDL_CreateMutex();
+		SDL_mutex *data_lock;
 
 		/* For thread signaling */
-		int is_running;
+		int terminated;
 
 		void SoftReset();
 		void FetchOpcode();
 		void InterpretOpcode();
 		void UpdateTimers();
 		void SignalTerminate();
+
+		static int CPUThread(void *data);
+		
 
 	public:
 		/* Constructor */
@@ -114,11 +110,10 @@ class Chip8 {
 		void Run();
 
 		/* Exposed publicly for windows icon fix (see main.cc) */
-		Renderer renderer = Renderer();
+		Display *display;
 
-		/* Exposed publicly for CPU thread and for debugging(stepping) */
-		void EmulateCycle();
-		int IsRunning();
+		/* Exposed publicly for CPU thread */
+		int EmulateCycle();
 };
 
 #endif

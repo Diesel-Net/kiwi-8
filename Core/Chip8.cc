@@ -3,52 +3,18 @@ Author: Thomas Daley
 Date: September 18, 2016
 */
 #include "Chip8.h"
-
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-int CPUThread(void *data) {
-	Chip8 *chip = (Chip8 *)data;
-	unsigned int t1 = 0;
-	unsigned int t2 = 0;
-	unsigned int elapsed;
-	unsigned int remaining;
-
-	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
-	unsigned int interval = 1000 / (SPEED);
-
-	for (;;) {
-
-		t1 = SDL_GetTicks();
-
-		elapsed = t2 - t1;
-		remaining = interval - elapsed;
-		if (elapsed < interval) {
-			//fprintf(stderr, "CPU thread sleeping for %u ms\n", remaining);
-			SDL_Delay(remaining);
-			elapsed = interval;
-		}
-
-		chip->EmulateCycle();
-
-		/* Check if main thread is still running */
-		if (!chip->IsRunning()) {
-			break;
-		}
-
-		t2 = SDL_GetTicks();
-	}
-
-	fprintf(stderr, "CPU thread terminated.\n");
-	return 0;
-}
-
 /* Constructor */
 Chip8::Chip8() {
 	SDL_Init(SDL_INIT_EVERYTHING);
-	is_running = 0;
+	data_lock = SDL_CreateMutex();
+	display = new Display();
+	input = new Input();
+	terminated = 0;
 }
 
 Chip8::~Chip8() {
@@ -61,7 +27,7 @@ Chip8::~Chip8() {
 }
 
 int Chip8::Initialize(int fullscreen, int R, int G, int B){
-	/* Create renderer, init vram */
+	/* Init vram */
 	vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
 
 	memset(vram, 0, WIDTH * sizeof(unsigned char *));
@@ -70,13 +36,13 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
 	}
 
-	renderer.Initialize(vram, fullscreen, R, G, B);
+	display->Initialize(vram, fullscreen, R, G, B);
+	input->Initialize(display, data_lock);
 
 	/* Initialize registers and memory once */
 	memset(V, 0 , NUM_REGISTERS);
 	memset(memory, 0, MEM_SIZE);
 	memset(stack, 0, STACK_DEPTH);
-	memset(keys, 0, NUM_KEYS);
 
 	/* Load fontset */
 	for(int i = 0; i < FONTS_SIZE; ++i) {
@@ -127,8 +93,73 @@ int Chip8::Load(const char *rom_name){
 	return 0;
 }
 
+void Chip8::SoftReset() {
+	if (SDL_LockMutex(data_lock) == 0) {
+
+		/* Clear the vram */
+		for (int i = 0; i < WIDTH; i++) {
+			memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
+		}
+
+		/* Reset the state of the input keys */
+		input->Reset();
+
+		/* Clear registers and the stack */
+		memset(V, 0 , NUM_REGISTERS);
+		memset(stack, 0, STACK_DEPTH);
+
+		/* Re-initialize program counter, stack pointer, timers, etc. */
+		I = 0;
+		PC = MEM_OFFSET;
+		sp = 0;
+		delay_timer = 0;
+		sound_timer = 0;
+		draw_flag = 1;
+		
+		SDL_UnlockMutex(data_lock);
+	} else {
+		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
+	}
+}
+
+int Chip8::CPUThread(void *data) {
+	Chip8 *chip = (Chip8 *)data;
+	unsigned int t1;
+	unsigned int t2;
+	unsigned int elapsed;
+	unsigned int remaining;
+
+	/* Slows execution speed (60hz) ~= 16.66 ms intervals */
+	unsigned int interval = 1000 / (SPEED);
+
+	for (;;) {
+
+		t1 = SDL_GetTicks();
+
+		/* Runs one cycle and checks if main thread is ready to finish */
+		if (chip->EmulateCycle()) {
+			break;
+		}
+
+		t2 = SDL_GetTicks();
+
+		elapsed = t2 - t1;
+		remaining = interval - elapsed;
+		if (elapsed < interval) {
+			//fprintf(stderr, "CPU thread sleeping for %u ms\n", remaining);
+			SDL_Delay(remaining);
+			elapsed = interval;
+		}
+
+		
+	}
+
+	fprintf(stderr, "CPU thread terminated.\n");
+	return 0;
+}
+
 void Chip8::Run(){
-	is_running = 1;
+	terminated = 0;
 	int result;
 	int cpu_thread_return;
 	
@@ -137,7 +168,7 @@ void Chip8::Run(){
 
 	for (;;) {
 
-		result = input.Poll(&renderer, keys, data_lock);
+		result = input->Poll();
 		if (result == 1) {
 			/* Quit */
 			break;
@@ -154,45 +185,7 @@ void Chip8::Run(){
 void Chip8::SignalTerminate() {
 	/* Signal main thread termination to worker threads */
 	if (SDL_LockMutex(data_lock) == 0) {
-		is_running = 0;
-		SDL_UnlockMutex(data_lock);
-	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
-	}
-}
-
-int Chip8::IsRunning() {
-	int result = 0;
-	if (SDL_LockMutex(data_lock) == 0) {
-		result = is_running;
-		SDL_UnlockMutex(data_lock);
-	} else {
-		fprintf(stderr, "Error: Unable to lock mutex thread.\n");
-	}
-	return result;
-}
-
-void Chip8::SoftReset() {
-	if (SDL_LockMutex(data_lock) == 0) {
-
-		/* Clear the vram */
-		for (int i = 0; i < WIDTH; i++) {
-			memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
-		}
-
-		/* Clear registers, stack, keys */
-		memset(V, 0 , NUM_REGISTERS);
-		memset(stack, 0, STACK_DEPTH);
-		memset(keys, 0, NUM_KEYS);
-
-		/* Re-initialize program counter, stack pointer, timers, etc. */
-		I = 0;
-		PC = MEM_OFFSET;
-		sp = 0;
-		delay_timer = 0;
-		sound_timer = 0;
-		draw_flag = 1;
-		
+		terminated = 1;
 		SDL_UnlockMutex(data_lock);
 	} else {
 		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
@@ -213,7 +206,8 @@ void Chip8::UpdateTimers(){
 	}
 }
 
-void Chip8::EmulateCycle(){
+int Chip8::EmulateCycle(){
+	int result = 1;
 	if (SDL_LockMutex(data_lock) == 0) {
 
 		for (int i = 0; i < STEPS_PER_CYCLE; i++) {
@@ -225,14 +219,17 @@ void Chip8::EmulateCycle(){
 			
 		/* Render the scene */
 		if (draw_flag) {
-			renderer.RenderFrame();
+			display->RenderFrame();
 			draw_flag = 0;
 		}
 
+		result = terminated;
 		SDL_UnlockMutex(data_lock);
 	} else {
 		fprintf(stderr, "Error: Unable to lock mutex on CPU thread.\n");
 	}
+
+	return result;
 }
 
 void Chip8::FetchOpcode() {
@@ -509,7 +506,7 @@ void Chip8::InterpretOpcode(){
 				
 				case 0x009E:
 					/* EX9E:	Skips the next instruction if the key stored in VX is pressed */
-					if(keys[V[(opcode & 0x0F00) >> 8]] == 1) {
+					if(input->keys[V[(opcode & 0x0F00) >> 8]] == 1) {
 						PC += 2;
 					}
 					PC += 2;
@@ -517,7 +514,7 @@ void Chip8::InterpretOpcode(){
 
 				case 0x00A1:
 					/* EXA1:	Skips the next instruction if the key stored in VX isn't pressed */
-					if(keys[V[(opcode & 0x0F00) >> 8]] == 0) {
+					if(input->keys[V[(opcode & 0x0F00) >> 8]] == 0) {
 						PC += 2;
 					}
 					
@@ -543,7 +540,7 @@ void Chip8::InterpretOpcode(){
 				
 					int keyPress = 0;
 					for(int i = 0; i < 16; ++i) {
-						if(keys[i] != 0) {
+						if(input->keys[i] != 0) {
 							V[(opcode & 0x0F00) >> 8] = i;
 							keyPress = 1;
 						}

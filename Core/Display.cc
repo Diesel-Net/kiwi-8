@@ -1,22 +1,24 @@
-#include "Renderer.h"
-
+#include "Display.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <string.h>
 
 #define MIN( a, b ) ( ( a < b) ? a : b )
 
-Renderer::Renderer(){
-    /* Empty */
+Display::Display(){
+    SCALE_W = SCALE;
+    SCALE_H = SCALE;
+    WINDOW_WIDTH = WIDTH * (int)SCALE_W;
+    WINDOW_HEIGHT = HEIGHT * (int)SCALE_H;
 }
 
-Renderer::~Renderer(){
+Display::~Display(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 }
     
 
-void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G, int B){
+void Display::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G, int B){
     int window_mode = SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS;
 
     /* No need to copy the vram, simply assign a pointer to it */
@@ -43,9 +45,7 @@ void Renderer::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G
     Resize(WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
-void Renderer::Refresh() {
-    //fprintf(stderr, "Refresh()\n");
-
+void Display::Refresh() {
     /* Destroy the renderer, create a new one, otherwise screen goes black if context is lost */
     SDL_DestroyRenderer(renderer);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -57,9 +57,7 @@ void Renderer::Refresh() {
     RenderFrame();
 }
 
-void Renderer::Resize(int x, int y) {
-    //fprintf(stderr, "Resize()\n");
-	
+void Display::Resize(int x, int y) {
     /* Get the current window size */
     WINDOW_WIDTH = x;
     WINDOW_HEIGHT = y;
@@ -68,16 +66,14 @@ void Renderer::Resize(int x, int y) {
 	SCALE_H = (float)WINDOW_HEIGHT / HEIGHT;
 
     /* maintain aspect ratio */
-    if (keep_aspect_ratio) {
-        SCALE_W = MIN(SCALE_W, SCALE_H);
-        SCALE_H = SCALE_W;
-    }
+    //SCALE_W = MIN(SCALE_W, SCALE_H);
+    //SCALE_H = SCALE_W;
 
     Refresh();
 }
 
-void Renderer::ToggleFullscreen() {
-
+void Display::ToggleFullscreen() {
+    /* Check if already fullscreen */
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
 
         /* Set Windowed */
@@ -92,8 +88,7 @@ void Renderer::ToggleFullscreen() {
     }
 }
 
-void Renderer::RenderFrame(){
-
+void Display::RenderFrame(){
     /* Clear the screen (Set the background color) */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
