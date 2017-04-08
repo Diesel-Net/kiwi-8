@@ -23,47 +23,47 @@ void Input::Reset() {
 }
 
 int Input::Poll() {
-    int response = 1;
+    int response = USER_QUIT;
     
     /* Wait indefinitley for the next event */
     if (SDL_WaitEvent(&event)) {
         
         state = SDL_GetKeyboardState(NULL);
-        
-        if (SDL_LockMutex(data_lock) == 0) {
-            
-            CheckKeys();
-            response = CheckOS();
-
-            SDL_UnlockMutex(data_lock);
-        } else {
-            fprintf(stderr, "Couldn't lock mutex, terminating main thread.\n");
-        }
+        CheckKeys();
+        response = CheckEvents();
         
     } else {
-        fprintf(stderr, "Error waiting for next event.\n");
+        fprintf(stderr, "%s\n", SDL_GetError());
     }
     return response;
 }
 
-int Input::CheckOS() {
+int Input::CheckEvents() {
 
     /* Quit event */
     if (event.type == SDL_QUIT){
         /* Close when the user clicks "X" */
-        return 1;
+        return USER_QUIT;
+    }
+
+    /* User defined events */
+    if (event.type == SDL_USEREVENT) {
+        
+        if (event.user.code == SIGNAL_DRAW) {
+            display->RenderFrame();
+        } 
     }
 
     /* Keystroke events */
     if (event.type == SDL_KEYDOWN) {
         if (state[SDL_SCANCODE_ESCAPE]) {
             /* Close if escape is held down */
-            return 1;
+            return USER_QUIT;
         }
 
         if (state[SDL_SCANCODE_F5]) {
             /* Soft reset if F5 is held down */
-            return -1;
+            return SOFT_RESET;
         }
 
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
@@ -83,6 +83,7 @@ int Input::CheckOS() {
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
             /* TODO: Add a toggle for "pause on focus loss" */
+
         }
         if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
             /* The window manager requests that the window be closed */
@@ -95,21 +96,28 @@ int Input::CheckOS() {
 
 void Input::CheckKeys() {
 
-    /* Map the state of the keys */
-    keys[0x1] = state[SDL_SCANCODE_1];
-    keys[0x2] = state[SDL_SCANCODE_2];
-    keys[0x3] = state[SDL_SCANCODE_3];
-    keys[0xC] = state[SDL_SCANCODE_4];
-    keys[0x4] = state[SDL_SCANCODE_Q];
-    keys[0x5] = state[SDL_SCANCODE_W];
-    keys[0x6] = state[SDL_SCANCODE_E];
-    keys[0xD] = state[SDL_SCANCODE_R];
-    keys[0x7] = state[SDL_SCANCODE_A];
-    keys[0x8] = state[SDL_SCANCODE_S];
-    keys[0x9] = state[SDL_SCANCODE_D];
-    keys[0xE] = state[SDL_SCANCODE_F];
-    keys[0xA] = state[SDL_SCANCODE_Z];
-    keys[0x0] = state[SDL_SCANCODE_X];
-    keys[0xB] = state[SDL_SCANCODE_C];
-    keys[0xF] = state[SDL_SCANCODE_V];
+    if (SDL_LockMutex(data_lock) == 0) {
+
+        /* Map the state of the keys */
+        keys[0x1] = state[SDL_SCANCODE_1];
+        keys[0x2] = state[SDL_SCANCODE_2];
+        keys[0x3] = state[SDL_SCANCODE_3];
+        keys[0xC] = state[SDL_SCANCODE_4];
+        keys[0x4] = state[SDL_SCANCODE_Q];
+        keys[0x5] = state[SDL_SCANCODE_W];
+        keys[0x6] = state[SDL_SCANCODE_E];
+        keys[0xD] = state[SDL_SCANCODE_R];
+        keys[0x7] = state[SDL_SCANCODE_A];
+        keys[0x8] = state[SDL_SCANCODE_S];
+        keys[0x9] = state[SDL_SCANCODE_D];
+        keys[0xE] = state[SDL_SCANCODE_F];
+        keys[0xA] = state[SDL_SCANCODE_Z];
+        keys[0x0] = state[SDL_SCANCODE_X];
+        keys[0xB] = state[SDL_SCANCODE_C];
+        keys[0xF] = state[SDL_SCANCODE_V];
+
+        SDL_UnlockMutex(data_lock);
+    } else {
+        fprintf(stderr, "%s\n", SDL_GetError());
+    }
 }

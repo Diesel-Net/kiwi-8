@@ -14,6 +14,7 @@
 #define STEPS_PER_CYCLE 10 /* ~600 inst/sec if running at 60hz */
 #define SPEED 60 /* hz - Cycle Speed */
 
+
 class Chip8 {
 
 	private:
@@ -89,6 +90,7 @@ class Chip8 {
 		SDL_mutex *data_lock;
 
 		/* For thread signaling */
+		unsigned int event_type;
 		int terminated;
 
 		void SoftReset();
@@ -96,6 +98,7 @@ class Chip8 {
 		void InterpretOpcode();
 		void UpdateTimers();
 		void SignalTerminate();
+		void SignalDraw();
 
 		static int CPUThread(void *data);
 		

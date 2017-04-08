@@ -15,6 +15,7 @@ Chip8::Chip8() {
 	display = new Display();
 	input = new Input();
 	terminated = 0;
+	event_type = SDL_RegisterEvents(1);
 }
 
 Chip8::~Chip8() {
@@ -36,7 +37,7 @@ int Chip8::Initialize(int fullscreen, int R, int G, int B){
 		memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
 	}
 
-	display->Initialize(vram, fullscreen, R, G, B);
+	display->Initialize(vram, data_lock, fullscreen, R, G, B);
 	input->Initialize(display, data_lock);
 
 	/* Initialize registers and memory once */
@@ -76,7 +77,7 @@ int Chip8::Load(const char *rom_name){
 	/* Jump back to the beginning of the file */           
 	rewind(file);                     
 
-	//fprintf(stderr, "size: %d bytes.\n", rom_size);
+	//fprintf(stderr, "Size: %d bytes.\n", rom_size);
 
 	if (rom_size > MEM_SIZE - MEM_OFFSET) {
 		fprintf(stderr, "Rom is too large or not formatted properly.\n");
@@ -118,7 +119,7 @@ void Chip8::SoftReset() {
 		
 		SDL_UnlockMutex(data_lock);
 	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
+		fprintf(stderr, "%s\n", SDL_GetError());
 	}
 }
 
@@ -169,10 +170,12 @@ void Chip8::Run(){
 	for (;;) {
 
 		result = input->Poll();
-		if (result == 1) {
+
+		if (result == USER_QUIT) {
 			/* Quit */
 			break;
-		} else if (result == -1) {
+
+		} else if (result == SOFT_RESET) {
 			SoftReset();
 		}
 	}
@@ -186,10 +189,22 @@ void Chip8::SignalTerminate() {
 	/* Signal main thread termination to worker threads */
 	if (SDL_LockMutex(data_lock) == 0) {
 		terminated = 1;
+		
 		SDL_UnlockMutex(data_lock);
 	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on main thread.\n");
+		fprintf(stderr, "%s\n", SDL_GetError());
 	}
+}
+
+void Chip8::SignalDraw() {
+	/* CPU Thread signals an event that tells the main 
+	   thread to update the display */  
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = event_type;
+    event.user.code = SIGNAL_DRAW;
+
+    SDL_PushEvent(&event);
 }
 
 void Chip8::UpdateTimers(){
@@ -207,7 +222,7 @@ void Chip8::UpdateTimers(){
 }
 
 int Chip8::EmulateCycle(){
-	int result = 1;
+	int result = USER_QUIT;
 	if (SDL_LockMutex(data_lock) == 0) {
 
 		for (int i = 0; i < STEPS_PER_CYCLE; i++) {
@@ -216,17 +231,17 @@ int Chip8::EmulateCycle(){
 		}
 
 		UpdateTimers();
-			
-		/* Render the scene */
-		if (draw_flag) {
-			display->RenderFrame();
-			draw_flag = 0;
-		}
-
 		result = terminated;
+
 		SDL_UnlockMutex(data_lock);
 	} else {
-		fprintf(stderr, "Error: Unable to lock mutex on CPU thread.\n");
+		fprintf(stderr, "%s\n", SDL_GetError());
+	}
+
+	/* Render the scene, if flag present */
+	if (draw_flag) {
+		SignalDraw();
+		draw_flag = 0;
 	}
 
 	return result;

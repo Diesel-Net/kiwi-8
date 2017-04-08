@@ -15,6 +15,7 @@ class Display {
 
 		/* A pointer to the chip8 vram */
 		unsigned char **vram_ptr;
+		SDL_mutex *data_lock;
 		
 		float SCALE_W;
 		float SCALE_H;
@@ -33,7 +34,7 @@ class Display {
 		Display();
 		~Display();
 
-		void Initialize(unsigned char **vram_ptr, int fullscreen, int R, int B, int G);
+		void Initialize(unsigned char **vram_ptr, SDL_mutex *data_lock, int fullscreen, int R, int B, int G);
 		void Resize(int x, int y);
 		void Refresh();
 		void ToggleFullscreen();

@@ -18,11 +18,15 @@ Display::~Display(){
 }
     
 
-void Display::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G, int B){
+void Display::Initialize(unsigned char **vram_ptr, SDL_mutex *data_lock, int fullscreen, int R, int G, int B){
     int window_mode = SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS;
 
     /* No need to copy the vram, simply assign a pointer to it */
     this->vram_ptr = vram_ptr;
+    this->data_lock = data_lock;
+    this->R = R;
+    this->G = G;
+    this->B = B;
     
    	window = SDL_CreateWindow("Chip8", 
    							  SDL_WINDOWPOS_CENTERED, 
@@ -33,16 +37,12 @@ void Display::Initialize(unsigned char **vram_ptr, int fullscreen, int R, int G,
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+    Resize(WINDOW_WIDTH, WINDOW_HEIGHT);
+
     /* Set to fullscreen mode if flag present */
     if (fullscreen) { 
         ToggleFullscreen();
     }
-   
-    this->R = R;
-    this->G = G;
-    this->B = B;
-
-    Resize(WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void Display::Refresh() {
@@ -89,6 +89,7 @@ void Display::ToggleFullscreen() {
 }
 
 void Display::RenderFrame(){
+
     /* Clear the screen (Set the background color) */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -96,15 +97,22 @@ void Display::RenderFrame(){
     /* Set the foreground color */
     SDL_SetRenderDrawColor(renderer, R, G, B, 0);
 
-    for (int i = 0; i < WIDTH; i++){
-    	for (int j = 0; j < HEIGHT; j++){
+    if (SDL_LockMutex(data_lock) == 0) {
 
-	  		if (vram_ptr[i][j]) {
+        for (int i = 0; i < WIDTH; i++){
+        	for (int j = 0; j < HEIGHT; j++){
 
-                /* Fill the foreground pixel */
-                SDL_RenderDrawPoint(renderer, i, j);
-	        } 
-    	}
+    	  		if (vram_ptr[i][j]) {
+
+                    /* Fill the foreground pixel */
+                    SDL_RenderDrawPoint(renderer, i, j);
+    	        } 
+        	}
+        }
+
+        SDL_UnlockMutex(data_lock);
+    } else {
+        fprintf(stderr, "%s\n", SDL_GetError());
     }
 
     /* Draw anything rendered since last call */
