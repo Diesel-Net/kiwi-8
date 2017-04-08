@@ -9,11 +9,14 @@ https://en.wikipedia.org/wiki/CHIP-8
 I have included pre-built binaries for both Windows
 and MacOS (.exe file and .app bundle respectively)
 
+You can dowload them here:
+https://github.com/tomdaley92/Chip8/releases
+
 Most games are playable, however there are 
 still some issues with a select few. 
 No audio is implemented. A work in progress.
 
-ROM Compatibility discussed here:
+ROM Compatibility is discussed here:
 https://github.com/tomdaley92/Chip8/issues/9
 
 
