@@ -18,7 +18,13 @@ Display::~Display(){
 }
     
 
-void Display::Initialize(unsigned char **vram_ptr, SDL_mutex *data_lock, int fullscreen, int R, int G, int B){
+void Display::Initialize(unsigned char **vram_ptr, 
+                         SDL_mutex *data_lock, 
+                         unsigned int fullscreen, 
+                         unsigned char R, 
+                         unsigned char G, 
+                         unsigned char B){
+
     int window_mode = SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS;
 
     /* No need to copy the vram, simply assign a pointer to it */
@@ -27,13 +33,13 @@ void Display::Initialize(unsigned char **vram_ptr, SDL_mutex *data_lock, int ful
     this->R = R;
     this->G = G;
     this->B = B;
-    
-   	window = SDL_CreateWindow("Chip8", 
-   							  SDL_WINDOWPOS_CENTERED, 
-   							  SDL_WINDOWPOS_CENTERED, 
-   							  WINDOW_WIDTH, 
-   							  WINDOW_HEIGHT, 
-   							  window_mode);
+
+    window = SDL_CreateWindow("Chip8", 
+                              SDL_WINDOWPOS_CENTERED, 
+                              SDL_WINDOWPOS_CENTERED, 
+                              WINDOW_WIDTH, 
+                              WINDOW_HEIGHT, 
+                              window_mode);
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
@@ -61,9 +67,9 @@ void Display::Resize(int x, int y) {
     /* Get the current window size */
     WINDOW_WIDTH = x;
     WINDOW_HEIGHT = y;
-	
-	SCALE_W = (float)WINDOW_WIDTH / WIDTH;
-	SCALE_H = (float)WINDOW_HEIGHT / HEIGHT;
+    
+    SCALE_W = (float)WINDOW_WIDTH / WIDTH;
+    SCALE_H = (float)WINDOW_HEIGHT / HEIGHT;
 
     /* maintain aspect ratio */
     //SCALE_W = MIN(SCALE_W, SCALE_H);
@@ -100,14 +106,14 @@ void Display::RenderFrame(){
     if (SDL_LockMutex(data_lock) == 0) {
 
         for (int i = 0; i < WIDTH; i++){
-        	for (int j = 0; j < HEIGHT; j++){
+            for (int j = 0; j < HEIGHT; j++){
 
-    	  		if (vram_ptr[i][j]) {
+                if (vram_ptr[i][j]) {
 
                     /* Fill the foreground pixel */
                     SDL_RenderDrawPoint(renderer, i, j);
-    	        } 
-        	}
+                } 
+            }
         }
 
         SDL_UnlockMutex(data_lock);

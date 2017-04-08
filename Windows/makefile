@@ -48,12 +48,12 @@ build_release: objects resource
 	COPY resources\chip8.ico release\chip8.ico
 
 test_debug:
-	cd debug & $(APPNAME).exe 
+	cd debug & $(APPNAME).exe \
+	"C:/Roms/CHIP-8/Chip-8 Games/Blinky [Hans Christian Egeberg, 1991].ch8" \
+	-SLF 66 134 244
 
 test_release: 
-	cd release & $(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Programs/BMP Viewer - Hello (C8 example) [Hap, 2005].ch8" \
-	-F 66 134 244
+	cd release & $(APPNAME).exe 
 
 
 # Build object files

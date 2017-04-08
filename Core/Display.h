@@ -9,36 +9,42 @@
 
 class Display {
 
-	private:
+    private:
 
-		SDL_Renderer *renderer;
+        SDL_Renderer *renderer;
 
-		/* A pointer to the chip8 vram */
-		unsigned char **vram_ptr;
-		SDL_mutex *data_lock;
-		
-		float SCALE_W;
-		float SCALE_H;
-		
-    	int WINDOW_WIDTH;
-    	int WINDOW_HEIGHT;
+        /* A pointer to the chip8 vram */
+        unsigned char **vram_ptr;
+        SDL_mutex *data_lock;
+        
+        float SCALE_W;
+        float SCALE_H;
+        
+        int WINDOW_WIDTH;
+        int WINDOW_HEIGHT;
 
-    	/* RGB color for rendering foreground */
-    	int R, G, B;
+        /* RGB color for rendering foreground */
+        unsigned char R, G, B;
 
-	public:
+    public:
 
-		/* Exposed publicly for windows icon fix (see main.cc) */
-		SDL_Window *window;
+        /* Exposed publicly for windows icon fix (see main.cc) */
+        SDL_Window *window;
 
-		Display();
-		~Display();
+        Display();
+        ~Display();
 
-		void Initialize(unsigned char **vram_ptr, SDL_mutex *data_lock, int fullscreen, int R, int B, int G);
-		void Resize(int x, int y);
-		void Refresh();
-		void ToggleFullscreen();
-		void RenderFrame();
+        void Initialize(unsigned char **vram_ptr, 
+                        SDL_mutex *data_lock, 
+                        unsigned int fullscreen, 
+                        unsigned char R, 
+                        unsigned char B, 
+                        unsigned char G);
+
+        void Resize(int x, int y);
+        void Refresh();
+        void ToggleFullscreen();
+        void RenderFrame();
 };
 
 #endif
