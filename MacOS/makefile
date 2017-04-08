@@ -53,8 +53,8 @@ test_release:
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
 	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
-	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Programs/Chip8 Picture.ch8" \
-	197 23 100
+	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Games/Blinky [Hans Christian Egeberg, 1991].ch8" \
+	-FSL 197 23 100
 
 # Removes latest build and object files
 clean:
