@@ -36,10 +36,10 @@ int main(int argc, char **argv){
                             "Usage: Chip8 PATH_TO_ROM [-FLS] [R G B]\n"
                             "       -F\t\tLaunch in fullscreen\n"
                             "       -L\t\tEnable load/store quirk\n"
-                            "       -S\t\tEnable load/store quirk\n"
+                            "       -S\t\tEnable shift quirk\n"
                             "       R G B\t\tForeground color in RGB format,\n"
                             "            \t\t3 numbers from 0-255\n\n\n\n"
-                            "Enjoy!\n\n-Thomas Daley", TITLE, MB_OKCANCEL);
+                            "Enjoy!\n\nThomas Daley", TITLE, MB_OKCANCEL);
         if (result == IDCANCEL) {
             return 0;
         }
