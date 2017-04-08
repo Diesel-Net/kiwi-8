@@ -87,11 +87,11 @@ int Input::CheckEvents() {
         }
         if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
             /* The window manager requests that the window be closed */
-            return 1;
+            return USER_QUIT;
         }
     }
 
-    return 0;
+    return CONTINUE;
 }
 
 void Input::CheckKeys() {

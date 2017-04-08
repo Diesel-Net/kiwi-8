@@ -7,6 +7,7 @@
 #define NUM_KEYS 16
 #define USER_QUIT 1
 #define SOFT_RESET -1
+#define CONTINUE 0
 #define SIGNAL_DRAW 9999
 
 class Input {
