@@ -49,8 +49,10 @@ How to compile:
         2) Type "make".
 
 
-Usage: Chip8 PATH_TO_ROM [-F] [R G B]
+Usage: Chip8 PATH_TO_ROM [-FLS] [R G B]
     -F      Launch in fullscreen
+    -L      Enable load/store quirk
+    -S      Enable shift quirk
     R G B   Render color in RGB format, 
             3 numbers from 0-255
 
