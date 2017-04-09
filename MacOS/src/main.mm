@@ -40,7 +40,6 @@ int main(int argc, char **argv){
                                 "       R G B\t\tForeground color in RGB format,\n"
                                 "            \t\t3 numbers from 0-255\n\n\n\n"
                                 "Enjoy!\n\nThomas Daley"];
-        //[alert setAlertStyle:NSWarningAlertStyle];
 
         if ([alert runModal] == NSAlertSecondButtonReturn) {
             /* Cancel clicked */
@@ -48,7 +47,7 @@ int main(int argc, char **argv){
         }
         [alert release];
 
-        std::vector<std::string> fileTypes = {"ch8\0", "CH8\0", "chip-8\0", "CHIP-8\0", "Chip-8\0"};
+        std::vector<std::string> fileTypes = {"ch8\0", "CH8\0", "chip-8\0", "CHIP-8\0", "Chip-8\0", "\0"};
         std::vector<std::string> files = openFileDialog("Chip8\0", "~\0", fileTypes);
 
         
