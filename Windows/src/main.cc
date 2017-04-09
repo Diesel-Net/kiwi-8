@@ -116,10 +116,7 @@ int main(int argc, char **argv){
     }   
     
     Chip8 chip = Chip8();
-
-    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, R, G, B)) {
-        return 1;
-    }
+    chip.Initialize(fullscreen, load_store_quirk, shift_quirk, R, G, B);
 
     /*  SDL2 provides no way of loading the Windows ICON 
         resource that is embedded into the executable at 

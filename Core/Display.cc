@@ -13,13 +13,17 @@ Display::Display(){
 }
 
 Display::~Display(){
+    for (int i = 0; i < WIDTH; i++) {
+        free(back_buffer[i]);
+    }
+    free(back_buffer);
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 }
     
 
-void Display::Initialize(unsigned char **vram_ptr, 
-                         SDL_mutex *data_lock, 
+void Display::Initialize(SDL_mutex *data_lock, 
                          unsigned int fullscreen, 
                          unsigned char R, 
                          unsigned char G, 
@@ -27,12 +31,19 @@ void Display::Initialize(unsigned char **vram_ptr,
 
     int window_mode = SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS;
 
-    /* No need to copy the vram, simply assign a pointer to it */
-    this->vram_ptr = vram_ptr;
     this->data_lock = data_lock;
     this->R = R;
     this->G = G;
     this->B = B;
+
+    /* Init the backbuffer */
+    back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+    memset(back_buffer, 0, WIDTH * sizeof(unsigned char *));
+
+    for (int i = 0; i < WIDTH; i++) {
+        back_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+        memset(back_buffer[i], 0, HEIGHT * sizeof(unsigned char));
+    }
 
     window = SDL_CreateWindow("Chip8", 
                               SDL_WINDOWPOS_CENTERED, 
@@ -43,8 +54,6 @@ void Display::Initialize(unsigned char **vram_ptr,
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    Resize(WINDOW_WIDTH, WINDOW_HEIGHT);
-
     /* Set to fullscreen mode if flag present */
     if (fullscreen) { 
         ToggleFullscreen();
@@ -52,15 +61,15 @@ void Display::Initialize(unsigned char **vram_ptr,
 }
 
 void Display::Refresh() {
-    /* Destroy the renderer, create a new one, otherwise screen goes black if context is lost */
+    /* Destroy the renderer, create a new one, otherwise screen goes black on MacOS when swithcing to fullscreen */
     SDL_DestroyRenderer(renderer);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     /* Scale up the image */
     SDL_RenderSetScale(renderer, SCALE_W, SCALE_H);
 
-    /* Render the frame */
-    RenderFrame();
+    /* Render the last frame */
+    RenderFrame(back_buffer);
 }
 
 void Display::Resize(int x, int y) {
@@ -68,8 +77,8 @@ void Display::Resize(int x, int y) {
     WINDOW_WIDTH = x;
     WINDOW_HEIGHT = y;
     
-    SCALE_W = (float)WINDOW_WIDTH / WIDTH;
-    SCALE_H = (float)WINDOW_HEIGHT / HEIGHT;
+    SCALE_W = (float)(WINDOW_WIDTH / WIDTH);
+    SCALE_H = (float)(WINDOW_HEIGHT / HEIGHT);
 
     /* maintain aspect ratio */
     //SCALE_W = MIN(SCALE_W, SCALE_H);
@@ -94,7 +103,12 @@ void Display::ToggleFullscreen() {
     }
 }
 
-void Display::RenderFrame(){
+void Display::RenderFrame(unsigned char **frame){
+
+    /* copy the frame to back_buffer */
+    for (int i = 0; i < WIDTH; i++) {
+        memcpy(back_buffer[i], frame[i], HEIGHT * sizeof(unsigned char));
+    }
 
     /* Clear the screen (Set the background color) */
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -103,22 +117,15 @@ void Display::RenderFrame(){
     /* Set the foreground color */
     SDL_SetRenderDrawColor(renderer, R, G, B, 0);
 
-    if (SDL_LockMutex(data_lock) == 0) {
+    for (int i = 0; i < WIDTH; i++){
+        for (int j = 0; j < HEIGHT; j++){
 
-        for (int i = 0; i < WIDTH; i++){
-            for (int j = 0; j < HEIGHT; j++){
+            if (frame[i][j]) {
 
-                if (vram_ptr[i][j]) {
-
-                    /* Fill the foreground pixel */
-                    SDL_RenderDrawPoint(renderer, i, j);
-                } 
-            }
+                /* Fill the foreground pixel */
+                SDL_RenderDrawPoint(renderer, i, j);
+            } 
         }
-
-        SDL_UnlockMutex(data_lock);
-    } else {
-        fprintf(stderr, "%s\n", SDL_GetError());
     }
 
     /* Draw anything rendered since last call */

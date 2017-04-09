@@ -102,10 +102,7 @@ int main(int argc, char **argv){
     }   
     
     Chip8 chip = Chip8();
-
-    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, R, G, B)) {
-        return 1;
-    }
+    chip.Initialize(fullscreen, load_store_quirk, shift_quirk, R, G, B);
 
     if (chip.Load(rom)) {
         return 1;

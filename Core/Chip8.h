@@ -11,7 +11,7 @@
 #define STACK_DEPTH 16
 #define MEM_OFFSET 512
 #define FONTS_SIZE 80
-#define STEPS_PER_CYCLE 10 /* ~600 inst/sec if running at 60hz */
+#define STEPS_PER_CYCLE 14 /* ~840 inst/sec if running at 60hz */
 #define SPEED 60 /* hz - Cycle Speed */
 
 
@@ -42,6 +42,10 @@ class Chip8 {
            0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
            0x200-0xFFF - Program ROM and work RAM */
         unsigned char memory[MEM_SIZE];
+
+        /* A copy of the rom for soft resetting */
+        unsigned char *rom;
+        unsigned int rom_size;
 
         /* 15 general prupose regsiters, and a carry flag register */
         unsigned char V[NUM_REGISTERS]; 
@@ -108,7 +112,7 @@ class Chip8 {
         Chip8();
         ~Chip8();
 
-        int Initialize(unsigned int fullscreen, 
+        void Initialize(unsigned int fullscreen, 
                        unsigned int load_store_quirk,
                        unsigned int shift_quirk,
                        unsigned char R, 

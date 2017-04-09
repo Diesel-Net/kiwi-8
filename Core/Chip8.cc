@@ -24,10 +24,13 @@ Chip8::~Chip8() {
         free(vram[i]);
     }
     free(vram);
+    free(rom);
+    SDL_DestroyMutex(data_lock);
     SDL_Quit();
+
 }
 
-int Chip8::Initialize(unsigned int fullscreen, 
+void Chip8::Initialize(unsigned int fullscreen, 
                       unsigned int load_store_quirk,
                       unsigned int shift_quirk,
                       unsigned char R, 
@@ -46,7 +49,7 @@ int Chip8::Initialize(unsigned int fullscreen,
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    display->Initialize(vram, data_lock, fullscreen, R, G, B);
+    display->Initialize(data_lock, fullscreen, R, G, B);
     input->Initialize(display, data_lock);
 
     /* Initialize registers and memory once */
@@ -65,19 +68,17 @@ int Chip8::Initialize(unsigned int fullscreen,
     delay_timer = 0;
     sound_timer = 0;
     draw_flag = 1;
-
-    return 0;
 }
 
 int Chip8::Load(const char *rom_name){
+
     /* Open the file */
     FILE *file;
-    int rom_size;
     file = fopen(rom_name, "rb");
     
     if(file == NULL){
         fprintf(stderr, "Error opening file\n");
-        return 1;
+        return USER_QUIT;
     }
     /* Jump to the end of the file */
     fseek(file, 0, SEEK_END); 
@@ -90,17 +91,23 @@ int Chip8::Load(const char *rom_name){
 
     if (rom_size > MEM_SIZE - MEM_OFFSET) {
         fprintf(stderr, "Rom is too large or not formatted properly.\n");
-        return 1;
+        return USER_QUIT;
     }
 
-    /* Read in the entire rom starting from 0x200 */
-    if (!fread(memory + MEM_OFFSET, rom_size, sizeof(unsigned char), file)) {
+    rom = (unsigned char *)malloc(rom_size);
+    memset(rom, 0 , rom_size);
+
+    /* Save the rom for later (soft-resets) */
+    if (!fread(rom, sizeof(unsigned char), rom_size, file)) {
         fprintf(stderr, "Error reading Rom file.\n");
-        return 1;
+        return CONTINUE;
     }
+
+    /* Copy the entire rom to memory starting from 0x200 */
+    memcpy(memory + MEM_OFFSET, rom, rom_size);
 
     fclose(file);
-    return 0;
+    return CONTINUE;
 }
 
 void Chip8::SoftReset() {
@@ -117,6 +124,15 @@ void Chip8::SoftReset() {
         /* Clear registers and the stack */
         memset(V, 0 , NUM_REGISTERS);
         memset(stack, 0, STACK_DEPTH);
+        memset(memory, 0, MEM_SIZE);
+
+        /* Load fontset */
+        for(int i = 0; i < FONTS_SIZE; ++i) {
+            memory[i] = chip8_fontset[i];
+        }
+
+        /* Copy the entire rom to memory starting from 0x200 */
+        memcpy(memory + MEM_OFFSET, rom, rom_size);
 
         /* Re-initialize program counter, stack pointer, timers, etc. */
         I = 0;
@@ -197,6 +213,7 @@ void Chip8::Run(){
 void Chip8::SignalTerminate() {
     /* Signal main thread termination to worker threads */
     if (SDL_LockMutex(data_lock) == 0) {
+        
         terminated = 1;
         
         SDL_UnlockMutex(data_lock);
@@ -212,6 +229,19 @@ void Chip8::SignalDraw() {
     SDL_zero(event);
     event.type = event_type;
     event.user.code = SIGNAL_DRAW;
+
+    /* copy the vram and send for screen update */
+    unsigned char **vram_cpy;
+    vram_cpy = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+
+    memset(vram_cpy, 0, WIDTH * sizeof(unsigned char *));
+    for (int i = 0; i < WIDTH; i++) {
+        vram_cpy[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+        memset(vram_cpy[i], 0, HEIGHT * sizeof(unsigned char));
+        memcpy(vram_cpy[i], vram[i], HEIGHT * sizeof(unsigned char));
+    }
+
+    event.user.data1 = vram_cpy;
 
     SDL_PushEvent(&event);
 }
@@ -231,21 +261,24 @@ void Chip8::UpdateTimers(){
 }
 
 int Chip8::EmulateCycle(){
+
     int result = USER_QUIT;
     if (SDL_LockMutex(data_lock) == 0) {
 
         for (int i = 0; i < STEPS_PER_CYCLE; i++) {
             FetchOpcode();
-            InterpretOpcode();
+            InterpretOpcode();  
         }
 
-        UpdateTimers();
         result = terminated;
 
         SDL_UnlockMutex(data_lock);
     } else {
         fprintf(stderr, "%s\n", SDL_GetError());
     }
+
+    /* Update the internal timers */
+    UpdateTimers();
 
     /* Render the scene, if flag present */
     if (draw_flag) {
@@ -498,21 +531,21 @@ void Chip8::InterpretOpcode(){
 
             V[0xF] = 0;
 
-            for (int yline = 0; yline < height; yline++) {
+            for (unsigned int yline = 0; yline < height; yline++) {
                 
                 pixel = memory[I + yline];
                 
-                for(int xline = 0; xline < 8; xline++) {
+                for(unsigned int xline = 0; xline < 8; xline++) {
 
                     if((pixel & (0x80 >> xline)) != 0) {
                         
-                        int true_x = (x + xline) % WIDTH;
-                        int true_y = (y + yline) % HEIGHT;
+                        unsigned int true_x = (x + xline) % WIDTH;
+                        unsigned int true_y = (y + yline) % HEIGHT;
                         
                         if(vram[true_x][true_y] == 1) {
                             
                             //fprintf(stderr, "COLLISION!\n");
-                            V[0xF] = 1;                                    
+                            V[0xF] = 1;                             
                         }
                         
                         vram[true_x][true_y] ^= 1;
@@ -561,7 +594,7 @@ void Chip8::InterpretOpcode(){
                     break;
 
                 case 0x000A: {
-                
+                    /* FX0A - pause emulation until a key is pressed */
                     int keyPress = 0;
                     for(int i = 0; i < 16; ++i) {
                         if(input->keys[i] != 0) {
