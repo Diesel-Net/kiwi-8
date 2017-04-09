@@ -542,11 +542,11 @@ void Chip8::InterpretOpcode(){
                         unsigned int true_x = (x + xline) % WIDTH;
 
                         /* The y coordinate SHOULD NOT be modded, it breaks some games, 
-                           and this is not clear in any documentation i've come across */
+                           and this is not clear in any documentation I've come across */
                         unsigned int true_y = (y + yline);
 
                         /* This check is needed for the ROM: Blitz - David Winter */
-                        if (true_y >= 0 && true_y < HEIGHT) {
+                        if (true_y < HEIGHT) {
                             
                             if(vram[true_x][true_y] == 1) {
                                 
