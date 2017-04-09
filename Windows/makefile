@@ -49,8 +49,8 @@ build_release: objects resource
 
 test_debug:
 	cd debug & $(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Games/Connect 4 [David Winter].ch8" \
-	-L 66 134 244
+	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
+	66 134 244
 
 test_release: 
 	cd release & $(APPNAME).exe 

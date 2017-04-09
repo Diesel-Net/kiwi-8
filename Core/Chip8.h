@@ -11,7 +11,7 @@
 #define STACK_DEPTH 16
 #define MEM_OFFSET 512
 #define FONTS_SIZE 80
-#define STEPS_PER_CYCLE 14 /* ~840 inst/sec if running at 60hz */
+#define INSTRUCTIONS_PER_CYCLE 14 /* ~840 inst/sec if running at 60hz */
 #define SPEED 60 /* hz - Cycle Speed */
 
 

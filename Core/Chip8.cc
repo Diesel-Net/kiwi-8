@@ -265,7 +265,7 @@ int Chip8::EmulateCycle(){
     int result = USER_QUIT;
     if (SDL_LockMutex(data_lock) == 0) {
 
-        for (int i = 0; i < STEPS_PER_CYCLE; i++) {
+        for (int i = 0; i < INSTRUCTIONS_PER_CYCLE; i++) {
             FetchOpcode();
             InterpretOpcode();  
         }
@@ -540,15 +540,23 @@ void Chip8::InterpretOpcode(){
                     if((pixel & (0x80 >> xline)) != 0) {
                         
                         unsigned int true_x = (x + xline) % WIDTH;
-                        unsigned int true_y = (y + yline) % HEIGHT;
-                        
-                        if(vram[true_x][true_y] == 1) {
+
+                        /* The y coordinate SHOULD NOT be modded, it breaks some games, 
+                           and this is not clear in any documentation i've come across */
+                        unsigned int true_y = (y + yline);
+
+                        /* This check is needed for the ROM: Blitz - David Winter */
+                        if (true_y >= 0 && true_y < HEIGHT) {
                             
-                            //fprintf(stderr, "COLLISION!\n");
-                            V[0xF] = 1;                             
+                            if(vram[true_x][true_y] == 1) {
+                                
+                                //fprintf(stderr, "COLLISION!\n");
+                                V[0xF] = 1;                             
+                            }
+                            
+                            vram[true_x][true_y] ^= 1;
+
                         }
-                        
-                        vram[true_x][true_y] ^= 1;
                     }
                 }
             }
