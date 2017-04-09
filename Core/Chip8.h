@@ -46,7 +46,6 @@ class Chip8 {
         /* A copy of the rom for soft resetting */
         unsigned char *rom;
         unsigned int rom_size;
-        unsigned int rom_loaded;
 
         /* 15 general prupose regsiters, and a carry flag register */
         unsigned char V[NUM_REGISTERS]; 
@@ -94,9 +93,6 @@ class Chip8 {
         /* Let's thread-safe-ify things */
         SDL_mutex *data_lock;
 
-        /* Whether or not chip8 has been initialized */
-        unsigned int init;
-
         /* For thread signaling */
         unsigned int event_type;
         unsigned int terminated;
@@ -116,7 +112,7 @@ class Chip8 {
         Chip8();
         ~Chip8();
 
-        void Initialize(unsigned int fullscreen, 
+        int Initialize(unsigned int fullscreen, 
                        unsigned int load_store_quirk,
                        unsigned int shift_quirk,
                        unsigned char R, 

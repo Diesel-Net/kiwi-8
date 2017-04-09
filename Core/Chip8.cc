@@ -16,29 +16,25 @@ Chip8::Chip8() {
     input = new Input();
     event_type = SDL_RegisterEvents(1);
     terminated = 0;
-    rom_loaded = 0;
-    init = 0;
+    vram = NULL;
+    rom = NULL;
 }
 
 Chip8::~Chip8() {
-    /* Cleanup */
-    if (init) {
+    /* Clean-up */
+    if (vram) {
         for (int i = 0; i < WIDTH; i++) {
             free(vram[i]);
         }
         free(vram);
     }
-
-    if (rom_loaded) {
-        free(rom);
-    }
-
+    
+    free(rom);
     SDL_DestroyMutex(data_lock);
     SDL_Quit();
-
 }
 
-void Chip8::Initialize(unsigned int fullscreen, 
+int Chip8::Initialize(unsigned int fullscreen, 
                       unsigned int load_store_quirk,
                       unsigned int shift_quirk,
                       unsigned char R, 
@@ -51,13 +47,25 @@ void Chip8::Initialize(unsigned int fullscreen,
     /* Init vram */
     vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
 
+    if (!vram) {
+        fprintf(stderr, "Unable to allocate memory.\n");
+        return 1;
+    }
+
     memset(vram, 0, WIDTH * sizeof(unsigned char *));
     for (int i = 0; i < WIDTH; i++) {
         vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+
+        if (!vram[i]) {
+            fprintf(stderr, "Unable to allocate memory.\n");
+            return 1;
+        }
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    display->Initialize(data_lock, fullscreen, R, G, B);
+    if (display->Initialize(data_lock, fullscreen, R, G, B)) {
+        return 1;
+    }
     input->Initialize(display, data_lock);
 
     /* Initialize registers and memory once */
@@ -77,7 +85,7 @@ void Chip8::Initialize(unsigned int fullscreen,
     sound_timer = 0;
     draw_flag = 1;
 
-    init = 1;
+    return 0;
 }
 
 int Chip8::Load(const char *rom_name){
@@ -88,7 +96,7 @@ int Chip8::Load(const char *rom_name){
     
     if(file == NULL){
         fprintf(stderr, "Unable to open file, check spelling.\n");
-        return USER_QUIT;
+        return 1;
     }
     /* Jump to the end of the file */
     fseek(file, 0, SEEK_END); 
@@ -101,24 +109,28 @@ int Chip8::Load(const char *rom_name){
 
     if (rom_size > MEM_SIZE - MEM_OFFSET) {
         fprintf(stderr, "Rom is too large or not formatted properly.\n");
-        return USER_QUIT;
+        return 1;
     }
 
     rom = (unsigned char *)malloc(rom_size);
+
+    if(!rom) {
+        fprintf(stderr, "Unable to allocate memory for rom.\n");
+        return 1;
+    }
     memset(rom, 0 , rom_size);
 
     /* Save the rom for later (soft-resets) */
     if (!fread(rom, sizeof(unsigned char), rom_size, file)) {
         fprintf(stderr, "Error reading Rom file.\n");
-        return CONTINUE;
+        return 1;
     }
 
     /* Copy the entire rom to memory starting from 0x200 */
     memcpy(memory + MEM_OFFSET, rom, rom_size);
 
     fclose(file);
-    rom_loaded = 1;
-    return CONTINUE;
+    return 0;
 }
 
 void Chip8::SoftReset() {

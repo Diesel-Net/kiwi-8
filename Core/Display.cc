@@ -10,23 +10,26 @@ Display::Display(){
     SCALE_H = SCALE;
     WINDOW_WIDTH = WIDTH * (int)SCALE_W;
     WINDOW_HEIGHT = HEIGHT * (int)SCALE_H;
-    init = 0;
+    back_buffer = NULL;
+    renderer = NULL;
+    window = NULL;
 }
 
 Display::~Display(){
-    if (init) {
+    /* Clean-up */
+    if (back_buffer) {
         for (int i = 0; i < WIDTH; i++) {
             free(back_buffer[i]);
         }
         free(back_buffer);
-
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
     }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 }
     
 
-void Display::Initialize(SDL_mutex *data_lock, 
+int Display::Initialize(SDL_mutex *data_lock, 
                          unsigned int fullscreen, 
                          unsigned char R, 
                          unsigned char G, 
@@ -41,10 +44,19 @@ void Display::Initialize(SDL_mutex *data_lock,
 
     /* Init the backbuffer */
     back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+
+    if(!back_buffer) {
+        fprintf(stderr, "Unable to allocate memory\n");
+        return 1;
+    }
     memset(back_buffer, 0, WIDTH * sizeof(unsigned char *));
 
     for (int i = 0; i < WIDTH; i++) {
         back_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+        if(!back_buffer[i]) {
+            fprintf(stderr, "Unable to allocate memory\n");
+            return 1;
+        }
         memset(back_buffer[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
@@ -62,7 +74,7 @@ void Display::Initialize(SDL_mutex *data_lock,
         ToggleFullscreen();
     }
 
-    init = 1;
+    return 0;
 }
 
 void Display::Refresh() {

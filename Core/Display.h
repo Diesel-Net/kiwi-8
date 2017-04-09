@@ -26,9 +26,6 @@ class Display {
         /* RGB color for rendering foreground */
         unsigned char R, G, B;
 
-        /* whether or not the display has been initialized */
-        unsigned int init;
-
     public:
 
         /* Exposed publicly for windows icon fix (see main.cc) */
@@ -37,7 +34,7 @@ class Display {
         Display();
         ~Display();
 
-        void Initialize(SDL_mutex *data_lock, 
+        int Initialize(SDL_mutex *data_lock, 
                         unsigned int fullscreen, 
                         unsigned char R, 
                         unsigned char B, 
