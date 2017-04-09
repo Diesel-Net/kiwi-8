@@ -14,17 +14,25 @@ Chip8::Chip8() {
     data_lock = SDL_CreateMutex();
     display = new Display();
     input = new Input();
-    terminated = 0;
     event_type = SDL_RegisterEvents(1);
+    terminated = 0;
+    rom_loaded = 0;
+    init = 0;
 }
 
 Chip8::~Chip8() {
     /* Cleanup */
-    for (int i = 0; i < WIDTH; i++) {
-        free(vram[i]);
+    if (init) {
+        for (int i = 0; i < WIDTH; i++) {
+            free(vram[i]);
+        }
+        free(vram);
     }
-    free(vram);
-    free(rom);
+
+    if (rom_loaded) {
+        free(rom);
+    }
+
     SDL_DestroyMutex(data_lock);
     SDL_Quit();
 
@@ -68,6 +76,8 @@ void Chip8::Initialize(unsigned int fullscreen,
     delay_timer = 0;
     sound_timer = 0;
     draw_flag = 1;
+
+    init = 1;
 }
 
 int Chip8::Load(const char *rom_name){
@@ -77,7 +87,7 @@ int Chip8::Load(const char *rom_name){
     file = fopen(rom_name, "rb");
     
     if(file == NULL){
-        fprintf(stderr, "Error opening file\n");
+        fprintf(stderr, "Unable to open file, check spelling.\n");
         return USER_QUIT;
     }
     /* Jump to the end of the file */
@@ -107,6 +117,7 @@ int Chip8::Load(const char *rom_name){
     memcpy(memory + MEM_OFFSET, rom, rom_size);
 
     fclose(file);
+    rom_loaded = 1;
     return CONTINUE;
 }
 

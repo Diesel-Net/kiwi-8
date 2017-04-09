@@ -9,7 +9,7 @@ https://en.wikipedia.org/wiki/CHIP-8
 I have included pre-built binaries for both Windows
 and MacOS (.exe file and .app bundle respectively)
 
-You can dowload them here:
+You can download them here:
 https://github.com/tomdaley92/Chip8/releases
 
 Most games are playable, however there are 

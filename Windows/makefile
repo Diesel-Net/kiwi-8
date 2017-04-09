@@ -53,7 +53,7 @@ test_debug:
 	66 134 244
 
 test_release: 
-	cd release & $(APPNAME).exe 
+	cd release & $(APPNAME).exe \
 
 
 # Build object files

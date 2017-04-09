@@ -26,6 +26,9 @@ class Display {
         /* RGB color for rendering foreground */
         unsigned char R, G, B;
 
+        /* whether or not the display has been initialized */
+        unsigned int init;
+
     public:
 
         /* Exposed publicly for windows icon fix (see main.cc) */

@@ -10,16 +10,19 @@ Display::Display(){
     SCALE_H = SCALE;
     WINDOW_WIDTH = WIDTH * (int)SCALE_W;
     WINDOW_HEIGHT = HEIGHT * (int)SCALE_H;
+    init = 0;
 }
 
 Display::~Display(){
-    for (int i = 0; i < WIDTH; i++) {
-        free(back_buffer[i]);
-    }
-    free(back_buffer);
+    if (init) {
+        for (int i = 0; i < WIDTH; i++) {
+            free(back_buffer[i]);
+        }
+        free(back_buffer);
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+    }
 }
     
 
@@ -58,6 +61,8 @@ void Display::Initialize(SDL_mutex *data_lock,
     if (fullscreen) { 
         ToggleFullscreen();
     }
+
+    init = 1;
 }
 
 void Display::Refresh() {

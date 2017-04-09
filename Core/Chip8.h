@@ -46,6 +46,7 @@ class Chip8 {
         /* A copy of the rom for soft resetting */
         unsigned char *rom;
         unsigned int rom_size;
+        unsigned int rom_loaded;
 
         /* 15 general prupose regsiters, and a carry flag register */
         unsigned char V[NUM_REGISTERS]; 
@@ -93,9 +94,12 @@ class Chip8 {
         /* Let's thread-safe-ify things */
         SDL_mutex *data_lock;
 
+        /* Whether or not chip8 has been initialized */
+        unsigned int init;
+
         /* For thread signaling */
         unsigned int event_type;
-        int terminated;
+        unsigned int terminated;
 
         void SoftReset();
         void FetchOpcode();

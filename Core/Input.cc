@@ -9,7 +9,7 @@ Input::Input() {
 }
 
 Input::~Input() {
-    /* Empty deconstructor */
+    /* Empty */
 }
 
 void Input::Initialize(Display *display, SDL_mutex *data_lock) {
