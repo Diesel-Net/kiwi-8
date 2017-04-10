@@ -49,7 +49,7 @@ build_release: objects resource
 
 test_debug:
 	cd debug & $(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
+	"C:/Roms/CHIP-8/SuperChip Test Programs/SC Test.ch8" \
 	66 134 244
 
 test_release: 

@@ -324,12 +324,21 @@ void Chip8::FetchOpcode() {
 }
 
 void Chip8::InterpretOpcode(){
-    //fprintf(stderr, "opcode: 0x%X\n", opcode);
+    //fprintf(stderr, "opcode: 0x%x\n", opcode);
 
-    /* Decode opcodes */
-    switch (opcode & 0xF000) {
-        case 0x0000:
-            switch (opcode & 0x0FFF) {
+    /* decode the instruction */
+    unsigned char OP = (opcode & 0xF000) >> 12;
+    unsigned short NNN = opcode & 0x0FFF;
+    unsigned char NN = opcode & 0x00FF;
+    unsigned char N = opcode & 0x000F;
+    unsigned char X = (opcode & 0x0F00) >> 8;
+    unsigned char Y = (opcode & 0x00F0) >> 4;
+    const char *unknown = "Unknown opcode: ";
+
+    /* Execute the instruction */
+    switch (OP) {
+        case 0x0:
+            switch (NNN) {
                 
                 case 0x00E0: 
                     /* 0x00E0: Clears the screen */
@@ -358,352 +367,351 @@ void Chip8::InterpretOpcode(){
             break;
 
         /* opcode 0x1NNN */
-        case 0x1000:
+        case 0x1:
             /* Jumps to address NNN */
-            PC = opcode & 0x0FFF;
+            PC = NNN;
+            //PC+=2;
             break;
 
         /* opcode 0x2NNN */
-        case 0x2000:
+        case 0x2:
             /* Calls subroutine at NNN */
             stack[sp] = PC;
             ++sp;
-            PC = opcode & 0x0FFF;
+            PC = NNN;
             break;
 
         /* opcode 0x3XNN */
-        case 0x3000:
+        case 0x3:
             /* Skips the next instruction if VX equals NN */
-            if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF)) {
+            if (V[X] == NN) {
                 PC += 2;
             }
             PC += 2;
             break;
         
         /* opcode 0x4XNN */
-        case 0x4000:
+        case 0x4:
             /* Skips the next instruction if VX doesn't equal NN */
-            if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00FF)) {
+            if (V[X] != NN) {
                 PC += 2;
             }
             PC += 2;
             break;
 
         /* opcode 0x5XY0 */
-        case 0x5000:
+        case 0x5:
             /* Skips the next instruction if VX equals VY */
-            if (V[(opcode & 0x0F00) >> 8] == V[(opcode & 0x00F0) >> 4]) {
+            if (V[X] == V[Y]) {
                 PC += 2;
             }
             PC += 2;
             break;
 
         /* opcode 0x6XNN */
-        case 0x6000:
+        case 0x6:
             /* Sets VX to NN */
-            V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+            V[X] = NN;
             PC += 2;
             break;
 
         /* opcode 0x7XNN */
-        case 0x7000:
+        case 0x7:
             /* Adds NN to VX */
-            V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
+            V[X] += NN;
             PC += 2;
             break;
 
         /* opcode 0x8XYN */
-        case 0x8000:
-            switch (opcode & 0x000F) {
+        case 0x8:
+            switch (N) {
                 /* opcode 0x8XY0 */
-                case 0x0000:
+                case 0x0:
                     /* Sets VX to the value of VY */
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4];
+                    V[X] = V[Y];
                     PC += 2;
                     break;
 
                 /* opcode 0x8XY1 */
-                case 0x0001:
+                case 0x1:
                     /* Sets VX to VX or VY */
-                    V[(opcode & 0x0F00) >> 8] |= V[(opcode & 0x00F0) >> 4];
+                    V[X] |= V[Y];
                     PC += 2;
                     break;
 
                 /* opcode 0x8XY2 */
-                case 0x0002:
+                case 0x2:
                     /* Sets VX to VX and VY */
-                    V[(opcode & 0x0F00) >> 8] &= V[(opcode & 0x00F0) >> 4];
+                    V[X] &= V[Y];
                     PC += 2;
                     break;
 
                 /* opcode 0x8XY3 */
-                case 0x0003:
+                case 0x3:
                     /* Sets VX to VX xor VY */
-                    V[(opcode & 0x0F00) >> 8] ^= V[(opcode & 0x00F0) >> 4];
+                    V[X] ^= V[Y];
                     PC += 2;
                     break;
 
                 /* opcode 0x8XY4 */
-                case 0x0004:
+                case 0x4:
                     /* Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't */
-                    if(V[(opcode & 0x00F0) >> 4] > (0xFF - V[(opcode & 0x0F00) >> 8])) {
-                        V[0xF] = 1; //carry
+                    if(V[Y] > (0xFF - V[X])) {
+                        /* Carry */
+                        V[0xF] = 1;
                     }
                     else {
                         V[0xF] = 0;
                     }
-
-                    V[(opcode & 0x0F00) >> 8] += V[(opcode & 0x00F0) >> 4]; 
+                    V[X] += V[Y]; 
                     PC += 2;
                     break;
 
                 /* opcode 0x8XY5 */
-                case 0x0005:
+                case 0x5:
                     /* VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1 when there isn't */
-                    if(V[(opcode & 0x00F0) >> 4] > V[(opcode & 0x0F00) >> 8]) {
-                        V[0xF] = 0; /* there is a borrow */
+                    if(V[Y] > V[X]) {
+                        /* there is a borrow */
+                        V[0xF] = 0; 
                     }
                     else {
                         V[0xF] = 1;                 
                     }
-
-                    V[(opcode & 0x0F00) >> 8] -= V[(opcode & 0x00F0) >> 4];
+                    V[X] -= V[Y];
                     PC += 2;
                     break;
 
-                case 0x0006: /* 0x8XY6: Shifts VX right by one. VF is set to the value of the least significant 
+                /* opcode 0x8XY6 */
+                case 0x6: /* Shifts VX right by one. VF is set to the value of the least significant 
                             bit of VX before the shift. */
-                    V[0xF] = V[(opcode & 0x0F00) >> 8] & 0x1;
-
+                    V[0xF] = V[X] & 0x1;
                     if(shift_quirk) {
-                        V[(opcode & 0x0F00) >> 8] >>= 1;
+                        V[X] >>= 1;
                     } else {
-                        V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] >> 1;
-                    }
-                    
+                        V[X] = V[Y] >> 1;
+                    } 
                     PC += 2;
                     break;
 
-                case 0x0007: /* 0x8XY7: Sets VX to VY minus VX. VF is set to 0 when there's a borrow, 
+                /* opcode 0x8XY7 */
+                case 0x7: /* Sets VX to VY minus VX. VF is set to 0 when there's a borrow, 
                             and 1 when there isn't. */
-                    if (V[(opcode & 0x0F00) >> 8] > V[(opcode & 0x00F0) >> 4]) {    // VY-VX
-                        V[0xF] = 0; /* there is a borrow */
+                    if (V[X] > V[Y]) {
+                        /* there is a borrow */
+                        V[0xF] = 0; 
                     }
                     else {
                         V[0xF] = 1;
                     }
-
-                    V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] - V[(opcode & 0x0F00) >> 8];              
+                    V[X] = V[Y] - V[X];              
                     PC += 2;
                     break;
 
-                case 0x000E: /* 0x8XYE: Shifts VX left by one. VF is set to the value of the most significant 
+                /* opcode 0x8XYE */
+                case 0xE: /* Shifts VX left by one. VF is set to the value of the most significant 
                             bit of VX before the shift. */
-                    V[0xF] = V[(opcode & 0x0F00) >> 8] & 0x8;
-
+                    V[0xF] = V[X] & 0x8;
                     if(shift_quirk) {
-                        V[(opcode & 0x0F00) >> 8] <<= 1;
+                        V[X] <<= 1;
                     } else {
-                        V[(opcode & 0x0F00) >> 8] = V[(opcode & 0x00F0) >> 4] << 1;
+                        V[X] = V[Y] << 1;
                     }
                     
                     PC += 2;
                     break;
 
                 default:
-                    //fprintf (stderr, "Unknown opcode [0x8000]: 0x%X\n", opcode);
+                    fprintf (stderr, "%s0x%X\n", unknown, opcode);
                     PC+=2;
                     break;
             }
             break;
 
         /* opcode 0x9XY0 */
-        case 0x9000:
+        case 0x9:
             /* Skips the next instruction if VX doesn't equal VY */
-            if (V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4]) {
+            if (V[X] != V[Y]) {
                 PC +=2;
             }
             PC += 2;
             break;
 
         /* opcode ANNN */
-        case 0xA000:
+        case 0xA:
             /* Sets I to the address NNN */
-            I = opcode & 0x0FFF;
+            I = NNN;
             PC += 2;
             break;
 
         /* opcode BNNN */
-        case 0xB000:
+        case 0xB:
             /* Jumps to the address NNN plus V0 */
-            PC = (opcode & 0x0FFF) + V[0];
+            PC = NNN + V[0];
             break;
 
         /* opcode CXNN */
-        case 0xC000:
+        case 0xC:
             /* Sets VX to the result of a bitwise and operation on a random number and NN */
-            V[(opcode & 0x0F00) >> 8] = (rand() % 0xFF) & (opcode & 0x00FF);
+            V[X] = (rand() % 0xFF) & NN;
             PC += 2;
             break;
 
         /* opcode DXYN */
-        case 0xD000: {
+        case 0xD: {
             /* Draws a sprite at coordinate (VX, VY) that has a width of 8 vram and a height of N vram. 
             Each row of 8 vram is read as bit-coded starting from memory location I; 
             I value doesn’t change after the execution of this instruction. As described above, 
             VF is set to 1 if any screen vram are flipped from set to unset when the sprite is drawn, 
             and to 0 if that doesn’t happen */
-            unsigned short x = V[(opcode & 0x0F00) >> 8];
-            unsigned short y = V[(opcode & 0x00F0) >> 4];
-            unsigned short height = opcode & 0x000F;
+            unsigned short x = V[X];
+            unsigned short y = V[Y];
+            unsigned short height = N;
             unsigned short pixel;
 
             V[0xF] = 0;
-            for (unsigned int yline = 0; yline < height; yline++) {
+            for (unsigned char yline = 0; yline < height; yline++) {
                 pixel = memory[I + yline];
-                for(unsigned int xline = 0; xline < 8; xline++) {
+                for(unsigned char xline = 0; xline < 8; xline++) {
                     if((pixel & (0x80 >> xline)) != 0) {
-    
-                        unsigned int true_x = (x + xline) % WIDTH;
+                        
                         /* The y coordinate SHOULD NOT be modded, it breaks some games, 
                            and this is not clear in any documentation I've come across */
-                        unsigned int true_y = (y + yline);
+                        unsigned char true_x = (x + xline) % WIDTH;
+                        unsigned char true_y = (y + yline);
 
-                        /* This check is needed for the ROM: Blitz - David Winter */
+                        /* This y coordinate check is needed for the ROM: Blitz - David Winter 
+                           The rom has sprites with one too many vertical pixel so it ends up 
+                           wrapping to the top of the screen if you (y % HEIGHT) */
                         if (true_y < HEIGHT) {
             
                             if(vram[true_x][true_y] == 1) {
-                                //fprintf(stderr, "COLLISION!\n");
+                                /* Collision */
                                 V[0xF] = 1;                             
                             }
+                            /* Toggle the pixels */
                             vram[true_x][true_y] ^= 1;
                         }
                     }
                 }
-            }
-                        
+            }          
             draw_flag = 1;  
             PC += 2;
             break;
         }
 
-        case 0xE000:
-            switch(opcode & 0x00FF) {
+        case 0xE:
+            switch(NN) {
                 
-                case 0x009E:
+                case 0x9E:
                     /* EX9E:    Skips the next instruction if the key stored in VX is pressed */
-                    if(input->keys[V[(opcode & 0x0F00) >> 8]] == 1) {
+                    if(input->keys[V[X]] == 1) {
                         PC += 2;
                     }
                     PC += 2;
                     break;
 
-                case 0x00A1:
+                case 0xA1:
                     /* EXA1:    Skips the next instruction if the key stored in VX isn't pressed */
-                    if(input->keys[V[(opcode & 0x0F00) >> 8]] == 0) {
+                    if(input->keys[V[X]] == 0) {
                         PC += 2;
                     }
-                    
                     PC += 2;
                     break;
 
                 default:
-                    //fprintf (stderr, "Unknown opcode [0xE000]: 0x%X\n", opcode);
+                    fprintf (stderr, "%s0x%X\n", unknown, opcode);
                     PC+=2;
                     break;
             }
             break;
 
-        case 0xF000:
-            switch (opcode & 0x00FF) {
+        case 0xF:
+            switch (NN) {
                 
-                case 0x0007: /* FX07: Sets VX to delay timer */
-                    V[(opcode & 0x0F00) >> 8] = delay_timer;
+                case 0x07: /* FX07: Sets VX to delay timer */
+                    V[X] = delay_timer;
                     PC += 2;
                     break;
 
-                case 0x000A: {
+                case 0x0A: {
                     /* FX0A - Pause execution until a key is pressed */
                     SignalDraw();
                     SDL_CondWait(halt_cond, data_lock);
                     int key_pressed = 0;
-                    for (int i = 0; i < 16; i++) {
+                    for (int i = 0; i < NUM_KEYS; i++) {
                         if (input->keys[i] != 0) {
-                            V[(opcode & 0x0F00) >> 8] = i;
+                            V[X] = i;
                             key_pressed = 1;
                         }
                     }
-
                     if (!key_pressed) {
                         /* The user must have hit Soft-Reset or Quit
                            while this thread was blocked */
                         break;
                     }
-
                     PC += 2;
                     break;
                 }                   
 
-                case 0x0015: /* FX15: Sets the delay timer to VX */
-                    delay_timer = V[(opcode & 0x0F00) >> 8];
+                case 0x15: /* FX15: Sets the delay timer to VX */
+                    delay_timer = V[X];
                     PC += 2;
                     break;
 
-                case 0x0018: /* FX18: Sets the sound timer to VX */
-                    sound_timer = V[(opcode & 0x0F00) >> 8];
+                case 0x18: /* FX18: Sets the sound timer to VX */
+                    sound_timer = V[X];
                     PC += 2;
                     break;
 
-                case 0x001E: /* FX1E: Adds VX to I */
+                case 0x1E: /* FX1E: Adds VX to I */
                     /* VF is set to 1 when range overflow (I+VX>0xFFF), and 0 when there isn't. */
-                    if (I + V[(opcode & 0x0F00) >> 8] > 0xFFF) {
+                    if (I + V[X] > 0xFFF) {
                         V[0xF] = 1;
                     } else {
                         V[0xF] = 0;
                     }
-
-                    I += V[(opcode & 0x0F00) >> 8];
+                    I += V[X];
                     PC += 2;
                     break;
 
-                case 0x0029: /* FX29: Sets I to the location of the sprite for the character in VX. 
+                case 0x29: /* FX29: Sets I to the location of the sprite for the character in VX. 
                             Characters 0-F (in hexadecimal) are represented by a 4x5 font. */
-                    I = V[(opcode & 0x0F00) >> 8] * 0x5;
+                    I = V[X] * 0x5;
                     PC += 2;
                     break;
 
-                case 0x0033: /* FX33: Stores the Binary-coded decimal representation of VX at the 
+                case 0x33: /* FX33: Stores the Binary-coded decimal representation of VX at the 
                             addresses I, I plus 1, and I plus 2 */
-                    memory[I] = V[(opcode & 0x0F00) >> 8] / 100;
-                    memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
-                    memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;                 
+                    memory[I] = V[X] / 100;
+                    memory[I + 1] = (V[X] / 10) % 10;
+                    memory[I + 2] = (V[X] % 100) % 10;                 
                     PC += 2;
                     break;
 
-                case 0x0055: /* FX55: Stores V0 to VX in memory starting at address I */                
-                    for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
+                case 0x55: /* FX55: Stores V0 to VX in memory starting at address I */                
+                    for (int i = 0; i <= X; i++) {
                         memory[I + i] = V[i];   
                     }
                     /* On the original interpreter, when the operation is done, I = I + X + 1. */
                     if (!load_store_quirk) {
-                        I += ((opcode & 0x0F00) >> 8) + 1;
+                        I += X + 1;
                     }
                     PC += 2;
                     break;
 
-                case 0x0065: /* FX65: Fills V0 to VX with values from memory starting at address I. */              
-                    for (int i = 0; i <= ((opcode & 0x0F00) >> 8); i++) {
+                case 0x65: /* FX65: Fills V0 to VX with values from memory starting at address I. */              
+                    for (int i = 0; i <= X; i++) {
                         V[i] = memory[I + i];           
                     }
                     /* On the original interpreter, when the operation is done, I = I + X + 1. */
                     if (!load_store_quirk) {
-                        I += ((opcode & 0x0F00) >> 8) + 1;
+                        I += X + 1;
                     }
                     PC += 2;
                     break;
 
                 default:
-                    //fprintf (stderr, "Unknown opcode [0xF000]: 0x%X\n", opcode);
+                    fprintf (stderr, "%s0x%X\n", unknown, opcode);
                     PC+=2;
                     break;
             }
