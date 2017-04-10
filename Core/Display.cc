@@ -36,7 +36,6 @@ int Display::Initialize(SDL_mutex *data_lock,
                          unsigned char B){
 
     int window_mode = SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS;
-
     this->data_lock = data_lock;
     this->R = R;
     this->G = G;
@@ -44,7 +43,6 @@ int Display::Initialize(SDL_mutex *data_lock,
 
     /* Init the backbuffer */
     back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-
     const char *err_str = "Unable to allocate memory on the heap.\n";
 
     if(!back_buffer) {
@@ -80,7 +78,8 @@ int Display::Initialize(SDL_mutex *data_lock,
 }
 
 void Display::Refresh() {
-    /* Destroy the renderer, create a new one, otherwise screen goes black on MacOS when swithcing to fullscreen */
+    /* Destroy the renderer, create a new one, otherwise screen 
+       goes black on MacOS when swithcing to fullscreen */
     SDL_DestroyRenderer(renderer);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 

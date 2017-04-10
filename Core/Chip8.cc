@@ -48,7 +48,6 @@ int Chip8::Initialize(unsigned int fullscreen,
 
     /* Init vram */
     vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-
     const char *err_str = "Unable to allocate memory on the heap.\n";
 
     if (!vram) {
@@ -169,6 +168,7 @@ void Chip8::SoftReset() {
         sound_timer = 0;
         draw_flag = 1;
 
+        /* Signal, just in case the CPU Thread is in the HALT state */
         SDL_CondSignal(halt_cond);
         
         SDL_UnlockMutex(data_lock);
@@ -204,9 +204,7 @@ int Chip8::CPUThread(void *data) {
             //fprintf(stderr, "CPU thread sleeping for %u ms\n", remaining);
             SDL_Delay(remaining);
             elapsed = interval;
-        }
-
-        
+        }   
     }
 
     fprintf(stderr, "CPU thread terminated.\n");
@@ -236,16 +234,15 @@ void Chip8::Run(){
 
     /* Tell worker threads im done, and wait for them to finish */
     SignalTerminate();
+    fprintf(stderr, "Waiting on CPU Thread.\n");
     SDL_WaitThread(cpu_thread, &cpu_thread_return);
 }
 
 void Chip8::SignalTerminate() {
     /* Signal main thread termination to worker threads */
     if (SDL_LockMutex(data_lock) == 0) {
-        
-        SDL_CondSignal(halt_cond);
         terminated = 1;
-        
+        SDL_CondSignal(halt_cond);
         SDL_UnlockMutex(data_lock);
     } else {
         fprintf(stderr, "%s\n", SDL_GetError());
@@ -281,7 +278,6 @@ void Chip8::UpdateTimers(){
     if(delay_timer > 0) {
         delay_timer--;
     }
- 
     if(sound_timer > 0) {
         if(sound_timer == 1) {
             //fprintf(stderr, "BEEP!\n");
@@ -292,16 +288,18 @@ void Chip8::UpdateTimers(){
 
 int Chip8::EmulateCycle(){
 
-    int result = 0;
+    int response = CONTINUE;
     if (SDL_LockMutex(data_lock) == 0) {
-
+       
         for (int i = 0; i < INSTRUCTIONS_PER_CYCLE; i++) {
-            FetchOpcode();
-            result = InterpretOpcode();
-            if(result != 0) {
+            /* terminated can change value, 
+               after this thread wakes from opcode 0xFX0A */
+            if (terminated) {
+                response = USER_QUIT;
                 break;
             }
-             
+            FetchOpcode();
+            InterpretOpcode();
         }
 
         SDL_UnlockMutex(data_lock);
@@ -318,18 +316,15 @@ int Chip8::EmulateCycle(){
         draw_flag = 0;
     }
 
-    return result;
+    return response;
 }
 
 void Chip8::FetchOpcode() {
     opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
-int Chip8::InterpretOpcode(){
+void Chip8::InterpretOpcode(){
     //fprintf(stderr, "opcode: 0x%X\n", opcode);
-    if (terminated) {
-        return 1;
-    }
 
     /* Decode opcodes */
     switch (opcode & 0xF000) {
@@ -558,39 +553,30 @@ int Chip8::InterpretOpcode(){
             I value doesn’t change after the execution of this instruction. As described above, 
             VF is set to 1 if any screen vram are flipped from set to unset when the sprite is drawn, 
             and to 0 if that doesn’t happen */
-        
             unsigned short x = V[(opcode & 0x0F00) >> 8];
             unsigned short y = V[(opcode & 0x00F0) >> 4];
             unsigned short height = opcode & 0x000F;
             unsigned short pixel;
 
             V[0xF] = 0;
-
             for (unsigned int yline = 0; yline < height; yline++) {
-                
                 pixel = memory[I + yline];
-                
                 for(unsigned int xline = 0; xline < 8; xline++) {
-
                     if((pixel & (0x80 >> xline)) != 0) {
-                        
+    
                         unsigned int true_x = (x + xline) % WIDTH;
-
                         /* The y coordinate SHOULD NOT be modded, it breaks some games, 
                            and this is not clear in any documentation I've come across */
                         unsigned int true_y = (y + yline);
 
                         /* This check is needed for the ROM: Blitz - David Winter */
                         if (true_y < HEIGHT) {
-                            
+            
                             if(vram[true_x][true_y] == 1) {
-                                
                                 //fprintf(stderr, "COLLISION!\n");
                                 V[0xF] = 1;                             
                             }
-                            
                             vram[true_x][true_y] ^= 1;
-
                         }
                     }
                 }
@@ -649,7 +635,7 @@ int Chip8::InterpretOpcode(){
                     }
 
                     if (!key_pressed) {
-                        /* The user hit soft reset 
+                        /* The user must have hit Soft-Reset or Quit
                            while this thread was blocked */
                         break;
                     }
@@ -723,5 +709,4 @@ int Chip8::InterpretOpcode(){
             }
             break;
     } /* End of switch */
-    return 0;
 }

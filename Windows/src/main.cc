@@ -20,9 +20,9 @@ int main(int argc, char **argv){
     char *rom;
 
     /* Defaults */
-    unsigned int fullscreen = 0;
-    unsigned int load_store_quirk = 0;
-    unsigned int shift_quirk = 0;
+    int fullscreen = 0;
+    int load_store_quirk = 0;
+    int shift_quirk = 0;
     unsigned char R = 0;
     unsigned char G = 255;
     unsigned char B = 200;
