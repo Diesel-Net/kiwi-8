@@ -45,8 +45,10 @@ int Display::Initialize(SDL_mutex *data_lock,
     /* Init the backbuffer */
     back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
 
+    const char *err_str = "Unable to allocate memory on the heap.\n";
+
     if(!back_buffer) {
-        fprintf(stderr, "Unable to allocate memory\n");
+        fprintf(stderr, "%s", err_str);
         return 1;
     }
     memset(back_buffer, 0, WIDTH * sizeof(unsigned char *));
@@ -54,7 +56,7 @@ int Display::Initialize(SDL_mutex *data_lock,
     for (int i = 0; i < WIDTH; i++) {
         back_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
         if(!back_buffer[i]) {
-            fprintf(stderr, "Unable to allocate memory\n");
+            fprintf(stderr, "%s", err_str);
             return 1;
         }
         memset(back_buffer[i], 0, HEIGHT * sizeof(unsigned char));

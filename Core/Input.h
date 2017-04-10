@@ -18,6 +18,7 @@ class Input {
 
         Display *display;
         SDL_mutex *data_lock;
+        SDL_cond *halt_cond;
 
         int CheckEvents();
         void CheckKeys();
@@ -29,7 +30,7 @@ class Input {
         /* HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
 
-        void Initialize(Display *display, SDL_mutex *data_lock);
+        void Initialize(Display *display, SDL_mutex *data_lock, SDL_cond *halt_cond);
         void Reset();
         int Poll();
         

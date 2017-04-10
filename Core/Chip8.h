@@ -32,8 +32,8 @@ class Chip8 {
            incorrectly assumes that the VX register is shifted by this 
            instruction, and VY remains unmodified. Enabling this quirk
            causes VX to become shifted and VY remain untouched. */
-        unsigned int load_store_quirk;
-        unsigned int shift_quirk;
+        int load_store_quirk;
+        int shift_quirk;
 
         /* Two bytes for each instruction */
         unsigned short opcode;
@@ -63,7 +63,10 @@ class Chip8 {
 
         Input *input;
 
-        unsigned int draw_flag;
+        /* If this flag is enabled, draw a frame at the end of the cycle */
+        int draw_flag;
+        unsigned int event_type;
+
 
         /* 1-bit encoded screen pixels (32x64) */
         unsigned char **vram;
@@ -92,14 +95,14 @@ class Chip8 {
 
         /* Let's thread-safe-ify things */
         SDL_mutex *data_lock;
+        SDL_cond *halt_cond;
 
-        /* For thread signaling */
-        unsigned int event_type;
-        unsigned int terminated;
+        /* For signaling thread termination */
+        int terminated;
 
         void SoftReset();
         void FetchOpcode();
-        void InterpretOpcode();
+        int InterpretOpcode();
         void UpdateTimers();
         void SignalTerminate();
         void SignalDraw();

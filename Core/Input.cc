@@ -12,9 +12,10 @@ Input::~Input() {
     /* Empty */
 }
 
-void Input::Initialize(Display *display, SDL_mutex *data_lock) {
+void Input::Initialize(Display *display, SDL_mutex *data_lock, SDL_cond *halt_cond) {
     this->display = display;
     this->data_lock = data_lock;
+    this->halt_cond = halt_cond;
     Reset();
 }
 
@@ -47,11 +48,12 @@ int Input::Poll() {
 }
 
 int Input::CheckEvents() {
+    int exit_code = CONTINUE;
 
     /* Quit event */
     if (event.type == SDL_QUIT){
         /* Close when the user clicks "X" */
-        return USER_QUIT;
+        exit_code = USER_QUIT;
     }
 
     /* User defined events */
@@ -74,12 +76,12 @@ int Input::CheckEvents() {
     if (event.type == SDL_KEYDOWN) {
         if (state[SDL_SCANCODE_ESCAPE]) {
             /* Close if escape is held down */
-            return USER_QUIT;
+            exit_code = USER_QUIT;
         }
 
         if (state[SDL_SCANCODE_F5]) {
             /* Soft reset if F5 is held down */
-            return SOFT_RESET;
+            exit_code = SOFT_RESET;
         }
 
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
@@ -103,11 +105,11 @@ int Input::CheckEvents() {
         }
         if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
             /* The window manager requests that the window be closed */
-            return USER_QUIT;
+            exit_code = USER_QUIT;
         }
     }
 
-    return CONTINUE;
+    return exit_code;
 }
 
 void Input::CheckKeys() {
@@ -129,4 +131,17 @@ void Input::CheckKeys() {
     keys[0x0] = state[SDL_SCANCODE_X];
     keys[0xB] = state[SDL_SCANCODE_C];
     keys[0xF] = state[SDL_SCANCODE_V];
+
+    /* Signal if a key was pressed this round */
+    if (event.type == SDL_KEYDOWN) {
+        int key_pressed = 0;
+        for (int i = 0; i < 0xF; i++) {
+            if (keys[i]) {
+                key_pressed = 1;
+            }
+        }
+        if (key_pressed) {
+            SDL_CondSignal(halt_cond);
+        }        
+    }
 }

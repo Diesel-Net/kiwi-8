@@ -15,6 +15,7 @@ Chip8::Chip8() {
     display = new Display();
     input = new Input();
     event_type = SDL_RegisterEvents(1);
+    halt_cond = SDL_CreateCond();
     terminated = 0;
     vram = NULL;
     rom = NULL;
@@ -28,9 +29,10 @@ Chip8::~Chip8() {
         }
         free(vram);
     }
-    
+
     free(rom);
     SDL_DestroyMutex(data_lock);
+    SDL_DestroyCond(halt_cond);
     SDL_Quit();
 }
 
@@ -47,8 +49,10 @@ int Chip8::Initialize(unsigned int fullscreen,
     /* Init vram */
     vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
 
+    const char *err_str = "Unable to allocate memory on the heap.\n";
+
     if (!vram) {
-        fprintf(stderr, "Unable to allocate memory.\n");
+        fprintf(stderr, "%s", err_str);
         return 1;
     }
 
@@ -57,7 +61,7 @@ int Chip8::Initialize(unsigned int fullscreen,
         vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
 
         if (!vram[i]) {
-            fprintf(stderr, "Unable to allocate memory.\n");
+            fprintf(stderr, "%s", err_str);
             return 1;
         }
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -66,7 +70,7 @@ int Chip8::Initialize(unsigned int fullscreen,
     if (display->Initialize(data_lock, fullscreen, R, G, B)) {
         return 1;
     }
-    input->Initialize(display, data_lock);
+    input->Initialize(display, data_lock, halt_cond);
 
     /* Initialize registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
@@ -122,7 +126,7 @@ int Chip8::Load(const char *rom_name){
 
     /* Save the rom for later (soft-resets) */
     if (!fread(rom, sizeof(unsigned char), rom_size, file)) {
-        fprintf(stderr, "Error reading Rom file.\n");
+        fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
         return 1;
     }
 
@@ -164,6 +168,8 @@ void Chip8::SoftReset() {
         delay_timer = 0;
         sound_timer = 0;
         draw_flag = 1;
+
+        SDL_CondSignal(halt_cond);
         
         SDL_UnlockMutex(data_lock);
     } else {
@@ -237,6 +243,7 @@ void Chip8::SignalTerminate() {
     /* Signal main thread termination to worker threads */
     if (SDL_LockMutex(data_lock) == 0) {
         
+        SDL_CondSignal(halt_cond);
         terminated = 1;
         
         SDL_UnlockMutex(data_lock);
@@ -285,15 +292,17 @@ void Chip8::UpdateTimers(){
 
 int Chip8::EmulateCycle(){
 
-    int result = USER_QUIT;
+    int result = 0;
     if (SDL_LockMutex(data_lock) == 0) {
 
         for (int i = 0; i < INSTRUCTIONS_PER_CYCLE; i++) {
             FetchOpcode();
-            InterpretOpcode();  
+            result = InterpretOpcode();
+            if(result != 0) {
+                break;
+            }
+             
         }
-
-        result = terminated;
 
         SDL_UnlockMutex(data_lock);
     } else {
@@ -316,8 +325,11 @@ void Chip8::FetchOpcode() {
     opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
-void Chip8::InterpretOpcode(){
+int Chip8::InterpretOpcode(){
     //fprintf(stderr, "opcode: 0x%X\n", opcode);
+    if (terminated) {
+        return 1;
+    }
 
     /* Decode opcodes */
     switch (opcode & 0xF000) {
@@ -345,7 +357,7 @@ void Chip8::InterpretOpcode(){
                        This instruction is only used on the old computers on which 
                        Chip-8 was originally implemented. It is ignored by modern 
                        interpreters. */
-                    PC+=2;
+                    PC += 2;
                     break;
             }
             break;
@@ -619,24 +631,27 @@ void Chip8::InterpretOpcode(){
         case 0xF000:
             switch (opcode & 0x00FF) {
                 
-                case 0x0007:
+                case 0x0007: /* FX07: Sets VX to delay timer */
                     V[(opcode & 0x0F00) >> 8] = delay_timer;
                     PC += 2;
                     break;
 
                 case 0x000A: {
-                    /* FX0A - pause emulation until a key is pressed */
-                    int keyPress = 0;
-                    for(int i = 0; i < 16; ++i) {
-                        if(input->keys[i] != 0) {
+                    /* FX0A - Pause execution until a key is pressed */
+                    SignalDraw();
+                    SDL_CondWait(halt_cond, data_lock);
+                    int key_pressed = 0;
+                    for (int i = 0; i < 16; i++) {
+                        if (input->keys[i] != 0) {
                             V[(opcode & 0x0F00) >> 8] = i;
-                            keyPress = 1;
+                            key_pressed = 1;
                         }
                     }
 
-                    /* If we didn't received a keypress, skip this cycle and try again */
-                    if(!keyPress) {                 
-                        return;
+                    if (!key_pressed) {
+                        /* The user hit soft reset 
+                           while this thread was blocked */
+                        break;
                     }
 
                     PC += 2;
@@ -708,4 +723,5 @@ void Chip8::InterpretOpcode(){
             }
             break;
     } /* End of switch */
+    return 0;
 }
