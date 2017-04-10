@@ -299,7 +299,7 @@ int Chip8::EmulateCycle(){
                 break;
             }
             FetchOpcode();
-            InterpretOpcode();
+            ExecuteOpcode();
         }
 
         SDL_UnlockMutex(data_lock);
@@ -323,10 +323,8 @@ void Chip8::FetchOpcode() {
     opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
-void Chip8::InterpretOpcode(){
-    //fprintf(stderr, "opcode: 0x%x\n", opcode);
-
-    /* decode the instruction */
+void Chip8::ExecuteOpcode(){
+    /* Decode the instruction */
     unsigned char OP = (opcode & 0xF000) >> 12;
     unsigned short NNN = opcode & 0x0FFF;
     unsigned char NN = opcode & 0x00FF;

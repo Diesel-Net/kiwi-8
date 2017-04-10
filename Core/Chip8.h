@@ -102,7 +102,7 @@ class Chip8 {
 
         void SoftReset();
         void FetchOpcode();
-        void InterpretOpcode();
+        void ExecuteOpcode();
         void UpdateTimers();
         void SignalTerminate();
         void SignalDraw();
