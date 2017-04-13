@@ -26,6 +26,8 @@ Controls        --->        keybindings
 4 5 6 D                     q w e r
 7 8 9 E                     a s d f
 A 0 B F                     z x c v
+increase speed              pageup
+decrease speed              pagedown
 quit                        esc
 toggle fullscreen           alt + enter
 soft reset                  f5
