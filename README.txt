@@ -17,7 +17,7 @@ still some issues with a couple titles.
 No audio is implemented. A work in progress.
 
 The interpreter passes "SC Test.ch8" up to 
-error 23 which is the first SCHIP opcode 
+error 23, which is the first SCHIP opcode 
 encountered.
 
 ROM Compatibility is discussed here:
