@@ -23,14 +23,14 @@ void Input::Reset() {
     memset(keys, 0, NUM_KEYS);
 }
 
-int Input::Poll() {
+int Input::Poll(unsigned int *steps) {
     int response = USER_QUIT;
     
     /* Wait indefinitley for the next event */
     if (SDL_WaitEvent(&event)) {
         state = SDL_GetKeyboardState(NULL);
         if (SDL_LockMutex(data_lock) == 0) {
-            response = CheckEvents();
+            response = CheckEvents(steps);
             CheckKeys();
             SDL_UnlockMutex(data_lock);
         } else {
@@ -42,7 +42,7 @@ int Input::Poll() {
     return response;
 }
 
-int Input::CheckEvents() {
+int Input::CheckEvents(unsigned int *steps) {
     int response = CONTINUE;
 
     /* Quit event */
@@ -78,6 +78,25 @@ int Input::CheckEvents() {
         }
         if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
             display->ToggleFullscreen();
+        }
+        if (state[SDL_SCANCODE_PAGEDOWN]) {
+        	/* TODO: Slow emulation speed */
+        	if (*steps - 1 <= MIN_STEPS - 1) {
+        		*steps = MIN_STEPS;
+        	} else {
+        		*steps -= 1;
+        	}
+        	//fprintf(stderr, "steps: %u\n", *steps);
+
+        }
+        if (state[SDL_SCANCODE_PAGEUP]) {
+        	/* TODO: Raise emulation speed */
+        	if (*steps + 1 >= MAX_STEPS + 1) {
+        		*steps = MAX_STEPS;
+        	} else {
+        		*steps += 1;
+        	}
+        	//fprintf(stderr, "steps: %u\n", *steps);
         }
     }
 

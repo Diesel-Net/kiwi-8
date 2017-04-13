@@ -12,6 +12,7 @@ Date: September 18, 2016
 Chip8::Chip8() {
     SDL_Init(SDL_INIT_EVERYTHING);
     data_lock = SDL_CreateMutex();
+    steps = STEPS;
     display = new Display();
     input = new Input();
     event_type = SDL_RegisterEvents(1);
@@ -185,7 +186,7 @@ int Chip8::CPUThread(void *data) {
     unsigned int remaining;
 
     /* Slows execution speed (60hz) ~= 16.66 ms intervals */
-    unsigned int interval = 1000 / (SPEED);
+    unsigned int interval = 1000 / TICKS;
 
     for (;;) {
 
@@ -216,12 +217,12 @@ void Chip8::Run(){
     int result;
     int cpu_thread_return;
     
-    /* Start the two other threads */
+    /* Start the other thread */
     cpu_thread = SDL_CreateThread(CPUThread, "Chip8CPU", this);
 
     for (;;) {
 
-        result = input->Poll();
+        result = input->Poll(&steps);
 
         if (result == USER_QUIT) {
             /* Quit */
@@ -232,7 +233,7 @@ void Chip8::Run(){
         }
     }
 
-    /* Tell worker threads im done, and wait for them to finish */
+    /* Tell worker thread im done, and wait for it to finish */
     SignalTerminate();
     fprintf(stderr, "Waiting on CPU Thread.\n");
     SDL_WaitThread(cpu_thread, &cpu_thread_return);
@@ -291,7 +292,7 @@ int Chip8::EmulateCycle(){
     int response = CONTINUE;
     if (SDL_LockMutex(data_lock) == 0) {
        
-        for (int i = 0; i < INSTRUCTIONS_PER_CYCLE; i++) {
+        for (unsigned int i = 0; i < steps; i++) {
             /* terminated can change value, 
                after this thread wakes from opcode 0xFX0A */
             if (terminated) {
@@ -300,7 +301,7 @@ int Chip8::EmulateCycle(){
             }
             FetchOpcode();
             ExecuteOpcode();
-        }
+         }
 
         SDL_UnlockMutex(data_lock);
     } else {
@@ -312,7 +313,7 @@ int Chip8::EmulateCycle(){
 
     /* Render the scene, if flag present */
     if (draw_flag) {
-        SignalDraw();
+       	SignalDraw();
         draw_flag = 0;
     }
 
@@ -368,7 +369,6 @@ void Chip8::ExecuteOpcode(){
         case 0x1:
             /* Jumps to address NNN */
             PC = NNN;
-            //PC+=2;
             break;
 
         /* opcode 0x2NNN */
@@ -453,15 +453,20 @@ void Chip8::ExecuteOpcode(){
 
                 /* opcode 0x8XY4 */
                 case 0x4:
+
+                	unsigned short sum;
+                	sum  = V[Y] + V[X];
                     /* Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there isn't */
-                    if(V[Y] > (0xFF - V[X])) {
+                    if(sum > 0xFF) {
                         /* Carry */
                         V[0xF] = 1;
                     }
                     else {
                         V[0xF] = 0;
                     }
-                    V[X] += V[Y]; 
+
+                    /* Only the lowest 8 bits are kept */
+                    V[X] = (unsigned char) sum; 
                     PC += 2;
                     break;
 
@@ -482,7 +487,7 @@ void Chip8::ExecuteOpcode(){
                 /* opcode 0x8XY6 */
                 case 0x6: /* Shifts VX right by one. VF is set to the value of the least significant 
                             bit of VX before the shift. */
-                    V[0xF] = V[X] & 0x1;
+                    V[0xF] = V[X] & 0x01;
                     if(shift_quirk) {
                         V[X] >>= 1;
                     } else {
@@ -495,7 +500,6 @@ void Chip8::ExecuteOpcode(){
                 case 0x7: /* Sets VX to VY minus VX. VF is set to 0 when there's a borrow, 
                             and 1 when there isn't. */
                     if (V[X] > V[Y]) {
-                        /* there is a borrow */
                         V[0xF] = 0; 
                     }
                     else {
@@ -508,7 +512,7 @@ void Chip8::ExecuteOpcode(){
                 /* opcode 0x8XYE */
                 case 0xE: /* Shifts VX left by one. VF is set to the value of the most significant 
                             bit of VX before the shift. */
-                    V[0xF] = V[X] & 0x8;
+                    V[0xF] = V[X] & 0x80;
                     if(shift_quirk) {
                         V[X] <<= 1;
                     } else {

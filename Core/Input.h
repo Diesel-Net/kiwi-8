@@ -9,6 +9,8 @@
 #define SOFT_RESET -1
 #define CONTINUE 0
 #define SIGNAL_DRAW 9999
+#define MIN_STEPS 1
+#define MAX_STEPS 100
 
 class Input {
     private:
@@ -20,7 +22,7 @@ class Input {
         SDL_mutex *data_lock;
         SDL_cond *halt_cond;
 
-        int CheckEvents();
+        int CheckEvents(unsigned int *speed);
         void CheckKeys();
 
     public:
@@ -32,7 +34,7 @@ class Input {
 
         void Initialize(Display *display, SDL_mutex *data_lock, SDL_cond *halt_cond);
         void Reset();
-        int Poll();
+        int Poll(unsigned int *speed);
         
 };
 

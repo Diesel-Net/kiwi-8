@@ -11,13 +11,16 @@
 #define STACK_DEPTH 16
 #define MEM_OFFSET 512
 #define FONTS_SIZE 80
-#define INSTRUCTIONS_PER_CYCLE 14 /* ~840 inst/sec if running at 60hz */
-#define SPEED 60 /* hz - Cycle Speed */
+#define STEPS 14 /* ~840 inst/sec if ticking at 60hz */
+#define TICKS 60 /* hz - Timer count down rate */
 
 
 class Chip8 {
 
     private:
+
+    	/* Number of instructions per cycle */
+    	unsigned int steps; 
 
         /* Two quirks of the Chip8 CPU. 
            Some games assume these are enabled to run correctly.
