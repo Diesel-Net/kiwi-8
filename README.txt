@@ -13,8 +13,12 @@ You can download them here:
 https://github.com/tomdaley92/Chip8/releases
 
 Most games are playable, however there are 
-still some issues with a select few. 
+still some issues with a couple titles. 
 No audio is implemented. A work in progress.
+
+The interpreter passes "SC Test.ch8" up to 
+error 23 which is the first SCHIP opcode 
+encountered.
 
 ROM Compatibility is discussed here:
 https://github.com/tomdaley92/Chip8/issues/9

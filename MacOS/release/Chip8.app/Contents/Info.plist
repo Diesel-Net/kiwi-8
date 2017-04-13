@@ -13,7 +13,7 @@
 		<key>CFBundleSignature</key>
 		<string>chip</string>
 		<key>CFBundleVersion</key>
-		<string>1.0</string>
+		<string>1.02</string>
 		<key>NSHighResolutionCapable</key>
 		<true/>
 		<key>NSHumanReadableCopyright</key>

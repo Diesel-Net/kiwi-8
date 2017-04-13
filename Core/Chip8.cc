@@ -512,7 +512,7 @@ void Chip8::ExecuteOpcode(){
                 /* opcode 0x8XYE */
                 case 0xE: /* Shifts VX left by one. VF is set to the value of the most significant 
                             bit of VX before the shift. */
-                    V[0xF] = V[X] & 0x80;
+                    V[0xF] = (V[X] & 0x80) >> 7;
                     if(shift_quirk) {
                         V[X] <<= 1;
                     } else {
@@ -667,7 +667,9 @@ void Chip8::ExecuteOpcode(){
 
                 case 0x1E: /* FX1E: Adds VX to I */
                     /* VF is set to 1 when range overflow (I+VX>0xFFF), and 0 when there isn't. */
-                    if (I + V[X] > 0xFFF) {
+                    unsigned short sum;
+                    sum = I + V[X];
+                    if (sum > 0xFFF) {
                         V[0xF] = 1;
                     } else {
                         V[0xF] = 0;
@@ -678,7 +680,7 @@ void Chip8::ExecuteOpcode(){
 
                 case 0x29: /* FX29: Sets I to the location of the sprite for the character in VX. 
                             Characters 0-F (in hexadecimal) are represented by a 4x5 font. */
-                    I = V[X] * 0x5;
+                    I = V[X] * 0x05;
                     PC += 2;
                     break;
 
