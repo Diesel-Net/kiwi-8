@@ -133,7 +133,7 @@ void Display::RenderFrame(unsigned char **frame){
     SDL_RenderClear(renderer);
 
     /* Set the foreground color */
-    SDL_SetRenderDrawColor(renderer, R, G, B, 0);
+    SDL_SetRenderDrawColor(renderer, R, G, B, 255);
 
     for (int i = 0; i < WIDTH; i++){
         for (int j = 0; j < HEIGHT; j++){

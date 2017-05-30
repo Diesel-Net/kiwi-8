@@ -81,7 +81,7 @@ int Input::CheckEvents(unsigned int *steps) {
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
         	/* TODO: Slow emulation speed */
-        	if (*steps - 1 <= MIN_STEPS - 1) {
+        	if (*steps -1 < MIN_STEPS ) {
         		*steps = MIN_STEPS;
         	} else {
         		*steps -= 1;
@@ -91,7 +91,7 @@ int Input::CheckEvents(unsigned int *steps) {
         }
         if (state[SDL_SCANCODE_PAGEUP]) {
         	/* TODO: Raise emulation speed */
-        	if (*steps + 1 >= MAX_STEPS + 1) {
+        	if (*steps +1 > MAX_STEPS ) {
         		*steps = MAX_STEPS;
         	} else {
         		*steps += 1;

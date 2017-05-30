@@ -130,7 +130,7 @@ int main(int argc, char **argv){
     if (image == NULL) {
         fprintf(stderr, "Error loading window icon...\n");
     }
-    SDL_SetWindowIcon(chip.display->window, image);
+    SDL_SetWindowIcon(chip.display.window, image);
     
     if (chip.Load(rom)) {
         return 1;

@@ -13,8 +13,8 @@ Chip8::Chip8() {
     SDL_Init(SDL_INIT_EVERYTHING);
     data_lock = SDL_CreateMutex();
     steps = STEPS;
-    display = new Display();
-    input = new Input();
+    display = Display();
+    input = Input();
     event_type = SDL_RegisterEvents(1);
     halt_cond = SDL_CreateCond();
     terminated = 0;
@@ -67,10 +67,10 @@ int Chip8::Initialize(unsigned int fullscreen,
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    if (display->Initialize(data_lock, fullscreen, R, G, B)) {
+    if (display.Initialize(data_lock, fullscreen, R, G, B)) {
         return 1;
     }
-    input->Initialize(display, data_lock, halt_cond);
+    input.Initialize(&display, data_lock, halt_cond);
 
     /* Initialize registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
@@ -146,7 +146,7 @@ void Chip8::SoftReset() {
         }
 
         /* Reset the state of the input keys */
-        input->Reset();
+        input.Reset();
 
         /* Clear registers and the stack */
         memset(V, 0 , NUM_REGISTERS);
@@ -222,7 +222,7 @@ void Chip8::Run(){
 
     for (;;) {
 
-        result = input->Poll(&steps);
+        result = input.Poll(&steps);
 
         if (result == USER_QUIT) {
             /* Quit */
@@ -574,25 +574,21 @@ void Chip8::ExecuteOpcode(){
             for (unsigned char yline = 0; yline < height; yline++) {
                 pixel = memory[I + yline];
                 for(unsigned char xline = 0; xline < 8; xline++) {
-                    if((pixel & (0x80 >> xline)) != 0) {
-                        
-                        /* The y coordinate SHOULD NOT be modded, it breaks some games, 
-                           and this is not clear in any documentation I've come across */
+                    if((pixel & (0x80 >> xline)) != 0) {  
+                        /* Note: The ROM: Blitz - David Winter
+                        has sprites with one too many vertical pixel so it ends up 
+                        wrapping to the top of the screen if you (y % HEIGHT) */
                         unsigned char true_x = (x + xline) % WIDTH;
-                        unsigned char true_y = (y + yline);
+                        unsigned char true_y = (y + yline) % HEIGHT;
+                        /* There are other games that break when vertical wrapping
+                        is turned on but only a few games require it */
 
-                        /* This y coordinate check is needed for the ROM: Blitz - David Winter 
-                           The rom has sprites with one too many vertical pixel so it ends up 
-                           wrapping to the top of the screen if you (y % HEIGHT) */
-                        if (true_y < HEIGHT) {
-            
-                            if(vram[true_x][true_y] == 1) {
-                                /* Collision */
-                                V[0xF] = 1;                             
-                            }
-                            /* Toggle the pixels */
-                            vram[true_x][true_y] ^= 1;
+                        if(vram[true_x][true_y] == 1) {
+                            /* Collision */
+                            V[0xF] = 1;                          
                         }
+                        /* Toggle the pixels */
+                        vram[true_x][true_y] ^= 1;
                     }
                 }
             }          
@@ -606,7 +602,7 @@ void Chip8::ExecuteOpcode(){
                 
                 case 0x9E:
                     /* EX9E:    Skips the next instruction if the key stored in VX is pressed */
-                    if(input->keys[V[X]] == 1) {
+                    if(input.keys[V[X]] == 1) {
                         PC += 2;
                     }
                     PC += 2;
@@ -614,7 +610,7 @@ void Chip8::ExecuteOpcode(){
 
                 case 0xA1:
                     /* EXA1:    Skips the next instruction if the key stored in VX isn't pressed */
-                    if(input->keys[V[X]] == 0) {
+                    if(input.keys[V[X]] == 0) {
                         PC += 2;
                     }
                     PC += 2;
@@ -641,7 +637,7 @@ void Chip8::ExecuteOpcode(){
                     SDL_CondWait(halt_cond, data_lock);
                     int key_pressed = 0;
                     for (int i = 0; i < NUM_KEYS; i++) {
-                        if (input->keys[i] != 0) {
+                        if (input.keys[i] != 0) {
                             V[X] = i;
                             key_pressed = 1;
                         }

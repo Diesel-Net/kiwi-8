@@ -10,7 +10,7 @@
 #define CONTINUE 0
 #define SIGNAL_DRAW 9999
 #define MIN_STEPS 1
-#define MAX_STEPS 100
+#define MAX_STEPS 50
 
 class Input {
     private:

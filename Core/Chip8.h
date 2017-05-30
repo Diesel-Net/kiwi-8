@@ -64,7 +64,7 @@ class Chip8 {
         unsigned short stack[STACK_DEPTH];
         unsigned short sp;
 
-        Input *input;
+        Input input;
 
         /* If this flag is enabled, draw a frame at the end of the cycle */
         int draw_flag;
@@ -129,7 +129,7 @@ class Chip8 {
         void Run();
 
         /* Exposed publicly for windows icon fix (see main.cc) */
-        Display *display;
+        Display display;
 
         /* Exposed publicly for CPU thread */
         int EmulateCycle();

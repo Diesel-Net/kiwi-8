@@ -49,7 +49,7 @@ build_release: objects resource
 
 test_debug:
 	cd debug & $(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Demos/Zero Demo [zeroZshadow, 2007].ch8" \
+	"C:/Roms/CHIP-8/Chip-8 Games/Hidden [David Winter, 1996].ch8" \
 	-L 66 134 244
 
 test_release: 
