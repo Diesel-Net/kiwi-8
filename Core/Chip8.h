@@ -11,7 +11,7 @@
 #define STACK_DEPTH 16
 #define MEM_OFFSET 512
 #define FONTS_SIZE 80
-#define STEPS 14 /* ~840 inst/sec if ticking at 60hz */
+#define STEPS 12 /* ~840 inst/sec if ticking at 60hz */
 #define TICKS 60 /* hz - Timer count down rate */
 
 

@@ -3,7 +3,8 @@
 # Purpose: Builds the application into a standalone .app bundle for distribution
 
 CC = clang++
-CFLAGS = -std=c++11 -Wall
+CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.9
+LFLAGS = -mmacosx-version-min=10.9
 INCS = -I$(CURDIR)/frameworks/sdl/include/
 LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework Carbon
 MAIN = main.mm
