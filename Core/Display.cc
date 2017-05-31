@@ -79,7 +79,7 @@ int Display::Initialize(SDL_mutex *data_lock,
 
 void Display::Refresh() {
     /* Destroy the renderer, create a new one, otherwise screen 
-       goes black on MacOS when swithcing to fullscreen */
+       goes black for a few seconds on MacOS when swithcing to fullscreen */
     SDL_DestroyRenderer(renderer);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 

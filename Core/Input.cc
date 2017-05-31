@@ -46,7 +46,7 @@ int Input::CheckEvents(unsigned int *steps) {
     int response = CONTINUE;
 
     /* Quit event */
-    if (event.type == SDL_QUIT || event.type == SDL_APP_TERMINATING){
+    if (event.type == SDL_QUIT){
         /* Close when the user clicks "X" */
         response = USER_QUIT;
     }
@@ -68,10 +68,19 @@ int Input::CheckEvents(unsigned int *steps) {
 
     /* Keystroke events */
     if (event.type == SDL_KEYDOWN) {
-        if (state[SDL_SCANCODE_ESCAPE] || (state[SDL_SCANCODE_LGUI] && state[SDL_SCANCODE_Q])) {
+        if (state[SDL_SCANCODE_ESCAPE]){
             /* Close if escape is held down */
             response = USER_QUIT;
         }
+
+        /* For MacOS Compliance */
+        #ifdef __APPLE__
+        if ((state[SDL_SCANCODE_LGUI] && state[SDL_SCANCODE_Q]) || 
+            (state[SDL_SCANCODE_RGUI] && state[SDL_SCANCODE_Q])) {
+            response = USER_QUIT;
+        }
+        #endif
+
         if (state[SDL_SCANCODE_F5]) {
             /* Soft reset if F5 is held down */
             response = SOFT_RESET;

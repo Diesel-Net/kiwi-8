@@ -8,7 +8,6 @@ on MacOS:
 
 #include "../../Core/Chip8.h"
 #include "fileDialog.mm"
-
 #include <string.h>
 
 
