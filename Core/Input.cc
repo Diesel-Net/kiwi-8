@@ -63,19 +63,11 @@ int Input::CheckEvents() {
             response = USER_QUIT;
         }
 
-        /* For MacOS Compliance */
-        #ifdef __APPLE__
-        if ((state[SDL_SCANCODE_LGUI] && state[SDL_SCANCODE_Q]) || 
-            (state[SDL_SCANCODE_RGUI] && state[SDL_SCANCODE_Q])) {
-            response = USER_QUIT;
-        }
-        #endif
-
         if (state[SDL_SCANCODE_F5]) {
             /* Soft reset if F5 is held down */
             response = SOFT_RESET;
         }
-        if (state[SDL_SCANCODE_F12]) {
+        if (state[SDL_SCANCODE_RETURN]) {
             display->ToggleFullscreen();
         }
         if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) {

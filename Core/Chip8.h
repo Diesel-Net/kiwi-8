@@ -4,7 +4,7 @@
 #include "Display.h"
 #include "Input.h"
 
-#define TITLE "Chip8 v1.02"
+#define VERSION "Chip8 v1.03"
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16

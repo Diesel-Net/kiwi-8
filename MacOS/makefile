@@ -5,8 +5,10 @@
 CC = clang++
 CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.9
 LFLAGS = -mmacosx-version-min=10.9
-INCS = -I$(CURDIR)/frameworks/sdl/include/
-LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework Carbon
+INCS = -I$(CURDIR)/frameworks/sdl/include/ \
+	   -I$(CURDIR)/../frameworks/imgui/
+
+LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework Carbon -framework OpenGL
 MAIN = main.mm
 
 # These must be named consistently with Info.plist file:
@@ -14,7 +16,7 @@ ICON = chip8.icns
 APPNAME = Chip8
 
 # Default target
-$(APPNAME): main.o objects
+$(APPNAME): objects
 	# Removing previous build
 	cd release; $(RM) -r *.app
 
@@ -41,7 +43,7 @@ $(APPNAME): main.o objects
 	mv $@.app release/$@.app
 
 # Build object files
-objects:	../Core/*.c*
+objects:	src/$(MAIN) ../Core/*.c* ../frameworks/imgui/imgui*.cpp
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
 
 main.o:	src/$(MAIN)

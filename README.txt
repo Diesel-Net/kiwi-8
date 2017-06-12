@@ -1,7 +1,7 @@
-Chip8 v1.02
+Chip8 v1.03
 
-A CHIP-8 interpreter written in C++ using the 
-Simple DirectMedia Layer library.
+A cross-platform CHIP-8 interpreter written 
+in C++ with SDL2 and ImGui.
 
 For more information about the CHIP-8 visit:
 https://en.wikipedia.org/wiki/CHIP-8
@@ -33,7 +33,8 @@ A 0 B F                     z x c v
 increase speed              pageup
 decrease speed              pagedown
 quit                        esc
-toggle fullscreen           alt + enter
+toggle fullscreen           enter
+toggle menu                 alt
 soft reset                  f5
 
 

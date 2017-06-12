@@ -36,7 +36,7 @@ int main(int argc, char **argv){
                             "       -S\t\tEnable shift quirk\n"
                             "       R G B\t\tForeground color in RGB format,\n"
                             "            \t\t3 numbers from 0-255\n\n\n\n"
-                            "Enjoy!\n\nThomas Daley", TITLE, MB_OKCANCEL);
+                            "Enjoy!\n\nThomas Daley", VERSION, MB_OKCANCEL);
         if (result == IDCANCEL) {
             return 0;
         }
