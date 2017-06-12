@@ -46,9 +46,6 @@ $(APPNAME): objects
 objects:	src/$(MAIN) ../Core/*.c* ../frameworks/imgui/imgui*.cpp
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
 
-main.o:	src/$(MAIN)
-	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $<
-
 # Tests the release version
 test_release:
 	open ./release/$(APPNAME).app --args \
