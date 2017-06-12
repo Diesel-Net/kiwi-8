@@ -5,10 +5,7 @@ Date: September 8, 2016
 
 #include "../../Core/Chip8.h"
 #include "resource.h"
-
-#include <SDL_image.h>
 #include <windows.h>
-#include <Commdlg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -119,24 +116,11 @@ int main(int argc, char **argv){
     if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, R, G, B)) {
         return 1;
     }
-
-    /*  SDL2 provides no way of loading the Windows ICON 
-        resource that is embedded into the executable at 
-        compile time. The code below loads the window 
-        icon from a file during runtime, but it requires 
-        an SDL2 extension library - SDL_image 2.0  */
-    SDL_Surface *image;
-    image = IMG_Load("chip8.ico");
-    if (image == NULL) {
-        fprintf(stderr, "Error loading window icon...\n");
-    }
-    SDL_SetWindowIcon(chip.display.window, image);
     
     if (chip.Load(rom)) {
         return 1;
     }
     
     chip.Run();
-    fprintf(stderr, "Main thread terminated.\n");
     return 0;
 }

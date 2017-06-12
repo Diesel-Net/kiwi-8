@@ -6,9 +6,8 @@
 
 #define NUM_KEYS 16
 #define USER_QUIT 1
-#define SOFT_RESET -1
+#define SOFT_RESET 2
 #define CONTINUE 0
-#define SIGNAL_DRAW 9999
 #define MIN_STEPS 1
 #define MAX_STEPS 50
 
@@ -19,10 +18,10 @@ class Input {
         const Uint8 *state;
 
         Display *display;
-        SDL_mutex *data_lock;
-        SDL_cond *halt_cond;
+        int *steps;
+        int *cpu_halt;
 
-        int CheckEvents(unsigned int *speed);
+        int CheckEvents();
         void CheckKeys();
 
     public:
@@ -31,10 +30,11 @@ class Input {
 
         /* HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
+        int key_pressed;
 
-        void Initialize(Display *display, SDL_mutex *data_lock, SDL_cond *halt_cond);
+        void Initialize(Display *display, int *steps, int *cpu_halt);
         void Reset();
-        int Poll(unsigned int *speed);
+        int Poll();
         
 };
 

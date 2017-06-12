@@ -3,7 +3,6 @@
 
 #include "Display.h"
 #include "Input.h"
-#include <SDL2/SDL.h>
 
 #define TITLE "Chip8 v1.02"
 #define MEM_SIZE 4096
@@ -20,7 +19,10 @@ class Chip8 {
     private:
 
     	/* Number of instructions per cycle */
-    	unsigned int steps; 
+    	int steps;
+
+        /* whether or not cpu is currently halted by opcode FX0A */
+        int cpu_halt; 
 
         /* Two quirks of the Chip8 CPU. 
            Some games assume these are enabled to run correctly.
@@ -65,11 +67,10 @@ class Chip8 {
         unsigned short sp;
 
         Input input;
+        Display display;
 
         /* If this flag is enabled, draw a frame at the end of the cycle */
         int draw_flag;
-        unsigned int event_type;
-
 
         /* 1-bit encoded screen pixels (32x64) */
         unsigned char **vram;
@@ -93,22 +94,11 @@ class Chip8 {
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
 
-        /* A single thread for processing opcodes */
-        SDL_Thread *cpu_thread;
-
-        /* Let's thread-safe-ify things */
-        SDL_mutex *data_lock;
-        SDL_cond *halt_cond;
-
-        /* For signaling thread termination */
-        int terminated;
-
         void SoftReset();
+        void UpdateTimers();
+        int EmulateCycle();
         void FetchOpcode();
         void ExecuteOpcode();
-        void UpdateTimers();
-        void SignalTerminate();
-        void SignalDraw();
 
         static int CPUThread(void *data);
         
@@ -127,12 +117,6 @@ class Chip8 {
 
         int Load(const char *rom_name);
         void Run();
-
-        /* Exposed publicly for windows icon fix (see main.cc) */
-        Display display;
-
-        /* Exposed publicly for CPU thread */
-        int EmulateCycle();
 };
 
 #endif

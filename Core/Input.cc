@@ -1,6 +1,5 @@
 #include "Input.h"
 #include "Display.h"
-#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <String.h>
 
@@ -12,58 +11,49 @@ Input::~Input() {
     /* Empty */
 }
 
-void Input::Initialize(Display *display, SDL_mutex *data_lock, SDL_cond *halt_cond) {
+void Input::Initialize(Display *display, int *steps, int *cpu_halt) {
+    this->steps = steps;
     this->display = display;
-    this->data_lock = data_lock;
-    this->halt_cond = halt_cond;
+    this->cpu_halt = cpu_halt;
     Reset();
 }
 
 void Input::Reset() {
+    key_pressed = 0;
     memset(keys, 0, NUM_KEYS);
 }
 
-int Input::Poll(unsigned int *steps) {
-    int response = USER_QUIT;
+int Input::Poll() {
+    int response = CONTINUE;
     
-    /* Wait indefinitley for the next event */
-    if (SDL_WaitEvent(&event)) {
+    /* Purge any queued events */
+    while (SDL_PollEvent(&event)) {
+        response = USER_QUIT;
+
         state = SDL_GetKeyboardState(NULL);
-        if (SDL_LockMutex(data_lock) == 0) {
-            response = CheckEvents(steps);
-            CheckKeys();
-            SDL_UnlockMutex(data_lock);
-        } else {
-            fprintf(stderr, "%s\n", SDL_GetError());
-        }
-    } else {
-        fprintf(stderr, "%s\n", SDL_GetError());
-    }
+
+        /* Check Gui */
+        display->gui.ProcessEvents(&event);
+        if (display->gui.quit_flag) break;   
+
+        /* Check Window */
+        response = CheckEvents();
+        if (response == USER_QUIT) break; 
+        
+        /* Check chip-8 input */
+        CheckKeys(); 
+
+    } 
     return response;
 }
 
-int Input::CheckEvents(unsigned int *steps) {
+int Input::CheckEvents() {
     int response = CONTINUE;
 
     /* Quit event */
     if (event.type == SDL_QUIT){
         /* Close when the user clicks "X" */
         response = USER_QUIT;
-    }
-
-    /* User defined events */
-    if (event.type == SDL_USEREVENT) {
-        if (event.user.code == SIGNAL_DRAW) {
-
-            unsigned char **data = (unsigned char **)event.user.data1;
-            display->RenderFrame(data);
-            
-            /* Clean-up the data */
-            for (int i = 0; i < WIDTH; i++) {
-                free(data[i]);
-            }
-            free(data);
-        } 
     }
 
     /* Keystroke events */
@@ -85,8 +75,12 @@ int Input::CheckEvents(unsigned int *steps) {
             /* Soft reset if F5 is held down */
             response = SOFT_RESET;
         }
-        if ((state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) && state[SDL_SCANCODE_RETURN]) {
+        if (state[SDL_SCANCODE_F12]) {
             display->ToggleFullscreen();
+        }
+        if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) {
+            /* Hide/Show menu */
+            display->gui.show_menu_flag = !display->gui.show_menu_flag;
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
         	/* TODO: Slow emulation speed */
@@ -95,8 +89,6 @@ int Input::CheckEvents(unsigned int *steps) {
         	} else {
         		*steps -= 1;
         	}
-        	//fprintf(stderr, "steps: %u\n", *steps);
-
         }
         if (state[SDL_SCANCODE_PAGEUP]) {
         	/* TODO: Raise emulation speed */
@@ -105,19 +97,18 @@ int Input::CheckEvents(unsigned int *steps) {
         	} else {
         		*steps += 1;
         	}
-        	//fprintf(stderr, "steps: %u\n", *steps);
         }
     }
 
     /* Window events */
     if (event.window.type == SDL_WINDOWEVENT){
-        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){  
+        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
             /* Update the current rendering screen space */
             display->Resize(event.window.data1, event.window.data2);
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
             /* TODO: Resume the emulator, if paused */
-            display->Refresh();
+
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
             /* TODO: Add a toggle for "pause on focus loss" */
@@ -152,16 +143,13 @@ void Input::CheckKeys() {
     keys[0xB] = state[SDL_SCANCODE_C];
     keys[0xF] = state[SDL_SCANCODE_V];
 
-    /* Signal if a key was pressed this round */
-    if (event.type == SDL_KEYDOWN) {
-        int key_pressed = 0;
+    /* Check if cpu is awaiting a keypress for opcode FX0A */
+    if (cpu_halt && event.type == SDL_KEYDOWN) {
         for (int i = 0; i < NUM_KEYS; i++) {
             if (keys[i]) {
                 key_pressed = 1;
+                break;
             }
-        }
-        if (key_pressed) {
-            SDL_CondSignal(halt_cond);
-        }        
+        }     
     }
 }

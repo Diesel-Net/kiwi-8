@@ -14,27 +14,28 @@ DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
 
 CC = CL
-CFLAGS = /W3 /w44996
+CFLAGS = /MD /nologo /W3 /w44996
+LFLAGS = /link \
+		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \
+		 /ENTRY:mainCRTStartup
+
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
-	   /I$(MAKEDIR)/frameworks/sdl2_image/include/ 
+	   /I$(MAKEDIR)/../frameworks/imgui/
 
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
-	   SDL2_image.lib \
+	   opengl32.lib \
 	   Comdlg32.lib
 
-LFLAGS = /link \
-		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \
-		 /LIBPATH:$(MAKEDIR)/frameworks/sdl2_image/lib/$(ARCH) \
-		 /ENTRY:mainCRTStartup
+
 
 # Default target
 all: clean build_debug build_release
-	DEL *.exe *.obj *.res
+	DEL *.exe *.obj *.res *.pdb
 
 build_debug: objects resource
-	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
+	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll debug\SDL2.dll
 	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll debug\SDL2_image.dll
@@ -48,16 +49,16 @@ build_release: objects resource
 	COPY resources\chip8.ico release\chip8.ico
 
 test_debug:
-	cd debug & $(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Games/Hidden [David Winter, 1996].ch8" \
+	debug\$(APPNAME).exe \
+	"C:/Roms/CHIP-8/Chip-8 Programs/IBM Logo.ch8" \
 	-L 66 134 244
 
 test_release: 
-	cd release & $(APPNAME).exe \
+	release\$(APPNAME).exe \
 
 
 # Build object files
-objects:	src\*.c* ..\Core\*.c*
+objects:	src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
 	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
 
 # Build resource file
@@ -67,6 +68,6 @@ resource: src\chip8.rc resources\chip8.ico
 
 # Clean any leftover build files
 clean:
-	DEL *.exe *.obj *.res
-	DEL debug\*.exe debug\*.dll
-	DEL release\*.exe release\*.dll
+	DEL *.exe *.obj *.res *.pdb
+	cd debug & DEL *.exe *.ico *.dll *.ini
+	cd release & DEL *.exe *.ico *.dll *.ini 

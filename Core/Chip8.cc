@@ -10,14 +10,10 @@ Date: September 18, 2016
 
 /* Constructor */
 Chip8::Chip8() {
-    SDL_Init(SDL_INIT_EVERYTHING);
-    data_lock = SDL_CreateMutex();
     steps = STEPS;
+    cpu_halt = 0;
     display = Display();
-    input = Input();
-    event_type = SDL_RegisterEvents(1);
-    halt_cond = SDL_CreateCond();
-    terminated = 0;
+    input = Input();    
     vram = NULL;
     rom = NULL;
 }
@@ -32,8 +28,6 @@ Chip8::~Chip8() {
     }
 
     free(rom);
-    SDL_DestroyMutex(data_lock);
-    SDL_DestroyCond(halt_cond);
     SDL_Quit();
 }
 
@@ -43,6 +37,11 @@ int Chip8::Initialize(unsigned int fullscreen,
                       unsigned char R, 
                       unsigned char G, 
                       unsigned char B){
+
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+        printf("Error: %s\n", SDL_GetError());
+        return 1;
+    }
 
     this-> load_store_quirk = load_store_quirk;
     this-> shift_quirk = shift_quirk;
@@ -67,10 +66,10 @@ int Chip8::Initialize(unsigned int fullscreen,
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    if (display.Initialize(data_lock, fullscreen, R, G, B)) {
+    if (display.Initialize(fullscreen, R, G, B)) {
         return 1;
     }
-    input.Initialize(&display, data_lock, halt_cond);
+    input.Initialize(&display, &steps, &cpu_halt);
 
     /* Initialize registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
@@ -87,6 +86,7 @@ int Chip8::Initialize(unsigned int fullscreen,
     sp = 0;
     delay_timer = 0;
     sound_timer = 0;
+    cpu_halt = 0;
     draw_flag = 1;
 
     return 0;
@@ -138,48 +138,40 @@ int Chip8::Load(const char *rom_name){
 }
 
 void Chip8::SoftReset() {
-    if (SDL_LockMutex(data_lock) == 0) {
 
-        /* Clear the vram */
-        for (int i = 0; i < WIDTH; i++) {
-            memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
-        }
-
-        /* Reset the state of the input keys */
-        input.Reset();
-
-        /* Clear registers and the stack */
-        memset(V, 0 , NUM_REGISTERS);
-        memset(stack, 0, STACK_DEPTH);
-        memset(memory, 0, MEM_SIZE);
-
-        /* Load fontset */
-        for(int i = 0; i < FONTS_SIZE; ++i) {
-            memory[i] = chip8_fontset[i];
-        }
-
-        /* Copy the entire rom to memory starting from 0x200 */
-        memcpy(memory + MEM_OFFSET, rom, rom_size);
-
-        /* Re-initialize program counter, stack pointer, timers, etc. */
-        I = 0;
-        PC = MEM_OFFSET;
-        sp = 0;
-        delay_timer = 0;
-        sound_timer = 0;
-        draw_flag = 1;
-
-        /* Signal, just in case the CPU Thread is in the HALT state */
-        SDL_CondSignal(halt_cond);
-        
-        SDL_UnlockMutex(data_lock);
-    } else {
-        fprintf(stderr, "%s\n", SDL_GetError());
+    /* Clear the vram */
+    for (int i = 0; i < WIDTH; i++) {
+        memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
+
+    /* Reset the state of the input keys */
+    input.Reset();
+
+    /* Clear registers and the stack */
+    memset(V, 0 , NUM_REGISTERS);
+    memset(stack, 0, STACK_DEPTH);
+    memset(memory, 0, MEM_SIZE);
+
+    /* Load fontset */
+    for(int i = 0; i < FONTS_SIZE; ++i) {
+        memory[i] = chip8_fontset[i];
+    }
+
+    /* Copy the entire rom to memory starting from 0x200 */
+    memcpy(memory + MEM_OFFSET, rom, rom_size);
+
+    /* Re-initialize program counter, stack pointer, timers, etc. */
+    I = 0;
+    PC = MEM_OFFSET;
+    sp = 0;
+    delay_timer = 0;
+    sound_timer = 0;
+    cpu_halt = 0;
+    draw_flag = 1;
 }
 
-int Chip8::CPUThread(void *data) {
-    Chip8 *chip = (Chip8 *)data;
+void Chip8::Run(){
+    int event;
     unsigned int t1;
     unsigned int t2;
     unsigned int elapsed;
@@ -192,129 +184,64 @@ int Chip8::CPUThread(void *data) {
 
         t1 = SDL_GetTicks();
 
-        /* Runs one cycle and checks if main thread is ready to finish */
-        if (chip->EmulateCycle()) {
-            break;
-        }
+        event = input.Poll();
+
+        /* Quit */
+        if (event == USER_QUIT) break;
+
+        /* Soft-Reset */
+        else if (event == SOFT_RESET) SoftReset();
+
+        /* Run one cycle */
+        if (EmulateCycle() == USER_QUIT) break;
 
         t2 = SDL_GetTicks();
 
         elapsed = t2 - t1;
         remaining = interval - elapsed;
         if (elapsed < interval) {
-            //fprintf(stderr, "CPU thread sleeping for %u ms\n", remaining);
+            //fprintf(stderr, "sleeping for %u ms\n", remaining);
             SDL_Delay(remaining);
             elapsed = interval;
-        }   
-    }
-
-    fprintf(stderr, "CPU thread terminated.\n");
-    return 0;
-}
-
-void Chip8::Run(){
-    terminated = 0;
-    int result;
-    int cpu_thread_return;
-    
-    /* Start the other thread */
-    cpu_thread = SDL_CreateThread(CPUThread, "Chip8CPU", this);
-
-    for (;;) {
-
-        result = input.Poll(&steps);
-
-        if (result == USER_QUIT) {
-            /* Quit */
-            break;
-
-        } else if (result == SOFT_RESET) {
-            SoftReset();
         }
     }
-
-    /* Tell worker thread im done, and wait for it to finish */
-    SignalTerminate();
-    fprintf(stderr, "Waiting on CPU Thread.\n");
-    SDL_WaitThread(cpu_thread, &cpu_thread_return);
-}
-
-void Chip8::SignalTerminate() {
-    /* Signal main thread termination to worker threads */
-    if (SDL_LockMutex(data_lock) == 0) {
-        terminated = 1;
-        SDL_CondSignal(halt_cond);
-        SDL_UnlockMutex(data_lock);
-    } else {
-        fprintf(stderr, "%s\n", SDL_GetError());
-    }
-}
-
-void Chip8::SignalDraw() {
-    /* CPU Thread signals an event that tells the main 
-       thread to update the display */  
-    SDL_Event event;
-    SDL_zero(event);
-    event.type = event_type;
-    event.user.code = SIGNAL_DRAW;
-
-    /* copy the vram and send for screen update */
-    unsigned char **vram_cpy;
-    vram_cpy = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
-
-    memset(vram_cpy, 0, WIDTH * sizeof(unsigned char *));
-    for (int i = 0; i < WIDTH; i++) {
-        vram_cpy[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
-        memset(vram_cpy[i], 0, HEIGHT * sizeof(unsigned char));
-        memcpy(vram_cpy[i], vram[i], HEIGHT * sizeof(unsigned char));
-    }
-
-    event.user.data1 = vram_cpy;
-
-    SDL_PushEvent(&event);
 }
 
 void Chip8::UpdateTimers(){
     /* Decrement timers, check sound timer */
-    if(delay_timer > 0) {
-        delay_timer--;
-    }
-    if(sound_timer > 0) {
-        if(sound_timer == 1) {
-            //fprintf(stderr, "BEEP!\n");
+    if (!cpu_halt) {
+
+        if(delay_timer > 0) {
+            delay_timer--;
         }
-        sound_timer--;
+        if(sound_timer > 0) {
+            if(sound_timer == 1) {
+                // AUDIO: TO COMPLETE
+                //fprintf(stderr, "BEEP!\n");
+            }
+            sound_timer--;
+        }
     }
 }
 
 int Chip8::EmulateCycle(){
 
     int response = CONTINUE;
-    if (SDL_LockMutex(data_lock) == 0) {
        
-        for (unsigned int i = 0; i < steps; i++) {
-            /* terminated can change value, 
-               after this thread wakes from opcode 0xFX0A */
-            if (terminated) {
-                response = USER_QUIT;
-                break;
-            }
-            FetchOpcode();
-            ExecuteOpcode();
-         }
-
-        SDL_UnlockMutex(data_lock);
-    } else {
-        fprintf(stderr, "%s\n", SDL_GetError());
+    for (int i = 0; i < steps; i++) {
+        FetchOpcode();
+        ExecuteOpcode();
     }
 
     /* Update the internal timers */
     UpdateTimers();
 
-    /* Render the scene, if flag present */
+    /* Render the scene */
     if (draw_flag) {
-       	SignalDraw();
+        display.RenderFrame(vram);
         draw_flag = 0;
+    } else {
+        display.RenderFrame(NULL);
     }
 
     return response;
@@ -632,23 +559,23 @@ void Chip8::ExecuteOpcode(){
                     break;
 
                 case 0x0A: {
-                    /* FX0A - Pause execution until a key is pressed */
-                    SignalDraw();
-                    SDL_CondWait(halt_cond, data_lock);
-                    int key_pressed = 0;
-                    for (int i = 0; i < NUM_KEYS; i++) {
-                        if (input.keys[i] != 0) {
-                            V[X] = i;
-                            key_pressed = 1;
+                    /* FX0A - Pause execution until a key is pressed and store result in V[X] */
+
+                    if (cpu_halt) {
+                        if (input.key_pressed) {
+                            for (int i = 0; i < NUM_KEYS; i++) {
+                                if (input.keys[i] != 0) V[X] = i;
+                            }
+                            input.key_pressed = 0;
+                            cpu_halt = 0;
+                            PC += 2;
+                            break;
                         }
                     }
-                    if (!key_pressed) {
-                        /* The user must have hit Soft-Reset or Quit
-                           while this thread was blocked */
-                        break;
-                    }
-                    PC += 2;
+
+                    cpu_halt = 1;
                     break;
+                    
                 }                   
 
                 case 0x15: /* FX15: Sets the delay timer to VX */
