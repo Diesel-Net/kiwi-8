@@ -9,8 +9,19 @@ Gui::~Gui() {
 }
 
 void Gui::Initialize(SDL_Window *window, float *background_color, float *foreground_color) {
+	
+	// TO COMPLETE: Create Gui Data struct for passing pointers to Gui from Chip8
+
 	this->background_color = background_color;
 	this->foreground_color = foreground_color;
+
+	load_rom_flag = 0;
+	quit_flag = 0;
+	show_menu_flag = 1;
+	load_store_flag = 0;
+	shift_flag = 0;
+	vwrap_flag = 0;
+	fullscreen_flag = 0;
 	ImGui_ImplSdl_Init(window);
 
 	/* Disable imgui.ini file saving */

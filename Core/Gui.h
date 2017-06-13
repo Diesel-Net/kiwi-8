@@ -14,14 +14,17 @@ class Gui {
         float *background_color;
         float *foreground_color;
 
+        bool load_store_flag;
+		bool shift_flag;
+		bool vwrap_flag;
+		bool fullscreen_flag;
+
 	public:
 
-		bool load_rom_flag = 0;
-		bool quit_flag = 0;
-		bool show_menu_flag = 1;
-		bool load_store_flag = 0;
-		bool shift_flag = 0;
-		bool vwrap_flag = 0;
+		bool load_rom_flag;
+		bool quit_flag;
+		bool show_menu_flag;
+		
 		
 
 		Gui();
