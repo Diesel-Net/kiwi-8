@@ -53,7 +53,7 @@ test_release:
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
 	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
-	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/SuperChip Test Programs/SC Test.ch8" \
+	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Demos/Trip8 Demo (2008) [Revival Studios].ch8" \
 	-S 198 181 255
 
 # Removes latest build and object files
