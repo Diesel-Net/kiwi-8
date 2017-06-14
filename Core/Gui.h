@@ -5,14 +5,7 @@
 #include "imgui_impl_sdl.h"
 #include <SDL2/SDL.h>
 
-#define MENU_HEIGHT 19
-
-/*typedef struct GuiData {
-	bool *emulation_paused;
-	bool *load_store_quirk;
-	bool *shift_quirk;
-	bool *vwrap;
-} GuiData; */
+#define MENU_HEIGHT 38
 
 /* Forward Declaraton */
 class Display;
@@ -34,7 +27,6 @@ class Gui {
 		bool load_rom_flag;
 		bool quit_flag;
 		bool show_menu_flag;
-		
 		
 
 		Gui();

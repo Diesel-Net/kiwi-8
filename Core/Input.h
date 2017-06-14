@@ -18,6 +18,7 @@ class Input {
         const Uint8 *state;
 
         Display *display;
+
         int *steps;
         bool *cpu_halt;
 
@@ -30,7 +31,7 @@ class Input {
 
         /* HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
-        int awaiting_key_press;
+        bool awaiting_key_press;
 
         void Initialize(Display *display, int *steps, bool *cpu_halt);
         void Reset();

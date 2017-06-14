@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MIN( a, b ) ( ( a < b) ? a : b )
+//#define MIN( a, b ) ( ( a < b) ? a : b )
 
 Display::Display(){
     WINDOW_WIDTH = WIDTH * (int)SCALE;
@@ -187,9 +187,9 @@ void Display::RenderFrame(unsigned char **frame){
 
             } else {
                 /* Fill the background pixel */
-                texture[j][i][0] = (unsigned char)(background_color[0] * (float) 0xFF); //R
-                texture[j][i][1] = (unsigned char)(background_color[1] * (float) 0xFF); //G
-                texture[j][i][2] = (unsigned char)(background_color[2] * (float) 0xFF); //B
+                texture[j][i][0] = (unsigned char)(background_color[0] * (float) 0xFF);
+                texture[j][i][1] = (unsigned char)(background_color[1] * (float) 0xFF);
+                texture[j][i][2] = (unsigned char)(background_color[2] * (float) 0xFF);
             }
         }
     }
@@ -201,7 +201,7 @@ void Display::RenderFrame(unsigned char **frame){
     /* Create room at the top for menu bar */
     float top_edge = 1.0;
     if (gui.show_menu_flag) {
-        top_edge = (float)(WINDOW_HEIGHT - MENU_HEIGHT * 2) / WINDOW_HEIGHT;
+        top_edge = (float)(WINDOW_HEIGHT - MENU_HEIGHT) / WINDOW_HEIGHT;
     }
 
     /* Render the texture */

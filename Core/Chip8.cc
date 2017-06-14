@@ -88,7 +88,7 @@ int Chip8::Initialize(bool fullscreen,
     }
 
     I = 0;
-    PC = MEM_OFFSET;
+    PC = ENTRY_POINT;
     sp = 0;
     delay_timer = 0;
     sound_timer = 0;
@@ -117,7 +117,7 @@ int Chip8::Load(const char *rom_name){
 
     //fprintf(stderr, "Size: %d bytes.\n", rom_size);
 
-    if (rom_size > MEM_SIZE - MEM_OFFSET) {
+    if (rom_size > MEM_SIZE - ENTRY_POINT) {
         fprintf(stderr, "Rom is too large or not formatted properly.\n");
         return 1;
     }
@@ -137,7 +137,7 @@ int Chip8::Load(const char *rom_name){
     }
 
     /* Copy the entire rom to memory starting from 0x200 */
-    memcpy(memory + MEM_OFFSET, rom, rom_size);
+    memcpy(memory + ENTRY_POINT, rom, rom_size);
 
     fclose(file);
     return 0;
@@ -164,11 +164,11 @@ void Chip8::SoftReset() {
     }
 
     /* Copy the entire rom to memory starting from 0x200 */
-    memcpy(memory + MEM_OFFSET, rom, rom_size);
+    memcpy(memory + ENTRY_POINT, rom, rom_size);
 
     /* Re-initialize program counter, stack pointer, timers, etc. */
     I = 0;
-    PC = MEM_OFFSET;
+    PC = ENTRY_POINT;
     sp = 0;
     delay_timer = 0;
     sound_timer = 0;
@@ -186,6 +186,7 @@ void Chip8::Run(){
     /* Slows execution speed (60hz) ~= 16.66 ms intervals */
     unsigned int interval = 1000 / TICKS;
 
+    /* Main run-forever loop */
     for (;;) {
 
         t1 = SDL_GetTicks();
@@ -202,11 +203,10 @@ void Chip8::Run(){
         EmulateCycle();
 
         t2 = SDL_GetTicks();
-
+        
         elapsed = t2 - t1;
         remaining = interval - elapsed;
         if (elapsed < interval) {
-            //fprintf(stderr, "sleeping for %u ms\n", remaining);
             SDL_Delay(remaining);
             elapsed = interval;
         }

@@ -8,7 +8,7 @@
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16
-#define MEM_OFFSET 512
+#define ENTRY_POINT 0x200
 #define FONTS_SIZE 80
 #define STEPS 12 /* ~840 inst/sec if ticking at 60hz */
 #define TICKS 60 /* hz - Timer count down rate */

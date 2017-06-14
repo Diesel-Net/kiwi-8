@@ -48,6 +48,7 @@ void Gui::ProcessMenu() {
 
 	/* Show framerate (SDL's framerate, NOT the emulator's framerate) */
 	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	bool before;
 
     if (show_menu_flag) {
 		if (ImGui::BeginMainMenuBar()) {
@@ -60,11 +61,19 @@ void Gui::ProcessMenu() {
 
 			if (ImGui::BeginMenu("View")) {
 				ImGui::MenuItem("Show Menu", "Alt", &show_menu_flag);
+
+				/* Fullscreen Toggle */
+	            before = display->fullscreen_flag;
+	            ImGui::MenuItem("Fullscreen", "Enter", &(display->fullscreen_flag));
+	            if (before != display->fullscreen_flag) {
+	            	display->ToggleFullscreen();
+	            }
+
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Emulation")) {
-				ImGui::MenuItem("Pause", NULL, emulation_paused);
+				ImGui::MenuItem("Pause", "P", emulation_paused); // TO COMPLETE
 				ImGui::MenuItem("Soft Reset", "F5", &soft_reset_flag); // TO COMPLETE
 				
 				/* CPU Frequency Selector - TO COMPLETE*/
@@ -82,25 +91,19 @@ void Gui::ProcessMenu() {
 
 			if (ImGui::BeginMenu("Settings")) {
 
-				if (ImGui::BeginMenu("Color")) {
-	                ImGui::ColorEdit3("Background", display->background_color);
-	                ImGui::ColorEdit3("Foreground", display->foreground_color);
-	                ImGui::EndMenu();
-	            }
-	            
-	            /* Fullscreen Toggle */
-	            bool before = display->fullscreen_flag;
-	            ImGui::MenuItem("Fullscreen", "Enter", &(display->fullscreen_flag));
-	            if (before != display->fullscreen_flag) {
-	            	display->ToggleFullscreen();
-	            }
-
 	            /* Toggle Vsync */
 	            before = display->vsync_flag;
 	            ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
 	            if (before != display->vsync_flag) {
 	            	display->ToggleVsync();
 	            }
+
+	            if (ImGui::BeginMenu("Color")) {
+	                ImGui::ColorEdit3("Background", display->background_color);
+	                ImGui::ColorEdit3("Foreground", display->foreground_color);
+	                ImGui::EndMenu();
+	            }
+
 				ImGui::EndMenu();
 			}
 
