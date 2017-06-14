@@ -11,7 +11,7 @@ Input::~Input() {
     /* Empty */
 }
 
-void Input::Initialize(Display *display, int *steps, int *cpu_halt) {
+void Input::Initialize(Display *display, int *steps, bool *cpu_halt) {
     this->steps = steps;
     this->display = display;
     this->cpu_halt = cpu_halt;
@@ -19,7 +19,7 @@ void Input::Initialize(Display *display, int *steps, int *cpu_halt) {
 }
 
 void Input::Reset() {
-    key_pressed = 0;
+    awaiting_key_press = 0;
     memset(keys, 0, NUM_KEYS);
 }
 
@@ -136,10 +136,10 @@ void Input::CheckKeys() {
     keys[0xF] = state[SDL_SCANCODE_V];
 
     /* Check if cpu is awaiting a keypress for opcode FX0A */
-    if (cpu_halt && event.type == SDL_KEYDOWN) {
+    if (cpu_halt && awaiting_key_press) {
         for (int i = 0; i < NUM_KEYS; i++) {
             if (keys[i]) {
-                key_pressed = 1;
+                awaiting_key_press = 0;
                 break;
             }
         }     

@@ -19,7 +19,7 @@ class Input {
 
         Display *display;
         int *steps;
-        int *cpu_halt;
+        bool *cpu_halt;
 
         int CheckEvents();
         void CheckKeys();
@@ -30,9 +30,9 @@ class Input {
 
         /* HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
-        int key_pressed;
+        int awaiting_key_press;
 
-        void Initialize(Display *display, int *steps, int *cpu_halt);
+        void Initialize(Display *display, int *steps, bool *cpu_halt);
         void Reset();
         int Poll();
         

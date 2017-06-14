@@ -11,7 +11,8 @@ Date: September 18, 2016
 /* Constructor */
 Chip8::Chip8() {
     steps = STEPS;
-    cpu_halt = 0;
+    emulation_paused = 0;
+    vwrap = 1;
     display = Display();
     input = Input();    
     vram = NULL;
@@ -31,9 +32,9 @@ Chip8::~Chip8() {
     SDL_Quit();
 }
 
-int Chip8::Initialize(unsigned int fullscreen, 
-                      unsigned int load_store_quirk,
-                      unsigned int shift_quirk,
+int Chip8::Initialize(bool fullscreen, 
+                      bool load_store_quirk,
+                      bool shift_quirk,
                       unsigned char R, 
                       unsigned char G, 
                       unsigned char B){
@@ -66,7 +67,12 @@ int Chip8::Initialize(unsigned int fullscreen,
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    if (display.Initialize(fullscreen, R, G, B)) {
+    if (display.Initialize(fullscreen, 
+                           &this->emulation_paused, 
+                           &this->load_store_quirk, 
+                           &this->shift_quirk, 
+                           &this->vwrap,
+                           R, G, B)) {
         return 1;
     }
     input.Initialize(&display, &steps, &cpu_halt);
@@ -193,7 +199,7 @@ void Chip8::Run(){
         else if (event == SOFT_RESET) SoftReset();
 
         /* Run one cycle */
-        if (EmulateCycle() == USER_QUIT) break;
+        EmulateCycle();
 
         t2 = SDL_GetTicks();
 
@@ -224,17 +230,18 @@ void Chip8::UpdateTimers(){
     }
 }
 
-int Chip8::EmulateCycle(){
+void Chip8::EmulateCycle(){
 
-    int response = CONTINUE;
-       
-    for (int i = 0; i < steps; i++) {
-        FetchOpcode();
-        ExecuteOpcode();
+    if (!emulation_paused) {
+
+        for (int i = 0; i < steps; i++) {
+            FetchOpcode();
+            ExecuteOpcode();
+        }
+
+        /* Update the internal timers */
+        UpdateTimers();
     }
-
-    /* Update the internal timers */
-    UpdateTimers();
 
     /* Render the scene */
     if (draw_flag) {
@@ -243,8 +250,6 @@ int Chip8::EmulateCycle(){
     } else {
         display.RenderFrame(NULL);
     }
-
-    return response;
 }
 
 void Chip8::FetchOpcode() {
@@ -502,20 +507,27 @@ void Chip8::ExecuteOpcode(){
                 pixel = memory[I + yline];
                 for(unsigned char xline = 0; xline < 8; xline++) {
                     if((pixel & (0x80 >> xline)) != 0) {  
+                        
                         /* Note: The ROM: Blitz - David Winter
                         has sprites with one too many vertical pixel so it ends up 
                         wrapping to the top of the screen if you (y % HEIGHT) */
                         unsigned char true_x = (x + xline) % WIDTH;
-                        unsigned char true_y = (y + yline) % HEIGHT;
-                        /* There are other games that break when vertical wrapping
-                        is turned on but only a few games require it */
+                        unsigned char true_y = (y + yline);
+                        if(vwrap) true_y = true_y % HEIGHT;
+                        
 
-                        if(vram[true_x][true_y] == 1) {
-                            /* Collision */
-                            V[0xF] = 1;                          
+                        /* This OOB check is needed when vwrap is turned off
+                           so some poorly written games won't crash */
+                        if (true_x < WIDTH && true_y < HEIGHT) {
+
+                            if(vram[true_x][true_y] == 1) {
+                                /* Collision */
+                                V[0xF] = 1;                          
+                            }
+                            /* Toggle the pixels */
+                            vram[true_x][true_y] ^= 1;
                         }
-                        /* Toggle the pixels */
-                        vram[true_x][true_y] ^= 1;
+                        
                     }
                 }
             }          
@@ -562,11 +574,11 @@ void Chip8::ExecuteOpcode(){
                     /* FX0A - Pause execution until a key is pressed and store result in V[X] */
 
                     if (cpu_halt) {
-                        if (input.key_pressed) {
+                        if (!input.awaiting_key_press) {
                             for (int i = 0; i < NUM_KEYS; i++) {
                                 if (input.keys[i] != 0) V[X] = i;
                             }
-                            input.key_pressed = 0;
+                            //input.awaiting_key_press = 0;
                             cpu_halt = 0;
                             PC += 2;
                             break;
@@ -574,6 +586,7 @@ void Chip8::ExecuteOpcode(){
                     }
 
                     cpu_halt = 1;
+                    input.awaiting_key_press = 1;
                     break;
                     
                 }                   

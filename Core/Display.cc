@@ -11,6 +11,8 @@ Display::Display(){
     WINDOW_HEIGHT = HEIGHT * (int)SCALE;
     back_buffer = NULL;
     window = NULL;
+    fullscreen_flag = 0;
+    vsync_flag = 0;
 }
 
 Display::~Display(){
@@ -27,7 +29,11 @@ Display::~Display(){
 }
     
 
-int Display::Initialize( unsigned int fullscreen, 
+int Display::Initialize( bool fullscreen,
+                         bool *emulation_paused,
+                         bool *load_store_quirk,
+                         bool *shift_quirk, 
+                         bool *vwrap,
                          unsigned char R, 
                          unsigned char G, 
                          unsigned char B){
@@ -101,11 +107,13 @@ int Display::Initialize( unsigned int fullscreen,
     glBindTexture(GL_TEXTURE_2D, 0);
 
     /* Setup ImGui binding */
-    //ImGui_ImplSdl_Init(window);
-    gui.Initialize(window, background_color, foreground_color);
+    gui.Initialize(this, emulation_paused, 
+                         load_store_quirk, 
+                         shift_quirk, 
+                         vwrap);
 
     /* Set to fullscreen mode if flag present */
-    if (fullscreen) { 
+    if (fullscreen) {
         ToggleFullscreen();
     }
 
@@ -126,14 +134,26 @@ void Display::ToggleFullscreen() {
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
         SDL_ShowCursor(SDL_ENABLE);
+        /* For Gui Checkmark */
+        fullscreen_flag = 0;
 
     } else {
         
         /* Set Fullscreen */
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_DISABLE);
+        fullscreen_flag = 1;
         
-        
+    }
+}
+
+void Display::ToggleVsync() {
+    if (SDL_GL_GetSwapInterval()) {
+        SDL_GL_SetSwapInterval(0);
+        vsync_flag = 0;
+    } else {
+        SDL_GL_SetSwapInterval(1);
+        vsync_flag = 1;
     }
 }
 

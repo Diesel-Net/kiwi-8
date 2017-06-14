@@ -22,7 +22,8 @@ class Chip8 {
     	int steps;
 
         /* whether or not cpu is currently halted by opcode FX0A */
-        int cpu_halt; 
+        bool cpu_halt; 
+        bool emulation_paused;
 
         /* Two quirks of the Chip8 CPU. 
            Some games assume these are enabled to run correctly.
@@ -37,8 +38,11 @@ class Chip8 {
            incorrectly assumes that the VX register is shifted by this 
            instruction, and VY remains unmodified. Enabling this quirk
            causes VX to become shifted and VY remain untouched. */
-        int load_store_quirk;
-        int shift_quirk;
+        bool load_store_quirk;
+        bool shift_quirk;
+
+        /* Vertical wrapping toggle */
+        bool vwrap;
 
         /* Two bytes for each instruction */
         unsigned short opcode;
@@ -96,7 +100,7 @@ class Chip8 {
 
         void SoftReset();
         void UpdateTimers();
-        int EmulateCycle();
+        void EmulateCycle();
         void FetchOpcode();
         void ExecuteOpcode();
 
@@ -108,9 +112,9 @@ class Chip8 {
         Chip8();
         ~Chip8();
 
-        int Initialize(unsigned int fullscreen, 
-                       unsigned int load_store_quirk,
-                       unsigned int shift_quirk,
+        int Initialize(bool fullscreen, 
+                       bool load_store_quirk,
+                       bool shift_quirk,
                        unsigned char R, 
                        unsigned char G, 
                        unsigned char B);

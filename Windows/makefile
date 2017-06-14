@@ -38,20 +38,18 @@ build_debug: objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll debug\SDL2.dll
-	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll debug\SDL2_image.dll
 	COPY resources\chip8.ico debug\chip8.ico
 
 build_release: objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
 	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll release\SDL2.dll
-	COPY frameworks\sdl2_image\bin\$(ARCH)\SDL2_image.dll release\SDL2_image.dll
 	COPY resources\chip8.ico release\chip8.ico
 
 test_debug:
 	debug\$(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Programs/IBM Logo.ch8" \
-	-L 66 134 244
+	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
+	66 134 244
 
 test_release: 
 	release\$(APPNAME).exe \

@@ -12,7 +12,6 @@ class Display {
 
     private:
 
-        //SDL_Renderer *renderer;
         SDL_GLContext glcontext;
 
         /* Texture of 32x64x3 bytes (R, G, B) */
@@ -24,27 +23,36 @@ class Display {
         int WINDOW_WIDTH;
         int WINDOW_HEIGHT;
 
+        
+
+    public:
+
+        Gui gui;
+
+        bool fullscreen_flag;
+        bool vsync_flag;
+
         /* RGB colors for foreground/background */
         float background_color[3];
         float foreground_color[3];
 
-    public:
-
-        /* Exposed publicly for icon fix (see Windows/src/main.cc) */
         SDL_Window *window;
-
-        Gui gui;
 
         Display();
         ~Display();
 
-        int Initialize( unsigned int fullscreen, 
+        int Initialize( bool fullscreen,
+                        bool *emulation_paused,
+                        bool *load_store_quirk,
+                        bool *shift_quirk, 
+                        bool *vwrap,
                         unsigned char R, 
                         unsigned char B, 
                         unsigned char G);
 
         void Resize(int x, int y);
         void ToggleFullscreen();
+        void ToggleVsync();
         void RenderFrame(unsigned char **frame);
 };
 
