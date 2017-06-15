@@ -75,7 +75,8 @@ int Chip8::Initialize(bool fullscreen,
                            R, G, B)) {
         return 1;
     }
-    input.Initialize(&display, &steps, &cpu_halt);
+    
+    input.Initialize(&display, &steps, &cpu_halt, &emulation_paused);
 
     /* Initialize registers and memory once */
     memset(V, 0 , NUM_REGISTERS);

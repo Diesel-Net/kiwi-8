@@ -40,11 +40,12 @@ void Gui::ProcessEvents(SDL_Event* event) {
 	ImGui_ImplSdl_ProcessEvent(event);
 }
 
-void Gui::NewFrame(SDL_Window *window) {
-	ImGui_ImplSdl_NewFrame(window);
+void Gui::NewFrame() {
+	ImGui_ImplSdl_NewFrame(display->window);
+	MainMenu();
 }
 
-void Gui::ProcessMenu() {
+void Gui::MainMenu() {
 
 	/* Show framerate (SDL's framerate, NOT the emulator's framerate) */
 	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -73,10 +74,10 @@ void Gui::ProcessMenu() {
 			}
 
 			if (ImGui::BeginMenu("Emulation")) {
-				ImGui::MenuItem("Pause", "P", emulation_paused); // TO COMPLETE
-				ImGui::MenuItem("Soft Reset", "F5", &soft_reset_flag); // TO COMPLETE
+				ImGui::MenuItem("Reset", "F5", &soft_reset_flag); // TO COMPLETE
+				ImGui::MenuItem("Pause", "P", emulation_paused);
 				
-				/* CPU Frequency Selector - TO COMPLETE*/
+				/* CPU Frequency Selector - TO COMPLETE */
 				//if (ImGui::BeginMenu("CPU Frequency")) {
                 	//ImGui::SliderInt("Hz", &chip8_cpu_freq, 60, 5000, "%.0f");
                 	//ImGui::MenuItem("Default (840Hz)", NULL, &flag_default_freq);

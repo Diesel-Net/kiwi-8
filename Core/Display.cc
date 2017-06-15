@@ -103,9 +103,6 @@ int Display::Initialize( bool fullscreen,
     /* Enable textures */
     glEnable(GL_TEXTURE_2D);
 
-    /* Needed for Mac OS ??? */
-    glBindTexture(GL_TEXTURE_2D, 0);
-
     /* Setup ImGui binding */
     gui.Initialize(this, emulation_paused, 
                          load_store_quirk, 
@@ -159,10 +156,9 @@ void Display::ToggleVsync() {
 
 void Display::RenderFrame(unsigned char **frame){
 
-    /* Currently a new ImGui Frame will draw the mouse cursor 
+    /* Currently, a new ImGui Frame will draw the mouse cursor 
        regardless of SDL2's cursor visibility function */
-    gui.NewFrame(window);
-    gui.ProcessMenu();
+    gui.NewFrame();
 
     /* copy the frame to back_buffer */
     if (frame != NULL) {

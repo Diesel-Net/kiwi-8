@@ -11,10 +11,11 @@ Input::~Input() {
     /* Empty */
 }
 
-void Input::Initialize(Display *display, int *steps, bool *cpu_halt) {
+void Input::Initialize(Display *display, int *steps, bool *cpu_halt, bool *emulation_paused) {
     this->steps = steps;
     this->display = display;
     this->cpu_halt = cpu_halt;
+    this->emulation_paused = emulation_paused;
     Reset();
 }
 
@@ -73,6 +74,9 @@ int Input::CheckEvents() {
         if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) {
             /* Hide/Show menu */
             display->gui.show_menu_flag = !display->gui.show_menu_flag;
+        }
+        if (state[SDL_SCANCODE_P]) {
+            *emulation_paused = !*emulation_paused;
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
         	/* TODO: Slow emulation speed */

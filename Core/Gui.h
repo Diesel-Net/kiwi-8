@@ -21,6 +21,8 @@ class Gui {
 		bool *shift_quirk;
 		bool *vwrap;
 
+		void MainMenu();
+
 	public:
 
 		bool soft_reset_flag;
@@ -32,7 +34,6 @@ class Gui {
 		Gui();
 		~Gui();
 
-		/* Wrapper functions to SDL/ImGui interface */
 		void Initialize(Display *display, 
 						bool *emulation_paused, 
                         bool *load_store_quirk, 
@@ -40,8 +41,7 @@ class Gui {
                         bool *vwrap);
 
 		void ProcessEvents(SDL_Event* event);
-		void NewFrame(SDL_Window *window);
-		void ProcessMenu();
+		void NewFrame();
 		void Render();
 
 		

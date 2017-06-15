@@ -15,12 +15,13 @@ class Input {
     private:
         /* For processing window/keyboard events */
         SDL_Event event;
-        const Uint8 *state;
+        const unsigned char *state;
 
         Display *display;
 
         int *steps;
         bool *cpu_halt;
+        bool *emulation_paused;
 
         int CheckEvents();
         void CheckKeys();
@@ -31,9 +32,14 @@ class Input {
 
         /* HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
+
+        /* For opcode 0xFX0A */
         bool awaiting_key_press;
 
-        void Initialize(Display *display, int *steps, bool *cpu_halt);
+        void Initialize(Display *display, 
+                        int *steps, 
+                        bool *cpu_halt, 
+                        bool *emulation_paused);
         void Reset();
         int Poll();
         
