@@ -10,7 +10,7 @@
 #define STACK_DEPTH 16
 #define ENTRY_POINT 0x200
 #define FONTS_SIZE 80
-#define STEPS 12 /* ~840 inst/sec if ticking at 60hz */
+#define STEPS 12 /* ~720 inst/sec if ticking at 60hz */
 #define TICKS 60 /* hz - Timer count down rate */
 
 
@@ -18,8 +18,8 @@ class Chip8 {
 
     private:
 
-    	/* Number of instructions per cycle */
-    	int steps;
+        /* Number of instructions per cycle */
+        int steps;
 
         /* whether or not cpu is currently halted by opcode FX0A */
         bool cpu_halt; 

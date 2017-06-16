@@ -11,7 +11,10 @@ Input::~Input() {
     /* Empty */
 }
 
-void Input::Initialize(Display *display, int *steps, bool *cpu_halt, bool *emulation_paused) {
+void Input::Initialize(Display *display, 
+                       int *steps, 
+                       bool *cpu_halt, 
+                       bool *emulation_paused) {
     this->steps = steps;
     this->display = display;
     this->cpu_halt = cpu_halt;

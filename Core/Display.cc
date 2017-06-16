@@ -27,12 +27,13 @@ Display::~Display(){
     
 
 int Display::Initialize( bool fullscreen,
+                         int *steps,
                          bool *emulation_paused,
                          bool *load_store_quirk,
                          bool *shift_quirk, 
                          bool *vwrap,
-                         unsigned char R, 
-                         unsigned char G, 
+                         unsigned char R,
+                         unsigned char G,
                          unsigned char B){
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
@@ -101,10 +102,12 @@ int Display::Initialize( bool fullscreen,
     glEnable(GL_TEXTURE_2D);
 
     /* Setup ImGui binding */
-    gui.Initialize(this, emulation_paused, 
-                         load_store_quirk, 
-                         shift_quirk, 
-                         vwrap);
+    gui.Initialize(this, 
+                   steps,
+                   emulation_paused, 
+                   load_store_quirk, 
+                   shift_quirk, 
+                   vwrap);
 
     /* Set to fullscreen mode if flag present */
     if (fullscreen) {

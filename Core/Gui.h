@@ -12,39 +12,42 @@ class Display;
 
 class Gui {
 
-	private:
+    private:
 
-		Display *display;
+        Display *display;
 
-		bool *emulation_paused;
+        /* Pointers to chip8 data */
+        int *steps;
+        bool *emulation_paused;
         bool *load_store_quirk;
-		bool *shift_quirk;
-		bool *vwrap;
+        bool *shift_quirk;
+        bool *vwrap;
 
-		void MainMenu();
+        void MainMenu();
 
-	public:
+    public:
 
-		bool soft_reset_flag;
-		bool load_rom_flag;
-		bool quit_flag;
-		bool show_menu_flag;
-		
+        bool soft_reset_flag;
+        bool load_rom_flag;
+        bool quit_flag;
+        bool show_menu_flag;
+        
 
-		Gui();
-		~Gui();
+        Gui();
+        ~Gui();
 
-		void Initialize(Display *display, 
-						bool *emulation_paused, 
+        void Initialize(Display *display,
+                        int *steps, 
+                        bool *emulation_paused, 
                         bool *load_store_quirk, 
                         bool *shift_quirk, 
                         bool *vwrap);
 
-		void ProcessEvents(SDL_Event* event);
-		void NewFrame();
-		void Render();
+        void ProcessEvents(SDL_Event* event);
+        void NewFrame();
+        void Render();
 
-		
+        
 };
 
 #endif

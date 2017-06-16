@@ -39,7 +39,10 @@ int Chip8::Initialize(bool fullscreen,
                       unsigned char G, 
                       unsigned char B){
 
-    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+    if (SDL_Init(SDL_INIT_TIMER | 
+                 SDL_INIT_AUDIO | 
+                 SDL_INIT_VIDEO | 
+                 SDL_INIT_EVENTS)) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -68,6 +71,7 @@ int Chip8::Initialize(bool fullscreen,
     }
 
     if (display.Initialize(fullscreen, 
+                           &this->steps,
                            &this->emulation_paused, 
                            &this->load_store_quirk, 
                            &this->shift_quirk, 

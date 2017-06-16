@@ -42,6 +42,7 @@ class Display {
         ~Display();
 
         int Initialize( bool fullscreen,
+                        int *steps,
                         bool *emulation_paused,
                         bool *load_store_quirk,
                         bool *shift_quirk, 
