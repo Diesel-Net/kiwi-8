@@ -35,6 +35,7 @@ Chip8::~Chip8() {
 int Chip8::Initialize(bool fullscreen, 
                       bool load_store_quirk,
                       bool shift_quirk,
+                      bool vwrap,
                       unsigned char R, 
                       unsigned char G, 
                       unsigned char B){
@@ -49,6 +50,7 @@ int Chip8::Initialize(bool fullscreen,
 
     this-> load_store_quirk = load_store_quirk;
     this-> shift_quirk = shift_quirk;
+    this-> vwrap = vwrap;
 
     /* Init vram */
     vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
@@ -205,7 +207,7 @@ void Chip8::Run(){
         if ((event & USER_QUIT) == USER_QUIT) break;
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
-        /* Run one cycle */
+        /* Run one pseudo cycle (batch of X instructions) */
         EmulateCycle();
 
         t2 = SDL_GetTicks();
@@ -243,6 +245,11 @@ void Chip8::EmulateCycle(){
         for (int i = 0; i < steps; i++) {
             FetchOpcode();
             ExecuteOpcode();
+
+            if(draw_flag && !display.limit_fps_flag){
+                display.RenderFrame(vram);
+                draw_flag = 0;
+            }
         }
 
         /* Update the internal timers */
@@ -250,7 +257,7 @@ void Chip8::EmulateCycle(){
     }
 
     /* Render the scene */
-    if (draw_flag) {
+    if (draw_flag && display.limit_fps_flag) {
         display.RenderFrame(vram);
         draw_flag = 0;
     } else {

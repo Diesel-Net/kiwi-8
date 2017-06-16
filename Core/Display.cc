@@ -10,6 +10,7 @@ Display::Display(){
     window = NULL;
     fullscreen_flag = 0;
     vsync_flag = 0;
+    limit_fps_flag = 1;
 }
 
 Display::~Display(){
@@ -131,7 +132,6 @@ void Display::ToggleFullscreen() {
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
         SDL_ShowCursor(SDL_ENABLE);
-        /* For Gui Checkmark */
         fullscreen_flag = 0;
 
     } else {

@@ -63,7 +63,8 @@ Usage: Chip8 PATH_TO_ROM [-FLS] [R G B]
     -F      Launch in fullscreen
     -L      Enable load/store quirk
     -S      Enable shift quirk
-    R G B   Render color in RGB format, 
+    -V      Disable vertical wrapping
+    R G B   Foreground color in RGB format, 
             3 numbers from 0-255
 
     Note: If you launch the program with no 

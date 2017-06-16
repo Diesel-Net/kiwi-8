@@ -7,7 +7,7 @@
 
 #define MENU_HEIGHT 38
 
-/* Forward Declaraton */
+/* Forward declaration */
 class Display;
 
 class Gui {
@@ -23,7 +23,13 @@ class Gui {
         bool *shift_quirk;
         bool *vwrap;
 
+        /* Help-window toggles */
+        bool show_controls;
+        bool show_license;
+        bool show_about;
+
         void MainMenu();
+        void HelpWindows();
 
     public:
 

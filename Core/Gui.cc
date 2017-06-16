@@ -2,7 +2,14 @@
 #include "Gui.h"
 
 Gui::Gui() {
-    /* Empty */
+    soft_reset_flag = 0;
+    load_rom_flag = 0;
+    quit_flag = 0;
+    show_menu_flag = 1;
+
+    show_controls = 0;
+    show_license = 0;
+    show_about = 0;
 }
 
 Gui::~Gui() {
@@ -24,11 +31,6 @@ void Gui::Initialize(Display *display,
     this->load_store_quirk = load_store_quirk;
     this->shift_quirk = shift_quirk;
     this->vwrap = vwrap;
-
-    soft_reset_flag = 0;
-    load_rom_flag = 0;
-    quit_flag = 0;
-    show_menu_flag = 1;
 
     ImGui_ImplSdl_Init(display->window);
 
@@ -74,6 +76,7 @@ void Gui::MainMenu() {
                 
                 /* CPU Frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
+                    ImGui::MenuItem("", "PageDown/PageUp", !!0);
                     int cpu_frequency = *steps * 60;
                     ImGui::SliderInt("Hz", &cpu_frequency, 60, 3000, "%.f");
                     *steps = cpu_frequency / 60;
@@ -90,11 +93,14 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Settings")) {
+                ImGui::Text("Avg: %.3f ms/frame (%.1f FPS)", 
+                    1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
                 /* Toggle Vsync */
-                before = display->vsync_flag;
-                ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
-                if (before != display->vsync_flag) display->ToggleVsync();
+                //before = display->vsync_flag;
+                //ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
+                //if (before != display->vsync_flag) display->ToggleVsync();
 
                 /* Color Chooser */
                 if (ImGui::BeginMenu("Color")) {
@@ -106,14 +112,69 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Help")) {
-                ImGui::MenuItem("Controls", NULL, !!0); // TO COMPLETE
-                ImGui::MenuItem("License", NULL, !!0); // TO COMPLETE
-                ImGui::MenuItem("About", NULL, !!0); // TO COMPLETE
+                ImGui::MenuItem("Controls", NULL, &show_controls); 
+                ImGui::MenuItem("License", NULL, &show_license); 
+                ImGui::MenuItem("About", NULL, &show_about);
                 ImGui::EndMenu();
             }
 
             ImGui::EndMainMenuBar();
+            HelpWindows();
         }
+    }
+}
+
+void Gui::HelpWindows() {
+    if (show_controls) {
+        ImGui::SetNextWindowSize(ImVec2(345, 205), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("Controls", &show_controls);
+        ImGui::TextWrapped( "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
+                            "\n"
+                            "controls:       --->        keybindings:\n"
+                            "1 2 3 C                     1 2 3 4\n"
+                            "4 5 6 D                     q w e r\n"
+                            "7 8 9 E                     a s d f\n"
+                            "A 0 B F                     z x c v\n"
+                            "increase speed              pageup\n"
+                            "decrease speed              pagedown\n"
+                            "quit                        esc\n"
+                            "toggle fullscreen           enter\n"
+                            "toggle menu                 alt\n"
+                            "soft reset                  f5");
+        ImGui::End();
+    }
+    if (show_license) {
+        ImGui::SetNextWindowSize(ImVec2(500, 220), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("License", &show_license);
+        ImGui::TextWrapped( "Copyright (C) 2016  Thomas Daley\n"
+                            "\n"
+                            "This program is free software: you can redistribute it and/or modify\n"
+                            "it under the terms of the GNU General Public License as published by\n"
+                            "the Free Software Foundation, either version 3 of the License, or\n"
+                            "(at your option) any later version.\n"
+                            "\n"
+                            "This program is distributed in the hope that it will be useful,\n"
+                            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+                            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+                            "GNU General Public License for more details.\n"
+                            "\n"
+                            "You should have received a copy of the GNU General Public License\n"
+                            "along with this program.  If not, see <http://www.gnu.org/licenses/>.");
+        ImGui::End();
+    }
+    if (show_about) {
+        ImGui::SetNextWindowSize(ImVec2(330, 120), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("About", &show_about);
+        ImGui::TextWrapped( "Chip8 v1.03\n"
+                            "\n"
+                            "A cross-platform CHIP-8 interpreter written\n"
+                            "in C++ with SDL2 and ImGui.\n"
+                            "\n"
+                            "<https://github.com/tomdaley92/Chip8>\n");
+        ImGui::End();
     }
 }
 

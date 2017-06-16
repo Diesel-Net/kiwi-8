@@ -10,7 +10,7 @@
 #define MIN_STEPS 1
 #define MAX_STEPS 50
 
-/* Forward Declaraton */
+/* Forward declaration */
 class Display;
 
 class Input {

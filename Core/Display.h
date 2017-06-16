@@ -31,6 +31,7 @@ class Display {
 
         bool fullscreen_flag;
         bool vsync_flag;
+        bool limit_fps_flag;
 
         /* RGB colors for foreground/background */
         float background_color[3];

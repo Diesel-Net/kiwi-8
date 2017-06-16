@@ -115,6 +115,7 @@ class Chip8 {
         int Initialize(bool fullscreen, 
                        bool load_store_quirk,
                        bool shift_quirk,
+                       bool vwrap,
                        unsigned char R, 
                        unsigned char G, 
                        unsigned char B);

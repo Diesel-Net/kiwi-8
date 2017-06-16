@@ -14,32 +14,36 @@ int main(int argc, char **argv){
 
     char cwd[MAX_PATH];
     
-    char *rom;
+    char *rom_name;
 
     /* Defaults */
     bool fullscreen = 0;
     bool load_store_quirk = 0;
     bool shift_quirk = 0;
-    unsigned char R = 0;
-    unsigned char G = 255;
-    unsigned char B = 200;
+    bool vwrap = 1;
+    unsigned char R = 200;
+    unsigned char G = 170;
+    unsigned char B = 255;
 
     if (argc < 2) {
-        /* Open file dialogue */
-        GetCurrentDirectory(MAX_PATH, cwd);
 
+        /*
         int result = MessageBox (NULL , "Click OK to select a ROM file.\n\n"
                             "Alternatively, you may launch Chip8 with the command line.\n\n"
                             "Usage: Chip8 PATH_TO_ROM [-FLS] [R G B]\n"
                             "       -F\t\tLaunch in fullscreen\n"
                             "       -L\t\tEnable load/store quirk\n"
                             "       -S\t\tEnable shift quirk\n"
+                            "       -V\t\tDisable vertical wrapping\n"
                             "       R G B\t\tForeground color in RGB format,\n"
                             "            \t\t3 numbers from 0-255\n\n\n\n"
                             "Enjoy!\n\nThomas Daley", VERSION, MB_OKCANCEL);
         if (result == IDCANCEL) {
             return 0;
-        }
+        } */
+
+        /* Open file dialogue */
+        GetCurrentDirectory(MAX_PATH, cwd);
 
         OPENFILENAME ofn;
 
@@ -66,10 +70,10 @@ int main(int argc, char **argv){
         /* Change current working directory back to location of executable */
         SetCurrentDirectory(cwd);
 
-        rom = szFile;
+        rom_name = szFile;
         
     } else {
-        rom = argv[1];
+        rom_name = argv[1];
     }
 
 
@@ -83,15 +87,10 @@ int main(int argc, char **argv){
 
             for (int i = 0; i < len; i++) {
                 /* Parse the options */
-                if (*pos == 'F') {
-                    fullscreen = 1;
-                }
-                if (*pos == 'L') {
-                    load_store_quirk = 1;
-                }
-                if (*pos == 'S') {
-                    shift_quirk = 1;
-                }
+                if (*pos == 'F') fullscreen = 1;
+                if (*pos == 'L') load_store_quirk = 1;
+                if (*pos == 'S') shift_quirk = 1;
+                if (*pos == 'V') vwrap = 0;
                 pos++;
             }
 
@@ -113,11 +112,11 @@ int main(int argc, char **argv){
     }   
     
     Chip8 chip = Chip8();
-    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, R, G, B)) {
+    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, vwrap, R, G, B)) {
         return 1;
     }
     
-    if (chip.Load(rom)) {
+    if (chip.Load(rom_name)) {
         return 1;
     }
     
