@@ -175,6 +175,9 @@ void Chip8::SoftReset() {
     sound_timer = 0;
     cpu_halt = 0;
     draw_flag = 1;
+
+    /* Flip the GUI bit */
+    display.gui.soft_reset_flag = 0;
 }
 
 void Chip8::Run(){
@@ -194,11 +197,9 @@ void Chip8::Run(){
 
         event = input.Poll();
 
-        /* Quit */
-        if (event == USER_QUIT) break;
-
-        /* Soft-Reset */
-        else if (event == SOFT_RESET) SoftReset();
+        /* Do something based on response */
+        if ((event & USER_QUIT) == USER_QUIT) break;
+        if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
         /* Run one cycle */
         EmulateCycle();

@@ -29,21 +29,19 @@ int Input::Poll() {
     
     /* Purge any queued events */
     while (SDL_PollEvent(&event)) {
-        response = USER_QUIT;
 
         state = SDL_GetKeyboardState(NULL);
 
         /* Check Gui */
         display->gui.ProcessEvents(&event);
-        if (display->gui.quit_flag) break;   
+        if (display->gui.quit_flag) response |= USER_QUIT;
+        if (display->gui.soft_reset_flag) response |= SOFT_RESET;
 
         /* Check Window */
-        response = CheckEvents();
-        if (response == USER_QUIT) break; 
+        response |= CheckEvents();
         
         /* Check chip-8 input */
         CheckKeys(); 
-
     } 
     return response;
 }
@@ -69,6 +67,7 @@ int Input::CheckEvents() {
             response = SOFT_RESET;
         }
         if (state[SDL_SCANCODE_RETURN]) {
+            /* Switch from windowed to fullscreen or vice-versa */
             display->ToggleFullscreen();
         }
         if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) {
@@ -79,7 +78,7 @@ int Input::CheckEvents() {
             *emulation_paused = !*emulation_paused;
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
-        	/* TODO: Slow emulation speed */
+        	/* Slow emulation speed */
         	if (*steps -1 < MIN_STEPS ) {
         		*steps = MIN_STEPS;
         	} else {
@@ -87,7 +86,7 @@ int Input::CheckEvents() {
         	}
         }
         if (state[SDL_SCANCODE_PAGEUP]) {
-        	/* TODO: Raise emulation speed */
+        	/* Raise emulation speed */
         	if (*steps +1 > MAX_STEPS ) {
         		*steps = MAX_STEPS;
         	} else {

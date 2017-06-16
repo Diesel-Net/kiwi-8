@@ -2,7 +2,7 @@
 #include "Gui.h"
 
 Gui::Gui() {
-
+	/* Empty */
 }
 
 Gui::~Gui() {
@@ -27,8 +27,6 @@ void Gui::Initialize(Display *display,
 	load_rom_flag = 0;
 	quit_flag = 0;
 	show_menu_flag = 1;
-
-	
 
 	ImGui_ImplSdl_Init(display->window);
 
@@ -66,15 +64,13 @@ void Gui::MainMenu() {
 				/* Fullscreen Toggle */
 	            before = display->fullscreen_flag;
 	            ImGui::MenuItem("Fullscreen", "Enter", &(display->fullscreen_flag));
-	            if (before != display->fullscreen_flag) {
-	            	display->ToggleFullscreen();
-	            }
+	            if (before != display->fullscreen_flag) display->ToggleFullscreen();
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Emulation")) {
-				ImGui::MenuItem("Reset", "F5", &soft_reset_flag); // TO COMPLETE
+				ImGui::MenuItem("Reset", "F5", &soft_reset_flag);
 				ImGui::MenuItem("Pause", "P", emulation_paused);
 				
 				/* CPU Frequency Selector - TO COMPLETE */
@@ -95,9 +91,7 @@ void Gui::MainMenu() {
 	            /* Toggle Vsync */
 	            before = display->vsync_flag;
 	            ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
-	            if (before != display->vsync_flag) {
-	            	display->ToggleVsync();
-	            }
+	            if (before != display->vsync_flag) display->ToggleVsync();
 
 	            if (ImGui::BeginMenu("Color")) {
 	                ImGui::ColorEdit3("Background", display->background_color);

@@ -1,15 +1,17 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include "Display.h"
 #include <SDL2/SDL.h>
 
 #define NUM_KEYS 16
+#define CONTINUE 0
 #define USER_QUIT 1
 #define SOFT_RESET 2
-#define CONTINUE 0
 #define MIN_STEPS 1
 #define MAX_STEPS 50
+
+/* Forward Declaraton */
+class Display;
 
 class Input {
     private:

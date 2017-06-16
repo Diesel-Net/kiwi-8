@@ -2,9 +2,6 @@
 #include "Gui.h"
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
-#include <string.h>
-
-//#define MIN( a, b ) ( ( a < b) ? a : b )
 
 Display::Display(){
     WINDOW_WIDTH = WIDTH * (int)SCALE;
