@@ -7,7 +7,7 @@
 
 #ifdef _WIN32
 #include <windows.h> /* MAX_PATH */
-//#include </compat/dirent_msvc.h> /* PATH_MAX */
+#define PATH_MAX MAX_PATH /* PATH_MAX */
 #endif
 
 void openFileDialog(char *rom_name);

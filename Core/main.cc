@@ -3,34 +3,30 @@ Author: Thomas Daley
 Date: September 8, 2016
 */
 
-#include "../../Core/Chip8.h"
-#include "resource.h"
-#include "fileDialog.h"
-#include <windows.h>
+#include "Chip8.h"
 #include <string.h>
+
+#ifdef __APPLE__
+#define GUI_LAUNCH_CONDITION (argc < 2 || !strncmp(argv[1], "-psn", 4))
+#endif
+
+#ifdef _WIN32
+#define GUI_LAUNCH_CONDITION (argc < 2)
+#include <windows.h> /* atoi() */
+#include "../Windows/src/resource.h"
+#endif
 
 int main(int argc, char **argv){
     
-    char rom_name[MAX_PATH];
-
     /* Defaults */
-    bool fullscreen = 0;
-    bool load_store_quirk = 0;
-    bool shift_quirk = 0;
-    bool vwrap = 1;
-    unsigned char R = 200;
-    unsigned char G = 170;
-    unsigned char B = 255;
-
-    if (argc < 2) {
-
-        /* Open file dialogue */
-        openFileDialog(rom_name, "Chip8\0*.ch8\0All\0*.*\0");
-        
-    } else {
-        strcpy(rom_name, argv[1]);
-    }
-
+    Defaults def;
+    bool fullscreen = def.fullscreen;
+    bool load_store_quirk = def.load_store_quirk;
+    bool shift_quirk = def.shift_quirk;
+    bool vwrap = def.vwrap;
+    unsigned char R = def.R;
+    unsigned char G = def.G;
+    unsigned char B = def.B;
 
     if (argc >= 3) {
 
@@ -64,15 +60,22 @@ int main(int argc, char **argv){
         R = (unsigned char) atoi(argv[3]);
         G = (unsigned char) atoi(argv[4]);
         B = (unsigned char) atoi(argv[5]);   
-    }   
-    
+    }
+
     Chip8 chip = Chip8();
     if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, vwrap, R, G, B)) {
         return 1;
     }
-    
-    if (chip.Load(rom_name)) {
-        return 1;
+
+    if (GUI_LAUNCH_CONDITION) {
+        
+        /* Load default ROM */
+        if (chip.LoadDefault()) return 1;
+        
+    } else {
+
+        /* Load ROM from argument vector */
+        if (chip.Load(argv[1])) return 1;
     }
     
     chip.Run();
