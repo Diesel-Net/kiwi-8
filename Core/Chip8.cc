@@ -9,8 +9,6 @@ Date: September 18, 2016
 #include <string.h>
 #include <stdio.h>
 
-
-/* Constructor */
 Chip8::Chip8() {
     steps = STEPS;
     emulation_paused = 0;
@@ -30,7 +28,6 @@ Chip8::~Chip8() {
         }
         free(vram);
     }
-
     free(rom);
     SDL_Quit();
 }
@@ -43,10 +40,10 @@ int Chip8::Initialize(bool fullscreen,
                       unsigned char G, 
                       unsigned char B){
 
-    if (SDL_Init(SDL_INIT_TIMER | 
-                 SDL_INIT_AUDIO | 
-                 SDL_INIT_VIDEO | 
-                 SDL_INIT_EVENTS)) {
+    if (SDL_Init(  SDL_INIT_TIMER 
+                 | SDL_INIT_AUDIO 
+                 | SDL_INIT_VIDEO 
+                 | SDL_INIT_EVENTS)) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -55,19 +52,16 @@ int Chip8::Initialize(bool fullscreen,
     this-> shift_quirk = shift_quirk;
     this-> vwrap = vwrap;
 
-    /* Init vram */
+    /* init vram */
     vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     const char *err_str = "Unable to allocate memory on the heap.\n";
-
     if (!vram) {
         fprintf(stderr, "%s", err_str);
         return 1;
     }
-
     memset(vram, 0, WIDTH * sizeof(unsigned char *));
     for (int i = 0; i < WIDTH; i++) {
         vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
-
         if (!vram[i]) {
             fprintf(stderr, "%s", err_str);
             return 1;
@@ -75,6 +69,7 @@ int Chip8::Initialize(bool fullscreen,
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
+    /* init display & input */
     if (display.Initialize(fullscreen, 
                            &this->steps,
                            &this->emulation_paused, 
@@ -84,19 +79,12 @@ int Chip8::Initialize(bool fullscreen,
                            R, G, B)) {
         return 1;
     }
-    
     input.Initialize(&display, &steps, &cpu_halt, &emulation_paused);
 
-    /* Initialize registers and memory once */
+    /* init registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
     memset(memory, 0, MEM_SIZE);
     memset(stack, 0, STACK_DEPTH);
-
-    /* Load fontset */
-    for(int i = 0; i < FONTS_SIZE; ++i) {
-        memory[i] = chip8_fontset[i];
-    }
-
     I = 0;
     PC = ENTRY_POINT;
     sp = 0;
@@ -106,29 +94,29 @@ int Chip8::Initialize(bool fullscreen,
     draw_flag = 1;
     emulation_paused = 0;
 
+    /* Load fontset */
+    for(int i = 0; i < FONTS_SIZE; ++i) {
+        memory[i] = chip8_fontset[i];
+    }
+
     return 0;
 }
 
 int Chip8::Load(const char *rom_name){
-
-    /* Open the file */
     if (rom_name) {
+
+        /* Open the file */
         FILE *file;
         file = fopen(rom_name, "rb");
-        
         if(file == NULL){
             fprintf(stderr, "Unable to open file, check spelling.\n");
             return 1;
         }
-        /* Jump to the end of the file */
-        fseek(file, 0, SEEK_END); 
-        /* Get the current byte offset in the file */         
-        rom_size = ftell(file);  
-        /* Jump back to the beginning of the file */           
+
+        /* Get file size */
+        fseek(file, 0, SEEK_END);      
+        rom_size = ftell(file);            
         rewind(file);                     
-
-        //fprintf(stderr, "Size: %d bytes.\n", rom_size);
-
         if (rom_size > MEM_SIZE - ENTRY_POINT) {
             fprintf(stderr, "Rom is too large or not formatted properly.\n");
             return 1;
@@ -137,7 +125,6 @@ int Chip8::Load(const char *rom_name){
         /* Allocate or free and reallocate as necessary */
         if (rom) free(rom);
         rom = (unsigned char *)malloc(rom_size);
-
         if(!rom) {
             fprintf(stderr, "Unable to allocate memory for rom.\n");
             return 1;
@@ -152,13 +139,13 @@ int Chip8::Load(const char *rom_name){
 
         /* Copy the entire rom to memory starting from 0x200 */
         memcpy(memory + ENTRY_POINT, rom, rom_size);
-
         fclose(file);
         rom_loaded = 1;
         return 0;
 
     } else {
 
+        /* Load ROM from GUI */
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name);
 
@@ -178,7 +165,6 @@ int Chip8::LoadDefault() {
 }
 
 void Chip8::SoftReset() {
-
     /* Clear the vram */
     for (int i = 0; i < WIDTH; i++) {
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -214,7 +200,7 @@ void Chip8::SoftReset() {
     emulation_paused = 0;
 }
 
-void Chip8::Run(){
+int Chip8::Run(){
     int event;
     unsigned int t1;
     unsigned int t2;
@@ -234,19 +220,19 @@ void Chip8::Run(){
         event = input.Poll();
 
         /* Do something based on response...
-           (make sure to always soft-reset AFTER loading a new rom) */
+           Make sure to always soft-reset AFTER loading a new rom! */
         if ((event & USER_QUIT) == USER_QUIT) break;
         if ((event & LOAD_ROM) == LOAD_ROM) {
             if (Load(NULL)) {
                 /* Error opening ROM file */
-                break;
+                return 1;
             }
         }
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
 
         /* Run one pseudo cycle (batch of X instructions) */
-        EmulateCycle();
+        EmulateBatchCycle();
 
         t2 = SDL_GetTicks();
         
@@ -257,18 +243,16 @@ void Chip8::Run(){
             elapsed = interval;
         }
     }
+    return 0;
 }
 
 void Chip8::UpdateTimers(){
     /* Decrement timers, check sound timer */
     if (!cpu_halt) {
-
-        if(delay_timer > 0) {
-            delay_timer--;
-        }
+        if(delay_timer > 0) delay_timer--;
         if(sound_timer > 0) {
             if(sound_timer == 1) {
-                // AUDIO: TO COMPLETE
+                /* AUDIO: TO COMPLETE */
                 //fprintf(stderr, "BEEP!\n");
             }
             sound_timer--;
@@ -276,20 +260,17 @@ void Chip8::UpdateTimers(){
     }
 }
 
-void Chip8::EmulateCycle(){
-
+void Chip8::EmulateBatchCycle(){
+    /* Emulate a batch of instructions */
     if (!emulation_paused && rom_loaded) {
-
         for (int i = 0; i < steps; i++) {
             FetchOpcode();
             ExecuteOpcode();
-
             if(draw_flag && !display.limit_fps_flag){
                 display.RenderFrame(vram);
                 draw_flag = 0;
             }
         }
-
         /* Update the internal timers */
         UpdateTimers();
     }
@@ -707,5 +688,5 @@ void Chip8::ExecuteOpcode(){
                     break;
             }
             break;
-    } /* End of switch */
+    }
 }

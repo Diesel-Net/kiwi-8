@@ -35,7 +35,7 @@ int Display::Initialize( bool fullscreen,
                          bool *vwrap,
                          unsigned char R,
                          unsigned char G,
-                         unsigned char B){
+                         unsigned char B) {
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     
@@ -125,17 +125,14 @@ void Display::Resize(int x, int y) {
 }
 
 void Display::ToggleFullscreen() {
-
     /* Check if already fullscreen */
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
-
         /* Set Windowed */
         SDL_SetWindowFullscreen(window, 0);
         SDL_ShowCursor(SDL_ENABLE);
         fullscreen_flag = 0;
 
     } else {
-        
         /* Set Fullscreen */
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         SDL_ShowCursor(SDL_DISABLE);
@@ -155,7 +152,6 @@ void Display::ToggleVsync() {
 }
 
 void Display::RenderFrame(unsigned char **frame){
-
     /* Currently, a new ImGui Frame will draw the mouse cursor 
        regardless of SDL2's cursor visibility function */
     gui.NewFrame();
@@ -175,7 +171,7 @@ void Display::RenderFrame(unsigned char **frame){
     for (int i = 0; i < WIDTH; i++){
         for (int j = 0; j < HEIGHT; j++){
             if (back_buffer[i][HEIGHT-j-1]) {
-
+                
                 /* Fill the foreground pixel */
                 texture[j][i][0] = (unsigned char)(foreground_color[0] * (float) 0xFF); //R
                 texture[j][i][1] = (unsigned char)(foreground_color[1] * (float) 0xFF); //G

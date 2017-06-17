@@ -102,7 +102,7 @@ class Chip8 {
 
         void SoftReset();
         void UpdateTimers();
-        void EmulateCycle();
+        void EmulateBatchCycle();
         void FetchOpcode();
         void ExecuteOpcode();
 
@@ -124,7 +124,7 @@ class Chip8 {
 
         int Load(const char *rom_name);
         int LoadDefault();
-        void Run();
+        int Run();
 };
 
 #endif

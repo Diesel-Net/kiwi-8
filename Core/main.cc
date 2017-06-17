@@ -7,13 +7,18 @@ Date: September 8, 2016
 #include <string.h>
 
 #ifdef __APPLE__
+/* This is a short circuit trick for launching Cocoa based .app's by 
+   double clicking on them or (equivalently) using the "open" command. 
+   On MacOS, GUI apps launch with an extra argument that gets sent in 
+   the form of -psn_X_XXXXX where X can be any number. This is the 
+   Process Serial Number. */
 #define GUI_LAUNCH_CONDITION (argc < 2 || !strncmp(argv[1], "-psn", 4))
 #endif
 
 #ifdef _WIN32
 #define GUI_LAUNCH_CONDITION (argc < 2)
 #include <windows.h> /* atoi() */
-#include "../Windows/src/resource.h"
+#include "../Windows/src/resource.h" /* window icon */
 #endif
 
 int main(int argc, char **argv){
@@ -77,7 +82,7 @@ int main(int argc, char **argv){
         /* Load ROM from argument vector */
         if (chip.Load(argv[1])) return 1;
     }
-    
-    chip.Run();
-    return 0;
+
+    /* Where the magic happens */
+    return chip.Run();
 }

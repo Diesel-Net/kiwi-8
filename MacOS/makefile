@@ -7,8 +7,10 @@ CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.9
 LFLAGS = -mmacosx-version-min=10.9
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
-
-LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
+LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
+		-lSDL2-2.0.0 \
+		-framework Cocoa \
+		-framework OpenGL
 
 # These must be named consistently with Info.plist file:
 ICON = chip8.icns
@@ -22,7 +24,7 @@ $(APPNAME): objects
 	# Compiling main executable
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) *.o -o $@ $(LFLAGS)
 
-	# Remove leftover objects 
+	# Removing leftover objects 
 	$(RM) *.o
 
 	# Creating empty .app bundle
@@ -41,7 +43,7 @@ $(APPNAME): objects
 	mv $@ $@.app/Contents/MacOS/$@
 	mv $@.app release/$@.app
 
-# Build object files
+# Builds object files
 objects:	src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
 

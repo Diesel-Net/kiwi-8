@@ -18,17 +18,13 @@ CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
 		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \
 		 /ENTRY:mainCRTStartup
-
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
 	   /I$(MAKEDIR)/../frameworks/imgui/
-
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
 	   opengl32.lib \
 	   Comdlg32.lib
-
-
 
 # Default target
 all: clean build_debug build_release
@@ -47,7 +43,7 @@ build_release: objects resource
 test_debug:
 	debug\$(APPNAME).exe \
 	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
-	66 134 244
+	-V 66 134 244
 
 test_release: 
 	release\$(APPNAME).exe \
