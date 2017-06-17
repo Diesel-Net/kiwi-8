@@ -1,5 +1,5 @@
-#ifndef FILE_DIALOG_H
-#define FILE_DIALOG_H
+#ifndef APPLE_FILE_DIALOG_H
+#define APPLE_FILE_DIALOG_H
 
 #include <string>
 #include <vector>

@@ -1,6 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
+#include "defaults.h"
 #include "Display.h"
 #include "Input.h"
 
@@ -53,6 +54,7 @@ class Chip8 {
         unsigned char memory[MEM_SIZE];
 
         /* A copy of the rom for soft resetting */
+        bool rom_loaded;
         unsigned char *rom;
         unsigned int rom_size;
 
@@ -121,6 +123,7 @@ class Chip8 {
                        unsigned char B);
 
         int Load(const char *rom_name);
+        int LoadDefault();
         void Run();
 };
 

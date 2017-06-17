@@ -8,7 +8,7 @@ LFLAGS = -mmacosx-version-min=10.9
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
 
-LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework Carbon -framework OpenGL
+LIBS = -L$(CURDIR)/frameworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # These must be named consistently with Info.plist file:
 ICON = chip8.icns
@@ -35,7 +35,7 @@ $(APPNAME): objects
 	# Re-linking the dylibs to newly compiled executable
 	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@ 
 
-	# Moving the configured executable and copy other files into .app bundle
+	# Moving the configured executable and copying other files into .app bundle
 	cp resources/$(ICON) $@.app/Contents/Resources/$(ICON)
 	cp src/Info.plist $@.app/Contents/Info.plist
 	mv $@ $@.app/Contents/MacOS/$@
@@ -52,8 +52,7 @@ test_release:
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
 	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
-	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Games/Blitz [David Winter].ch8" \
-	-V
+	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Demos/Zero Demo [zeroZshadow, 2007].ch8" \
 
 # Removes latest build and object files
 clean:

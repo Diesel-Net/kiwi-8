@@ -3,19 +3,12 @@ Author: Thomas Daley
 Date: September 18, 2016
 */
 #include "Chip8.h"
+#include "openFileDialog.h"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-#ifdef __APPLE__
-#include "../MacOS/src/fileDialog.h"
-#endif
-
-#ifdef _WIN32
-#include <windows.h> /* MAX_PATH */
-#include "../Windows/src/fileDialog.h"
-#endif
 
 /* Constructor */
 Chip8::Chip8() {
@@ -26,6 +19,7 @@ Chip8::Chip8() {
     input = Input();    
     vram = NULL;
     rom = NULL;
+    rom_loaded = 0;
 }
 
 Chip8::~Chip8() {
@@ -118,7 +112,6 @@ int Chip8::Initialize(bool fullscreen,
 int Chip8::Load(const char *rom_name){
 
     /* Open the file */
-
     if (rom_name) {
         FILE *file;
         file = fopen(rom_name, "rb");
@@ -161,26 +154,27 @@ int Chip8::Load(const char *rom_name){
         memcpy(memory + ENTRY_POINT, rom, rom_size);
 
         fclose(file);
+        rom_loaded = 1;
         return 0;
+
     } else {
 
-        /* Call platform specific open file dialog functions */
-        #ifdef _WIN32
-        char file_name[MAX_PATH];
-        openFileDialog(file_name, "Chip8\0*.ch8\0All\0*.*\0");
-        fprintf(stderr, "%s\n", file_name);
-        if(Load(file_name)) return 1;
-        #endif
+        char new_rom_name[PATH_MAX];
+        openFileDialog(new_rom_name);
 
-        #ifdef __APPLE__
-
-        #endif
+        /* Error loading new rom file */
+        if(Load(new_rom_name)) return 1;
 
         /* Flip GUI flags */
         display.gui.load_rom_flag = 0;
         emulation_paused = 0;
+        rom_loaded = 1;
         return 0;
     }
+}
+
+int Chip8::LoadDefault() {
+    return 0;
 }
 
 void Chip8::SoftReset() {
@@ -284,7 +278,7 @@ void Chip8::UpdateTimers(){
 
 void Chip8::EmulateCycle(){
 
-    if (!emulation_paused) {
+    if (!emulation_paused && rom_loaded) {
 
         for (int i = 0; i < steps; i++) {
             FetchOpcode();

@@ -56,7 +56,7 @@ void Gui::MainMenu() {
         if (ImGui::BeginMainMenuBar()) {
 
             if (ImGui::BeginMenu("File")) {
-                ImGui::MenuItem("Load ROM...", NULL, &load_rom_flag); // TO COMPLETE
+                ImGui::MenuItem("Load ROM...", NULL, &load_rom_flag);
                 ImGui::MenuItem("Exit", "Esc", &quit_flag);
                 ImGui::EndMenu();
             }
