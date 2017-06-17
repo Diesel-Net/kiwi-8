@@ -5,7 +5,7 @@
 
 /* Defaults */
 typedef struct Defaults {
-	const bool fullscreen = 0;
+    const bool fullscreen = 0;
     const bool load_store_quirk = 0;
     const bool shift_quirk = 0;
     const bool vwrap = 1;
@@ -16,8 +16,8 @@ typedef struct Defaults {
 
 
 const unsigned char default_rom[DEFAULT_ROM_SIZE] = {
-	/* Custom rom image using bmp.ch8 - TO COMPLETE */
-	0x00, 0x00, 0x00, 0x00
+    /* Custom rom image using bmp.ch8 - TO COMPLETE */
+    0x00, 0x00, 0x00, 0x00
 };
 
 #endif

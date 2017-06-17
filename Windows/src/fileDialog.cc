@@ -5,8 +5,8 @@
 #include <string.h>
 
 void openFileDialog(char *rom_name, char *filters) {
-	/* Open file dialogue */
-	char cwd[MAX_PATH];
+    /* Open file dialogue */
+    char cwd[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, cwd);
 
     OPENFILENAME ofn;
@@ -35,7 +35,7 @@ void openFileDialog(char *rom_name, char *filters) {
     SetCurrentDirectory(cwd);
 
     if (szFile != NULL) {
-    	strcpy(rom_name, szFile);
+        strcpy(rom_name, szFile);
     }
 
     return;
