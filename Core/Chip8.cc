@@ -141,6 +141,8 @@ int Chip8::Load(const char *rom_name){
             return 1;
         }
 
+        /* Allocate or free and reallocate as necessary */
+        if (rom) free(rom);
         rom = (unsigned char *)malloc(rom_size);
 
         if(!rom) {
@@ -162,19 +164,19 @@ int Chip8::Load(const char *rom_name){
         return 0;
     } else {
 
-        /* Call platform specific file dialog functions */
+        /* Call platform specific open file dialog functions */
         #ifdef _WIN32
         char file_name[MAX_PATH];
         openFileDialog(file_name, "Chip8\0*.ch8\0All\0*.*\0");
         fprintf(stderr, "%s\n", file_name);
-        Load(file_name);
+        if(Load(file_name)) return 1;
         #endif
 
         #ifdef __APPLE__
 
         #endif
 
-
+        /* Flip GUI flags */
         display.gui.load_rom_flag = 0;
         emulation_paused = 0;
         return 0;
@@ -225,7 +227,9 @@ void Chip8::Run(){
     unsigned int elapsed;
     unsigned int remaining;
 
-    /* Slows execution speed (60hz) ~= 16.66 ms intervals */
+    /* Slows execution speed (60hz) ~= 16.66 ms intervals 
+       This makes it easy to decrement the Chip8 timers 
+       60 times a second */
     unsigned int interval = 1000 / TICKS;
 
     /* Main run-forever loop */
@@ -235,9 +239,15 @@ void Chip8::Run(){
 
         event = input.Poll();
 
-        /* Do something based on response */
+        /* Do something based on response...
+           (make sure to always soft-reset AFTER loading a new rom) */
         if ((event & USER_QUIT) == USER_QUIT) break;
-        if ((event & LOAD_ROM) == LOAD_ROM) Load(NULL);
+        if ((event & LOAD_ROM) == LOAD_ROM) {
+            if (Load(NULL)) {
+                /* Error opening ROM file */
+                break;
+            }
+        }
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
 
