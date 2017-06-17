@@ -8,6 +8,15 @@ Date: September 18, 2016
 #include <string.h>
 #include <stdio.h>
 
+#ifdef __APPLE__
+#include "../MacOS/src/fileDialog.h"
+#endif
+
+#ifdef _WIN32
+#include <windows.h> /* MAX_PATH */
+#include "../Windows/src/fileDialog.h"
+#endif
+
 /* Constructor */
 Chip8::Chip8() {
     steps = STEPS;
@@ -101,6 +110,7 @@ int Chip8::Initialize(bool fullscreen,
     sound_timer = 0;
     cpu_halt = 0;
     draw_flag = 1;
+    emulation_paused = 0;
 
     return 0;
 }
@@ -108,46 +118,67 @@ int Chip8::Initialize(bool fullscreen,
 int Chip8::Load(const char *rom_name){
 
     /* Open the file */
-    FILE *file;
-    file = fopen(rom_name, "rb");
-    
-    if(file == NULL){
-        fprintf(stderr, "Unable to open file, check spelling.\n");
-        return 1;
+
+    if (rom_name) {
+        FILE *file;
+        file = fopen(rom_name, "rb");
+        
+        if(file == NULL){
+            fprintf(stderr, "Unable to open file, check spelling.\n");
+            return 1;
+        }
+        /* Jump to the end of the file */
+        fseek(file, 0, SEEK_END); 
+        /* Get the current byte offset in the file */         
+        rom_size = ftell(file);  
+        /* Jump back to the beginning of the file */           
+        rewind(file);                     
+
+        //fprintf(stderr, "Size: %d bytes.\n", rom_size);
+
+        if (rom_size > MEM_SIZE - ENTRY_POINT) {
+            fprintf(stderr, "Rom is too large or not formatted properly.\n");
+            return 1;
+        }
+
+        rom = (unsigned char *)malloc(rom_size);
+
+        if(!rom) {
+            fprintf(stderr, "Unable to allocate memory for rom.\n");
+            return 1;
+        }
+        memset(rom, 0 , rom_size);
+
+        /* Save the rom for later (soft-resets) */
+        if (!fread(rom, sizeof(unsigned char), rom_size, file)) {
+            fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
+            return 1;
+        }
+
+        /* Copy the entire rom to memory starting from 0x200 */
+        memcpy(memory + ENTRY_POINT, rom, rom_size);
+
+        fclose(file);
+        return 0;
+    } else {
+
+        /* Call platform specific file dialog functions */
+        #ifdef _WIN32
+        char file_name[MAX_PATH];
+        openFileDialog(file_name, "Chip8\0*.ch8\0All\0*.*\0");
+        fprintf(stderr, "%s\n", file_name);
+        Load(file_name);
+        #endif
+
+        #ifdef __APPLE__
+
+        #endif
+
+
+        display.gui.load_rom_flag = 0;
+        emulation_paused = 0;
+        return 0;
     }
-    /* Jump to the end of the file */
-    fseek(file, 0, SEEK_END); 
-    /* Get the current byte offset in the file */         
-    rom_size = ftell(file);  
-    /* Jump back to the beginning of the file */           
-    rewind(file);                     
-
-    //fprintf(stderr, "Size: %d bytes.\n", rom_size);
-
-    if (rom_size > MEM_SIZE - ENTRY_POINT) {
-        fprintf(stderr, "Rom is too large or not formatted properly.\n");
-        return 1;
-    }
-
-    rom = (unsigned char *)malloc(rom_size);
-
-    if(!rom) {
-        fprintf(stderr, "Unable to allocate memory for rom.\n");
-        return 1;
-    }
-    memset(rom, 0 , rom_size);
-
-    /* Save the rom for later (soft-resets) */
-    if (!fread(rom, sizeof(unsigned char), rom_size, file)) {
-        fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
-        return 1;
-    }
-
-    /* Copy the entire rom to memory starting from 0x200 */
-    memcpy(memory + ENTRY_POINT, rom, rom_size);
-
-    fclose(file);
-    return 0;
 }
 
 void Chip8::SoftReset() {
@@ -184,6 +215,7 @@ void Chip8::SoftReset() {
 
     /* Flip the GUI bit */
     display.gui.soft_reset_flag = 0;
+    emulation_paused = 0;
 }
 
 void Chip8::Run(){
@@ -205,7 +237,9 @@ void Chip8::Run(){
 
         /* Do something based on response */
         if ((event & USER_QUIT) == USER_QUIT) break;
+        if ((event & LOAD_ROM) == LOAD_ROM) Load(NULL);
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
+
 
         /* Run one pseudo cycle (batch of X instructions) */
         EmulateCycle();

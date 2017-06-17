@@ -6,10 +6,12 @@ Gui::Gui() {
     load_rom_flag = 0;
     quit_flag = 0;
     show_menu_flag = 1;
+    show_fps_flag = 0;
 
     show_controls = 0;
     show_license = 0;
     show_about = 0;
+    show_usage = 0; 
 }
 
 Gui::~Gui() {
@@ -60,7 +62,8 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("View")) {
-                ImGui::MenuItem("Show Menu", "Alt", &show_menu_flag);
+                ImGui::MenuItem("Show Menu", "L-Alt", &show_menu_flag);
+                ImGui::MenuItem("Show FPS", "R-Alt", &show_fps_flag);
 
                 /* Fullscreen Toggle */
                 before = display->fullscreen_flag;
@@ -93,8 +96,6 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Settings")) {
-                ImGui::Text("Avg: %.3f ms/frame (%.1f FPS)", 
-                    1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
                 /* Toggle Vsync */
@@ -112,21 +113,38 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Help")) {
+                ImGui::MenuItem("Usage", NULL, &show_usage);
                 ImGui::MenuItem("Controls", NULL, &show_controls); 
                 ImGui::MenuItem("License", NULL, &show_license); 
                 ImGui::MenuItem("About", NULL, &show_about);
                 ImGui::EndMenu();
             }
-
             ImGui::EndMainMenuBar();
-            HelpWindows();
         }
     }
+    HelpWindows();
 }
 
 void Gui::HelpWindows() {
+	if (show_usage) {
+    	ImGui::SetNextWindowSize(ImVec2(325, 180), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("Usage", &show_usage);
+        ImGui::TextWrapped( "Alternatively, you may launch Chip8 from\n"
+        					"the command line. This can be very useful\n"
+        					"when using an emulator front-end.\n"
+        					"\n"
+        					"Usage: Chip8 filename [-FLS] [R G B]\n"
+						    "-F      Launch in fullscreen\n"
+						    "-L      Enable load/store quirk\n"
+						    "-S      Enable shift quirk\n"
+						    "-V      Disable vertical wrapping\n"
+						    "R G B   Foreground color in RGB format,\n" 
+						            "3 numbers from 0-255");
+        ImGui::End();
+    }
     if (show_controls) {
-        ImGui::SetNextWindowSize(ImVec2(345, 205), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(345, 220), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Controls", &show_controls);
         ImGui::TextWrapped( "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
@@ -136,11 +154,12 @@ void Gui::HelpWindows() {
                             "4 5 6 D                     q w e r\n"
                             "7 8 9 E                     a s d f\n"
                             "A 0 B F                     z x c v\n"
-                            "increase speed              pageup\n"
-                            "decrease speed              pagedown\n"
+                            "increase speed              page up\n"
+                            "decrease speed              page down\n"
                             "quit                        esc\n"
                             "toggle fullscreen           enter\n"
-                            "toggle menu                 alt\n"
+                            "toggle menu                 left alt\n"
+                            "show fps                    right alt\n"
                             "soft reset                  f5");
         ImGui::End();
     }
@@ -175,6 +194,21 @@ void Gui::HelpWindows() {
                             "\n"
                             "<https://github.com/tomdaley92/Chip8>\n");
         ImGui::End();
+    }
+    if (show_fps_flag) {
+    	if (show_menu_flag) {
+    		ImGui::SetNextWindowPos(ImVec2(1, 21));
+    	} else {
+    		ImGui::SetNextWindowPos(ImVec2(1, 2));
+    	}
+	    if (!ImGui::Begin("FPS", &show_fps_flag, ImVec2(0, 0), 0.3f, ImGuiWindowFlags_NoTitleBar|
+	    	ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings)) {
+	        ImGui::End();
+	        return;
+	    }
+	     ImGui::Text("Avg: %.3f ms/frame (%.1f FPS)", 
+        	1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	    ImGui::End();
     }
 }
 

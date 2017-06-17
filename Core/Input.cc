@@ -39,6 +39,7 @@ int Input::Poll() {
         display->gui.ProcessEvents(&event);
         if (display->gui.quit_flag) response |= USER_QUIT;
         if (display->gui.soft_reset_flag) response |= SOFT_RESET;
+        if (display->gui.load_rom_flag) response |= LOAD_ROM | SOFT_RESET;
 
         /* Check Window */
         response |= CheckEvents();
@@ -73,9 +74,13 @@ int Input::CheckEvents() {
             /* Switch from windowed to fullscreen or vice-versa */
             display->ToggleFullscreen();
         }
-        if (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) {
+        if (state[SDL_SCANCODE_LALT]) {
             /* Hide/Show menu */
             display->gui.show_menu_flag = !display->gui.show_menu_flag;
+        }
+        if (state[SDL_SCANCODE_RALT]) {
+            /* Hide/Show FPS */
+            display->gui.show_fps_flag = !display->gui.show_fps_flag;
         }
         if (state[SDL_SCANCODE_P]) {
             *emulation_paused = !*emulation_paused;

@@ -14,9 +14,9 @@ class Gui {
 
     private:
 
+        /* Pointers to chip-8 data */
         Display *display;
 
-        /* Pointers to chip8 data */
         int *steps;
         bool *emulation_paused;
         bool *load_store_quirk;
@@ -27,6 +27,7 @@ class Gui {
         bool show_controls;
         bool show_license;
         bool show_about;
+        bool show_usage;
 
         void MainMenu();
         void HelpWindows();
@@ -37,6 +38,7 @@ class Gui {
         bool load_rom_flag;
         bool quit_flag;
         bool show_menu_flag;
+        bool show_fps_flag;
         
 
         Gui();

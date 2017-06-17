@@ -30,11 +30,12 @@ Controls        --->        keybindings
 4 5 6 D                     q w e r
 7 8 9 E                     a s d f
 A 0 B F                     z x c v
-increase speed              pageup
-decrease speed              pagedown
+increase speed              page up
+decrease speed              page down
 quit                        esc
 toggle fullscreen           enter
-toggle menu                 alt
+toggle menu                 left alt
+show fps                    right alt
 soft reset                  f5
 
 
@@ -59,17 +60,12 @@ How to compile:
         2) Type "make".
 
 
-Usage: Chip8 PATH_TO_ROM [-FLS] [R G B]
+Usage: Chip8 filename [-FLS] [R G B]
     -F      Launch in fullscreen
     -L      Enable load/store quirk
     -S      Enable shift quirk
     -V      Disable vertical wrapping
     R G B   Foreground color in RGB format, 
             3 numbers from 0-255
-
-    Note: If you launch the program with no 
-          arguments, you will be prompted to 
-          load a ROM file on startup.
-
 
 Enjoy!

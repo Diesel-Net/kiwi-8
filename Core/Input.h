@@ -7,6 +7,7 @@
 #define CONTINUE 0
 #define USER_QUIT 1
 #define SOFT_RESET 2
+#define LOAD_ROM 4
 #define MIN_STEPS 1
 #define MAX_STEPS 50
 
