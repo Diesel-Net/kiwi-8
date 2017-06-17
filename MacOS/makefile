@@ -42,7 +42,7 @@ $(APPNAME): objects
 	mv $@.app release/$@.app
 
 # Build object files
-objects:	src/*.c* src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
+objects:	src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
 	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
 
 # Tests the release version
