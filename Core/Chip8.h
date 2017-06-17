@@ -124,7 +124,7 @@ class Chip8 {
 
         int Load(const char *rom_name);
         int LoadDefault();
-        int Run();
+        void Run();
 };
 
 #endif

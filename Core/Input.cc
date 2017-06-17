@@ -39,7 +39,7 @@ int Input::Poll() {
         display->gui.ProcessEvents(&event);
         if (display->gui.quit_flag) response |= USER_QUIT;
         if (display->gui.soft_reset_flag) response |= SOFT_RESET;
-        if (display->gui.load_rom_flag) response |= LOAD_ROM | SOFT_RESET;
+        if (display->gui.load_rom_flag) response |= LOAD_ROM;
 
         /* Check Window */
         response |= CheckEvents();

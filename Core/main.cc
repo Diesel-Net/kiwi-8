@@ -84,5 +84,6 @@ int main(int argc, char **argv){
     }
 
     /* Where the magic happens */
-    return chip.Run();
+    chip.Run();
+    return 0;
 }

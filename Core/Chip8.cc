@@ -109,7 +109,7 @@ int Chip8::Load(const char *rom_name){
         FILE *file;
         file = fopen(rom_name, "rb");
         if(file == NULL){
-            fprintf(stderr, "Unable to open file, check spelling.\n");
+            fprintf(stderr, "File not opened.\n");
             return 1;
         }
 
@@ -136,28 +136,24 @@ int Chip8::Load(const char *rom_name){
             fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
             return 1;
         }
-
-        /* Copy the entire rom to memory starting from 0x200 */
-        memcpy(memory + ENTRY_POINT, rom, rom_size);
-        fclose(file);
         rom_loaded = 1;
-        return 0;
+
+        SoftReset();
+        fclose(file);
+        
 
     } else {
 
         /* Load ROM from GUI */
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name);
+        Load(new_rom_name);
 
-        /* Error loading new rom file */
-        if(Load(new_rom_name)) return 1;
-
-        /* Flip GUI flags */
+        /* Flip GUI toggle */
         display.gui.load_rom_flag = 0;
-        emulation_paused = 0;
-        rom_loaded = 1;
-        return 0;
     }
+
+    return 0;
 }
 
 int Chip8::LoadDefault() {
@@ -165,6 +161,9 @@ int Chip8::LoadDefault() {
 }
 
 void Chip8::SoftReset() {
+    if (!rom_loaded) {
+        return;
+    }
     /* Clear the vram */
     for (int i = 0; i < WIDTH; i++) {
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -200,7 +199,7 @@ void Chip8::SoftReset() {
     emulation_paused = 0;
 }
 
-int Chip8::Run(){
+void Chip8::Run(){
     int event;
     unsigned int t1;
     unsigned int t2;
@@ -219,15 +218,9 @@ int Chip8::Run(){
 
         event = input.Poll();
 
-        /* Do something based on response...
-           Make sure to always soft-reset AFTER loading a new rom! */
+        /* Do something based on response... */
         if ((event & USER_QUIT) == USER_QUIT) break;
-        if ((event & LOAD_ROM) == LOAD_ROM) {
-            if (Load(NULL)) {
-                /* Error opening ROM file */
-                return 1;
-            }
-        }
+        if ((event & LOAD_ROM) == LOAD_ROM) Load(NULL);
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
 
@@ -243,7 +236,6 @@ int Chip8::Run(){
             elapsed = interval;
         }
     }
-    return 0;
 }
 
 void Chip8::UpdateTimers(){
@@ -261,7 +253,7 @@ void Chip8::UpdateTimers(){
 }
 
 void Chip8::EmulateBatchCycle(){
-    /* Emulate a batch of instructions */
+    /* Execute a batch of instructions */
     if (!emulation_paused && rom_loaded) {
         for (int i = 0; i < steps; i++) {
             FetchOpcode();
