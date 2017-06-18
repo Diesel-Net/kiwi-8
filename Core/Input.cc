@@ -1,3 +1,4 @@
+#include "Chip8.h"
 #include "Input.h"
 #include "Display.h"
 #include <stdio.h>
@@ -12,10 +13,10 @@ Input::~Input() {
 }
 
 void Input::Initialize(Display *display, 
-                       int *steps, 
+                       int *cycles, 
                        bool *cpu_halt, 
                        bool *emulation_paused) {
-    this->steps = steps;
+    this->cycles = cycles;
     this->display = display;
     this->cpu_halt = cpu_halt;
     this->emulation_paused = emulation_paused;
@@ -41,16 +42,16 @@ int Input::Poll() {
         if (display->gui.soft_reset_flag) response |= SOFT_RESET;
         if (display->gui.load_rom_flag) response |= LOAD_ROM;
 
-        /* Check Window */
-        response |= CheckEvents();
-        
+        /* Check SDL Events (Window & Hotkeys) */
+        response |= ProcessEvents();
+
         /* Check chip-8 input */
-        CheckKeys(); 
+        ProcessKeys(); 
     } 
     return response;
 }
 
-int Input::CheckEvents() {
+int Input::ProcessEvents() {
     int response = CONTINUE;
 
     /* Quit event */
@@ -87,18 +88,18 @@ int Input::CheckEvents() {
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
         	/* Slow emulation speed */
-        	if (*steps -1 < MIN_STEPS ) {
-        		*steps = MIN_STEPS;
+        	if (*cycles -1 < MIN_CYCLES_PER_STEP ) {
+        		*cycles = MIN_CYCLES_PER_STEP;
         	} else {
-        		*steps -= 1;
+        		*cycles -= 1;
         	}
         }
         if (state[SDL_SCANCODE_PAGEUP]) {
         	/* Raise emulation speed */
-        	if (*steps +1 > MAX_STEPS ) {
-        		*steps = MAX_STEPS;
+        	if (*cycles +1 > MAX_CYCLES_PER_STEP ) {
+        		*cycles = MAX_CYCLES_PER_STEP;
         	} else {
-        		*steps += 1;
+        		*cycles += 1;
         	}
         }
     }
@@ -126,8 +127,7 @@ int Input::CheckEvents() {
     return response;
 }
 
-void Input::CheckKeys() {
-
+void Input::ProcessKeys() {
     /* Map the state of the keys */
     keys[0x1] = state[SDL_SCANCODE_1];
     keys[0x2] = state[SDL_SCANCODE_2];

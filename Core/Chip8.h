@@ -1,9 +1,10 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include "defaults.h"
+#include "bootrom.h"
 #include "Display.h"
 #include "Input.h"
+#include "Audio.h"
 
 #define VERSION "Chip8 v1.03"
 #define MEM_SIZE 4096
@@ -11,7 +12,9 @@
 #define STACK_DEPTH 16
 #define ENTRY_POINT 0x200
 #define FONTS_SIZE 80
-#define STEPS 12 /* ~720 inst/sec if ticking at 60hz */
+#define CYCLES_PER_STEP 12 /* ~720 inst/sec if ticking at 60hz */
+#define MIN_CYCLES_PER_STEP 1
+#define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
 
 
@@ -19,8 +22,8 @@ class Chip8 {
 
     private:
 
-        /* Number of instructions per cycle */
-        int steps;
+        /* Number of cycles per step */
+        int cycles;
 
         /* whether or not cpu is currently halted by opcode FX0A */
         bool cpu_halt; 
@@ -74,6 +77,7 @@ class Chip8 {
 
         Input input;
         Display display;
+        Audio audio;
 
         /* If this flag is enabled, draw a frame at the end of the cycle */
         int draw_flag;
@@ -102,7 +106,7 @@ class Chip8 {
 
         void SoftReset();
         void UpdateTimers();
-        void EmulateBatchCycle();
+        void StepCPU();
         void FetchOpcode();
         void ExecuteOpcode();
 

@@ -17,7 +17,7 @@ class Gui {
         /* Pointers to chip-8 data */
         Display *display;
 
-        int *steps;
+        int *cycles;
         bool *emulation_paused;
         bool *load_store_quirk;
         bool *shift_quirk;
@@ -45,13 +45,13 @@ class Gui {
         ~Gui();
 
         void Initialize(Display *display,
-                        int *steps, 
+                        int *cycles, 
                         bool *emulation_paused, 
                         bool *load_store_quirk, 
                         bool *shift_quirk, 
                         bool *vwrap);
 
-        void ProcessEvents(SDL_Event* event);
+        void ProcessEvents(SDL_Event *event);
         void NewFrame();
         void Render();
 

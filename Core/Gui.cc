@@ -1,3 +1,4 @@
+#include "Chip8.h"
 #include "Display.h"
 #include "Gui.h"
 
@@ -19,7 +20,7 @@ Gui::~Gui() {
 }
 
 void Gui::Initialize(Display *display, 
-                     int *steps,
+                     int *cycles,
                      bool *emulation_paused, 
                      bool *load_store_quirk, 
                      bool *shift_quirk, 
@@ -28,7 +29,7 @@ void Gui::Initialize(Display *display,
     this->display = display;
 
     /* Init pointers to chip8 toggles */
-    this->steps = steps;
+    this->cycles = cycles;
     this->emulation_paused = emulation_paused;
     this->load_store_quirk = load_store_quirk;
     this->shift_quirk = shift_quirk;
@@ -40,7 +41,7 @@ void Gui::Initialize(Display *display,
     ImGui::GetIO().IniFilename = NULL;
 }
 
-void Gui::ProcessEvents(SDL_Event* event) {
+void Gui::ProcessEvents(SDL_Event *event) {
     ImGui_ImplSdl_ProcessEvent(event);
 }
 
@@ -80,12 +81,12 @@ void Gui::MainMenu() {
                 /* CPU Frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
                     ImGui::MenuItem("", "PageDown/PageUp", !!0);
-                    int cpu_frequency = *steps * 60;
-                    ImGui::SliderInt("Hz", &cpu_frequency, 60, 3000, "%.f");
-                    *steps = cpu_frequency / 60;
-                    before = (*steps == 12);
+                    int cpu_frequency = *cycles * TICKS;
+                    ImGui::SliderInt("Hz", &cpu_frequency, TICKS, TICKS * MAX_CYCLES_PER_STEP, "%.f");
+                    *cycles = cpu_frequency / TICKS;
+                    before = (*cycles == CYCLES_PER_STEP);
                     ImGui::MenuItem("Default", "720 Hz", &before);
-                    if (before) *steps = 12;
+                    if (before) *cycles = CYCLES_PER_STEP;
                     ImGui::EndMenu();
                 }
 
@@ -98,7 +99,13 @@ void Gui::MainMenu() {
             if (ImGui::BeginMenu("Settings")) {
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
-                /* Toggle Vsync */
+                /* Toggle Vsync (disabled for now because it doesn't really 
+                   make sense with the current design. It ends up slowing down 
+                   emulation to whatever cpu speed puts out 60 frames a second 
+                   which more often than not ends up being unbearably slow. A 
+                   workaround I've found is to have both 60_fps_limit toggled on 
+                   and vsync toggled on at the same time, but of course this 
+                   will only work properly on 60hz monitors */
                 //before = display->vsync_flag;
                 //ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
                 //if (before != display->vsync_flag) display->ToggleVsync();
@@ -114,8 +121,8 @@ void Gui::MainMenu() {
 
             if (ImGui::BeginMenu("Help")) {
                 ImGui::MenuItem("Usage", NULL, &show_usage);
-                ImGui::MenuItem("Controls", NULL, &show_controls); 
-                ImGui::MenuItem("License", NULL, &show_license); 
+                ImGui::MenuItem("Controls", NULL, &show_controls);
+                ImGui::MenuItem("License", NULL, &show_license);
                 ImGui::MenuItem("About", NULL, &show_about);
                 ImGui::EndMenu();
             }
@@ -134,7 +141,7 @@ void Gui::HelpWindows() {
         					"the command line. This can be very useful\n"
         					"when using an emulator front-end.\n"
         					"\n"
-        					"Usage: Chip8 filename [-FLS] [R G B]\n"
+        					"Usage: Chip8 filename [-FLSV] [R G B]\n"
 						    "-F      Launch in fullscreen\n"
 						    "-L      Enable load/store quirk\n"
 						    "-S      Enable shift quirk\n"

@@ -24,14 +24,13 @@ Date: September 8, 2016
 int main(int argc, char **argv){
     
     /* Defaults */
-    Defaults def;
-    bool fullscreen = def.fullscreen;
-    bool load_store_quirk = def.load_store_quirk;
-    bool shift_quirk = def.shift_quirk;
-    bool vwrap = def.vwrap;
-    unsigned char R = def.R;
-    unsigned char G = def.G;
-    unsigned char B = def.B;
+    bool fullscreen = 0;
+    bool load_store_quirk = 0;
+    bool shift_quirk = 0;
+    bool vwrap = 1;
+    unsigned char R = 200;
+    unsigned char G = 170;
+    unsigned char B = 255;
 
     if (argc >= 3) {
 

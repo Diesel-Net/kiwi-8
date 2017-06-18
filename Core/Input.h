@@ -8,8 +8,6 @@
 #define USER_QUIT 1
 #define SOFT_RESET 2
 #define LOAD_ROM 4
-#define MIN_STEPS 1
-#define MAX_STEPS 50
 
 /* Forward declaration */
 class Display;
@@ -22,12 +20,12 @@ class Input {
 
         Display *display;
 
-        int *steps;
+        int *cycles;
         bool *cpu_halt;
         bool *emulation_paused;
 
-        int CheckEvents();
-        void CheckKeys();
+        int ProcessEvents();
+        void ProcessKeys();
 
     public:
         Input();
@@ -40,7 +38,7 @@ class Input {
         bool awaiting_key_press;
 
         void Initialize(Display *display, 
-                        int *steps, 
+                        int *cycles, 
                         bool *cpu_halt, 
                         bool *emulation_paused);
         void Reset();

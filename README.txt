@@ -60,7 +60,7 @@ How to compile:
         2) Type "make".
 
 
-Usage: Chip8 filename [-FLS] [R G B]
+Usage: Chip8 filename [-FLSV] [R G B]
     -F      Launch in fullscreen
     -L      Enable load/store quirk
     -S      Enable shift quirk

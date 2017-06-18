@@ -10,7 +10,7 @@ Date: September 18, 2016
 #include <stdio.h>
 
 Chip8::Chip8() {
-    steps = STEPS;
+    cycles = CYCLES_PER_STEP;
     emulation_paused = 0;
     vwrap = 1;
     display = Display();
@@ -71,7 +71,7 @@ int Chip8::Initialize(bool fullscreen,
 
     /* init display & input */
     if (display.Initialize(fullscreen, 
-                           &this->steps,
+                           &this->cycles,
                            &this->emulation_paused, 
                            &this->load_store_quirk, 
                            &this->shift_quirk, 
@@ -79,7 +79,8 @@ int Chip8::Initialize(bool fullscreen,
                            R, G, B)) {
         return 1;
     }
-    input.Initialize(&display, &steps, &cpu_halt, &emulation_paused);
+    input.Initialize(&display, &cycles, &cpu_halt, &emulation_paused);
+    audio.Initialize();
 
     /* init registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
@@ -224,8 +225,8 @@ void Chip8::Run(){
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
 
-        /* Run one pseudo cycle (batch of X instructions) */
-        EmulateBatchCycle();
+        /* Emulate a batch of cycles */
+        StepCPU();
 
         t2 = SDL_GetTicks();
         
@@ -239,23 +240,23 @@ void Chip8::Run(){
 }
 
 void Chip8::UpdateTimers(){
-    /* Decrement timers, check sound timer */
+    /* Update timers at 60 Hz */
     if (!cpu_halt) {
-        if(delay_timer > 0) delay_timer--;
+        if(delay_timer > 0) {
+            delay_timer--;
+        }
+
         if(sound_timer > 0) {
-            if(sound_timer == 1) {
-                /* AUDIO: TO COMPLETE */
-                //fprintf(stderr, "BEEP!\n");
-            }
+            if(sound_timer == 1) fprintf(stderr, "BEEP!\n");
             sound_timer--;
         }
-    }
+    } 
 }
 
-void Chip8::EmulateBatchCycle(){
+void Chip8::StepCPU(){
     /* Execute a batch of instructions */
     if (!emulation_paused && rom_loaded) {
-        for (int i = 0; i < steps; i++) {
+        for (int i = 0; i < cycles; i++) {
             FetchOpcode();
             ExecuteOpcode();
             if(draw_flag && !display.limit_fps_flag){
