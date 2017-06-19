@@ -13,8 +13,8 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 		-framework OpenGL
 
 # These must be named consistently with Info.plist file:
-ICON = chip8.icns
-APPNAME = Chip8
+ICON = kiwi8.icns
+APPNAME = Kiwi8
 
 # Default target
 $(APPNAME): objects

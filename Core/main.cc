@@ -2,7 +2,7 @@
 Author: Thomas Daley
 Date: September 8, 2016
 
-Usage: Chip8 filename [-FLSV]
+Usage: Kiwi8 filename [-FLSV]
     -F      Launch in fullscreen
     -L      Disable load/store quirk
     -S      Disable shift quirk

@@ -7,7 +7,7 @@
 # 1) vcvarsall x86
 # 2) nmake
 
-APPNAME = Chip8
+APPNAME = Kiwi8
 ARCH = x86
 
 DEBUG = /SUBSYSTEM:CONSOLE
@@ -54,9 +54,9 @@ objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
 	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
 
 # Build resource file
-resource: src\chip8.rc resources\chip8.ico
-	RC src\chip8.rc
-	MOVE src\chip8.res chip8.res
+resource: src\kiwi8.rc resources\kiwi8.ico
+	RC src\kiwi8.rc
+	MOVE src\kiwi8.res kiwi8.res
 
 # Clean any leftover build files
 clean:

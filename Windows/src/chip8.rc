@@ -1,3 +1,0 @@
-#include "resource.h"
-
-chip8Icon   ICON    "resources\chip8.ico"

@@ -71,7 +71,7 @@ int Display::Initialize( bool fullscreen,
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    window = SDL_CreateWindow("Chip8", 
+    window = SDL_CreateWindow("Kiwi8", 
                               SDL_WINDOWPOS_CENTERED, 
                               SDL_WINDOWPOS_CENTERED, 
                               WINDOW_WIDTH, 

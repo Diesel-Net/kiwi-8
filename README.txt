@@ -1,4 +1,4 @@
-Chip8 v1.03
+Kiwi8 v1.03
 
 A cross-platform CHIP-8 interpreter written 
 in C++ with SDL2 and ImGui.
@@ -10,7 +10,7 @@ I have included pre-built binaries for both Windows
 and MacOS (.exe file and .app bundle respectively)
 
 You can download them here:
-https://github.com/tomdaley92/Chip8/releases
+https://github.com/tomdaley92/Kiwi8/releases
 
 Most games are playable, however there are 
 still some issues with a couple titles. 
@@ -21,7 +21,7 @@ error 23, which is the first SCHIP opcode
 encountered.
 
 ROM Compatibility is discussed here:
-https://github.com/tomdaley92/Chip8/issues/9
+https://github.com/tomdaley92/Kiwi8/issues/9
 
 
 Controls        --->        keybindings
@@ -46,7 +46,7 @@ How to compile:
         (vcvarsall/cl/nmake) are assumed to be 
         installed and added to PATH.
         1) Open the command prompt and navigate 
-           to the Chip8/Windows directory.
+           to the Kiwi8/Windows directory.
         2) Type "vcvarsall x86" to load the 
            windows development environment.
         3) Type "nmake".
@@ -56,11 +56,11 @@ How to compile:
         (clang++/make) are assumed to be 
         installed and added to PATH.
         1) Open the terminal and navigate 
-           to the Chip8/MacOS directory.
+           to the Kiwi8/MacOS directory.
         2) Type "make".
 
 
-Usage: Chip8 filename [-FLSV]
+Usage: Kiwi8 filename [-FLSV]
     -F      Launch in fullscreen
     -L      Disable load/store quirk
     -S      Disable shift quirk
