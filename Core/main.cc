@@ -30,8 +30,8 @@ int main(int argc, char **argv){
     
     /* Defaults */
     bool fullscreen = 0;
-    bool load_store_quirk = 0;
-    bool shift_quirk = 0;
+    bool load_store_quirk = 1;
+    bool shift_quirk = 1;
     bool vwrap = 1;
 
     /* Parse and set any options present */
