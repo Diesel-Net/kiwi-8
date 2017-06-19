@@ -62,8 +62,8 @@ How to compile:
 
 Usage: Chip8 filename [-FLSV]
     -F      Launch in fullscreen
-    -L      Enable load/store quirk
-    -S      Enable shift quirk
+    -L      Disable load/store quirk
+    -S      Disable shift quirk
     -V      Disable vertical wrapping
 
 Enjoy!
