@@ -107,7 +107,7 @@ class Chip8 {
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
 
-        void LoadBootROM();
+        int LoadBootROM();
         void SoftReset();
         void UpdateTimers();
         void StepCPU();

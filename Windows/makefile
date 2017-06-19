@@ -42,12 +42,12 @@ build_release: objects resource
 
 test_debug:
 	debug\$(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
-	-V
+	
 
 test_release: 
 	release\$(APPNAME).exe \
-
+	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
+	-V
 
 # Build object files
 objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp

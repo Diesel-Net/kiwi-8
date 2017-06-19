@@ -96,13 +96,25 @@ int Chip8::Initialize(bool fullscreen,
         memory[i] = chip8_fontset[i];
     }
 
-    LoadBootROM();
-    return 0;
+    return LoadBootROM();
 }
 
-void Chip8::LoadBootROM() {
-    /* TO COMPLETE */
+int Chip8::LoadBootROM() {
+    rom_size = BOOTROM_SIZE;
+    free(rom);
+    rom = (unsigned char *)malloc(rom_size);
+    if(!rom) {
+        fprintf(stderr, "Unable to allocate memory for rom.\n");
+        return 1;
+    }
+    memset(rom, 0 , rom_size);
 
+    /* Copy the entire rom to memory starting from 0x200 */
+    memcpy(rom, kiwi8_logo_2, rom_size);
+    rom_loaded = 1;
+
+    SoftReset();
+    return 0;
 }
 
 int Chip8::Load(const char *rom_name){
@@ -126,7 +138,7 @@ int Chip8::Load(const char *rom_name){
         }
 
         /* Allocate or free and reallocate as necessary */
-        if (rom) free(rom);
+        free(rom);
         rom = (unsigned char *)malloc(rom_size);
         if(!rom) {
             fprintf(stderr, "Unable to allocate memory for rom.\n");
@@ -243,9 +255,8 @@ void Chip8::UpdateTimers(){
         if(delay_timer > 0) {
             delay_timer--;
         }
-
         if(sound_timer > 0) {
-            if(sound_timer == 1) fprintf(stderr, "BEEP!\n");
+            //if(sound_timer == 1) fprintf(stderr, "BEEP!\n");
             sound_timer--;
         }
     } 
