@@ -3,15 +3,15 @@
     <plist version="1.0">
     <dict>
         <key>CFBundleExecutable</key>
-        <string>Chip8</string>
+        <string>Kiwi8</string>
         <key>CFBundleIconFile</key>
-        <string>chip8.icns</string>
+        <string>kiwi8.icns</string>
         <key>CFBundleInfoDictionaryVersion</key>
         <string>1.0</string>
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleSignature</key>
-        <string>chip</string>
+        <string>kiwi</string>
         <key>CFBundleVersion</key>
         <string>1.03</string>
         <key>NSHighResolutionCapable</key>
