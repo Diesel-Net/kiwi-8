@@ -31,7 +31,7 @@ class Input {
         Input();
         ~Input();
 
-        /* HEX based keypad (0x0-0xF) */
+        /* Chip-8 HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
 
         /* For opcode 0xFX0A */

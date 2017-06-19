@@ -27,6 +27,9 @@ class Chip8 {
 
         /* whether or not cpu is currently halted by opcode FX0A */
         bool cpu_halt; 
+
+        /* whether ot not emulation is currently paused.
+           This is different from CPU's HALT state. */
         bool emulation_paused;
 
         /* Two quirks of the Chip8 CPU. 
@@ -104,14 +107,12 @@ class Chip8 {
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
 
+        void LoadBootROM();
         void SoftReset();
         void UpdateTimers();
         void StepCPU();
         void FetchOpcode();
         void ExecuteOpcode();
-
-        static int CPUThread(void *data);
-        
 
     public:
         /* Constructor */
@@ -121,13 +122,9 @@ class Chip8 {
         int Initialize(bool fullscreen, 
                        bool load_store_quirk,
                        bool shift_quirk,
-                       bool vwrap,
-                       unsigned char R, 
-                       unsigned char G, 
-                       unsigned char B);
+                       bool vwrap);
 
         int Load(const char *rom_name);
-        int LoadDefault();
         void Run();
 };
 

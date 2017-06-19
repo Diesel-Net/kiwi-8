@@ -8,6 +8,14 @@
 #define HEIGHT 32
 #define SCALE 12 /* 64x32 Scaled by X amount */
 
+#define DEFAULT_BACKGROUND_R 10
+#define DEFAULT_BACKGROUND_G 20
+#define DEFAULT_BACKGROUND_B 40
+
+#define DEFAULT_FOREGROUND_R 185
+#define DEFAULT_FOREGROUND_G 225
+#define DEFAULT_FOREGROUND_B 255
+
 class Display {
 
     private:
@@ -22,7 +30,6 @@ class Display {
         
         int WINDOW_WIDTH;
         int WINDOW_HEIGHT;
-
         
 
     public:
@@ -47,10 +54,7 @@ class Display {
                         bool *emulation_paused,
                         bool *load_store_quirk,
                         bool *shift_quirk, 
-                        bool *vwrap,
-                        unsigned char R, 
-                        unsigned char B, 
-                        unsigned char G);
+                        bool *vwrap);
 
         void Resize(int x, int y);
         void ToggleFullscreen();

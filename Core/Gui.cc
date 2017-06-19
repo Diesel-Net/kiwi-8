@@ -28,7 +28,7 @@ void Gui::Initialize(Display *display,
 
     this->display = display;
 
-    /* Init pointers to chip8 toggles */
+    /* Connect pointers to chip8 toggles */
     this->cycles = cycles;
     this->emulation_paused = emulation_paused;
     this->load_store_quirk = load_store_quirk;
@@ -133,21 +133,18 @@ void Gui::MainMenu() {
 }
 
 void Gui::HelpWindows() {
-	if (show_usage) {
-    	ImGui::SetNextWindowSize(ImVec2(325, 180), ImGuiSetCond_Appearing);
+    if (show_usage) {
+        ImGui::SetNextWindowSize(ImVec2(270, 140), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &show_usage);
-        ImGui::TextWrapped( "Alternatively, you may launch Chip8 from\n"
-        					"the command line. This can be very useful\n"
-        					"when using an emulator front-end.\n"
-        					"\n"
-        					"Usage: Chip8 filename [-FLSV] [R G B]\n"
-						    "-F      Launch in fullscreen\n"
-						    "-L      Enable load/store quirk\n"
-						    "-S      Enable shift quirk\n"
-						    "-V      Disable vertical wrapping\n"
-						    "R G B   Foreground color in RGB format,\n" 
-						            "3 numbers from 0-255");
+        ImGui::TextWrapped( "Alternatively, you may launch Chip8\n"
+                            "from the command line.\n"
+                            "\n"
+                            "Usage: Chip8 filename [-FLSV]\n"
+                            "-F      Launch in fullscreen\n"
+                            "-L      Enable load/store quirk\n"
+                            "-S      Enable shift quirk\n"
+                            "-V      Disable vertical wrapping");
         ImGui::End();
     }
     if (show_controls) {
@@ -203,19 +200,19 @@ void Gui::HelpWindows() {
         ImGui::End();
     }
     if (show_fps_flag) {
-    	if (show_menu_flag) {
-    		ImGui::SetNextWindowPos(ImVec2(1, 21));
-    	} else {
-    		ImGui::SetNextWindowPos(ImVec2(1, 2));
-    	}
-	    if (!ImGui::Begin("FPS", &show_fps_flag, ImVec2(0, 0), 0.3f, ImGuiWindowFlags_NoTitleBar|
-	    	ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings)) {
-	        ImGui::End();
-	        return;
-	    }
-	     ImGui::Text("Avg: %.3f ms/frame (%.1f FPS)", 
-        	1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	    ImGui::End();
+        if (show_menu_flag) {
+            ImGui::SetNextWindowPos(ImVec2(1, 21));
+        } else {
+            ImGui::SetNextWindowPos(ImVec2(1, 2));
+        }
+        if (!ImGui::Begin("FPS", &show_fps_flag, ImVec2(0, 0), 0.3f, ImGuiWindowFlags_NoTitleBar|
+            ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings)) {
+            ImGui::End();
+            return;
+        }
+         ImGui::Text("%.1f FPS (%.3f ms/frame)", ImGui::GetIO().Framerate,
+            1000.0f / ImGui::GetIO().Framerate );
+        ImGui::End();
     }
 }
 

@@ -11,6 +11,15 @@ Display::Display(){
     fullscreen_flag = 0;
     vsync_flag = 0;
     limit_fps_flag = 1;
+
+    /* Set rendering colors */
+    background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
+    background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
+    background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
+
+    foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
+    foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
+    foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
 }
 
 Display::~Display(){
@@ -32,21 +41,9 @@ int Display::Initialize( bool fullscreen,
                          bool *emulation_paused,
                          bool *load_store_quirk,
                          bool *shift_quirk, 
-                         bool *vwrap,
-                         unsigned char R,
-                         unsigned char G,
-                         unsigned char B) {
+                         bool *vwrap) {
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-    
-    /* initialize the rendering colors */
-    background_color[0] = 0.0;
-    background_color[1] = 0.0;
-    background_color[2] = 0.0;
-
-    foreground_color[0] = (float) R / (float) 0xFF;
-    foreground_color[1] = (float) G / (float) 0xFF;
-    foreground_color[2] = (float) B / (float) 0xFF;
 
     /* Init the backbuffer */
     back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
@@ -191,10 +188,8 @@ void Display::RenderFrame(unsigned char **frame){
                     GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)texture);
 
     /* Create room at the top for menu bar */
-    float top_edge = 1.0;
-    if (gui.show_menu_flag) {
-        top_edge = (float)(WINDOW_HEIGHT - MENU_HEIGHT) / WINDOW_HEIGHT;
-    }
+    float top_edge = gui.show_menu_flag ? 
+        (float)(WINDOW_HEIGHT - MENU_HEIGHT) / WINDOW_HEIGHT : (float) 1.0;
 
     /* Render the texture */
     glBegin(GL_QUADS);

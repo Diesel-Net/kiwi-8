@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
+#define FREQUENCY 44100
+
 class Audio {
     private:
         SDL_AudioSpec audiospec;

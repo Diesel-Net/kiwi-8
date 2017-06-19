@@ -43,14 +43,14 @@ build_release: objects resource
 test_debug:
 	debug\$(APPNAME).exe \
 	"C:/Roms/CHIP-8/Chip-8 Games/Blitz [David Winter].ch8" \
-	-V 66 134 244
+	-V
 
 test_release: 
 	release\$(APPNAME).exe \
 
 
 # Build object files
-objects:	src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
+objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
 	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
 
 # Build resource file

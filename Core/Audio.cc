@@ -1,8 +1,6 @@
 #include "Audio.h"
 #include <stdio.h>
 
-#define FREQUENCY 44100
-
 /* This callback function should NOT be declared in any header files */
 static void audio_callback(void *userdata, unsigned char *stream, int len) {
     Audio *audio = (Audio *) userdata;

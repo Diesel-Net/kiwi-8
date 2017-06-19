@@ -35,10 +35,7 @@ Chip8::~Chip8() {
 int Chip8::Initialize(bool fullscreen, 
                       bool load_store_quirk,
                       bool shift_quirk,
-                      bool vwrap,
-                      unsigned char R, 
-                      unsigned char G, 
-                      unsigned char B){
+                      bool vwrap){
 
     if (SDL_Init(  SDL_INIT_TIMER 
                  | SDL_INIT_AUDIO 
@@ -75,8 +72,7 @@ int Chip8::Initialize(bool fullscreen,
                            &this->emulation_paused, 
                            &this->load_store_quirk, 
                            &this->shift_quirk, 
-                           &this->vwrap,
-                           R, G, B)) {
+                           &this->vwrap )) {
         return 1;
     }
     input.Initialize(&display, &cycles, &cpu_halt, &emulation_paused);
@@ -100,7 +96,13 @@ int Chip8::Initialize(bool fullscreen,
         memory[i] = chip8_fontset[i];
     }
 
+    LoadBootROM();
     return 0;
+}
+
+void Chip8::LoadBootROM() {
+    /* TO COMPLETE */
+
 }
 
 int Chip8::Load(const char *rom_name){
@@ -154,10 +156,6 @@ int Chip8::Load(const char *rom_name){
         display.gui.load_rom_flag = 0;
     }
 
-    return 0;
-}
-
-int Chip8::LoadDefault() {
     return 0;
 }
 
@@ -268,7 +266,6 @@ void Chip8::StepCPU(){
         UpdateTimers();
     }
 
-    /* Render the scene */
     if (draw_flag && display.limit_fps_flag) {
         display.RenderFrame(vram);
         draw_flag = 0;
