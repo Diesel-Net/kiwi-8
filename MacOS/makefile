@@ -51,6 +51,7 @@ objects:	src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
 test_release:
 	open ./release/$(APPNAME).app --args \
 	"/Users/tomdaley92/Chip8/Roms/Chip-8 Pack/Chip-8 Demos/Zero Demo [zeroZshadow, 2007].ch8" \
+	-F
 
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
