@@ -142,8 +142,8 @@ void Gui::HelpWindows() {
                             "\n"
                             "Usage: Chip8 filename [-FLSV]\n"
                             "-F      Launch in fullscreen\n"
-                            "-L      Enable load/store quirk\n"
-                            "-S      Enable shift quirk\n"
+                            "-L      Disable load/store quirk\n"
+                            "-S      Disable shift quirk\n"
                             "-V      Disable vertical wrapping");
         ImGui::End();
     }

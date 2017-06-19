@@ -4,8 +4,8 @@ Date: September 8, 2016
 
 Usage: Chip8 filename [-FLSV]
     -F      Launch in fullscreen
-    -L      Enable load/store quirk
-    -S      Enable shift quirk
+    -L      Disable load/store quirk
+    -S      Disable shift quirk
     -V      Disable vertical wrapping
 */
 
@@ -46,8 +46,8 @@ int main(int argc, char **argv){
             for (int j = 0; j < len; j++) {
 
                 if (*pos == 'F') fullscreen = 1;
-                if (*pos == 'L') load_store_quirk = 1;
-                if (*pos == 'S') shift_quirk = 1;
+                if (*pos == 'L') load_store_quirk = 0;
+                if (*pos == 'S') shift_quirk = 0;
                 if (*pos == 'V') vwrap = 0;
                 pos++;
 
