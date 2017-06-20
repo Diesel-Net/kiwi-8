@@ -12,8 +12,6 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 		-framework Cocoa \
 		-framework OpenGL
 
-# These must be named consistently with Info.plist file:
-ICON = kiwi8.icns
 APPNAME = Kiwi8
 
 # Default target
@@ -38,7 +36,7 @@ $(APPNAME): objects
 	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@ 
 
 	# Moving the configured executable and copying other files into .app bundle
-	cp resources/$(ICON) $@.app/Contents/Resources/$(ICON)
+	cp resources/$@.icns $@.app/Contents/Resources/$@.icns
 	cp src/Info.plist $@.app/Contents/Info.plist
 	mv $@ $@.app/Contents/MacOS/$@
 	mv $@.app release/$@.app

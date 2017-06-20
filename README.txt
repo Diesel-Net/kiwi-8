@@ -1,9 +1,9 @@
 Kiwi8 v1.03
 
-A cross-platform CHIP-8 interpreter written 
+A cross-platform Chip-8 interpreter written 
 in C++ with SDL2 and ImGui.
 
-For more information about the CHIP-8 visit:
+For more information about the Chip-8 visit:
 https://en.wikipedia.org/wiki/CHIP-8
 
 I have included pre-built binaries for both Windows
@@ -11,9 +11,7 @@ and MacOS (.exe file and .app bundle respectively)
 
 You can download them here:
 https://github.com/tomdaley92/Kiwi8/releases
-
-Most games are playable, however there are 
-still some issues with a couple titles. 
+ 
 No audio is implemented. A work in progress.
 
 The interpreter passes "SC Test.ch8" up to 

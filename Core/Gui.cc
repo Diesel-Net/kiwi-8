@@ -171,7 +171,7 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowSize(ImVec2(500, 230), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("License", &show_license);
-        ImGui::TextWrapped( "Kiwi8 - A cross-platform CHIP-8 interpreter\n"
+        ImGui::TextWrapped( "Kiwi8 - \"A cross-platform Chip-8 interpreter\"\n"
                             "Copyright (C) 2016  Thomas Daley\n"
                             "\n"
                             "This program is free software: you can redistribute it and/or modify\n"
@@ -194,7 +194,7 @@ void Gui::HelpWindows() {
         ImGui::Begin("About", &show_about);
         ImGui::TextWrapped( "Kiwi8 v1.03\n"
                             "\n"
-                            "A cross-platform CHIP-8 interpreter written\n"
+                            "A cross-platform Chip-8 interpreter written\n"
                             "in C++ with SDL2 and ImGui.\n"
                             "\n"
                             "<https://github.com/tomdaley92/Kiwi8>\n");

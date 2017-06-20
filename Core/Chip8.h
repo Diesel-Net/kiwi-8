@@ -110,7 +110,7 @@ class Chip8 {
         int LoadBootROM();
         void SoftReset();
         void UpdateTimers();
-        void StepCPU();
+        void StepCPU(int cycles);
         void FetchOpcode();
         void ExecuteOpcode();
 

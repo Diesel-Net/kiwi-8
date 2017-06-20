@@ -1,4 +1,4 @@
-#import "fileDialog.h"
+#import "file_dialog.h"
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #include <string>

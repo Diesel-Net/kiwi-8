@@ -10,6 +10,6 @@
 #define PATH_MAX MAX_PATH /* PATH_MAX */
 #endif
 
-void openFileDialog(char *rom_name);
+int openFileDialog(char *rom_name);
 
 #endif

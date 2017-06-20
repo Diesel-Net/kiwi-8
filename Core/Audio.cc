@@ -3,14 +3,17 @@
 
 /* This callback function should NOT be declared in any header files */
 static void audio_callback(void *userdata, unsigned char *stream, int len) {
+    /* TO COMPLETE */
     Audio *audio = (Audio *) userdata;
     audio->SineWave(stream, len);
 }
 
 Audio::Audio() {
+    /* TO COMPLETE */
     wave_position = 0;
     wave_increment = 2 * M_PI * 1000 / FREQUENCY;
-    mute_flag = 0;
+    /* Start muted? */
+    mute_flag = 1;
 }
 
 Audio::~Audio() {
@@ -18,6 +21,7 @@ Audio::~Audio() {
 }
 
 int Audio::Initialize() {
+    /* TO COMPLETE */
     audiospec.freq = FREQUENCY;
     audiospec.format = AUDIO_U8;
     audiospec.channels = 1;
@@ -34,19 +38,29 @@ int Audio::Initialize() {
     }
 
     /* Start playing Audio */
-    //SDL_PauseAudioDevice(device, 0);
+    SDL_PauseAudioDevice(device, 0);
 
     return 0;
 }
 
 void Audio::SineWave(unsigned char *stream, int len) {
+    /* TO COMPLETE */
+    //if (mute_flag) return;
+
     for (int i = 0; i < len; i++) {
         stream[i] = (unsigned char) (7 * sin(wave_position) + 127);
         wave_position += wave_increment;
     }
 }
 
-void Audio::Update(bool play) {
+void Audio::Update(bool beep) {
     /* TO COMPLETE */
+
+    /*
+    if (mute_flag == beep) {
+        SDL_LockAudioDevice(device);
+        mute_flag = !beep;
+        SDL_UnlockAudioDevice(device);
+    } */
 }
 

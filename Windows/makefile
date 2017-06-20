@@ -54,9 +54,9 @@ objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
 	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
 
 # Build resource file
-resource: src\kiwi8.rc resources\kiwi8.ico
-	RC src\kiwi8.rc
-	MOVE src\kiwi8.res kiwi8.res
+resource: src\$(APPNAME).rc resources\$(APPNAME).ico
+	RC src\$(APPNAME).rc
+	MOVE src\$(APPNAME).res $(APPNAME).res
 
 # Clean any leftover build files
 clean:

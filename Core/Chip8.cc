@@ -3,7 +3,7 @@ Author: Thomas Daley
 Date: September 18, 2016
 */
 #include "Chip8.h"
-#include "openFileDialog.h"
+#include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 #include <string.h>
@@ -100,8 +100,8 @@ int Chip8::Initialize(bool fullscreen,
 }
 
 int Chip8::LoadBootROM() {
-    rom_size = BOOTROM_SIZE;
     free(rom);
+    rom_size = BOOTROM_SIZE;
     rom = (unsigned char *)malloc(rom_size);
     if(!rom) {
         fprintf(stderr, "Unable to allocate memory for rom.\n");
@@ -109,11 +109,13 @@ int Chip8::LoadBootROM() {
     }
     memset(rom, 0 , rom_size);
 
-    /* Copy the entire rom to memory starting from 0x200 */
+    /* Save for later (Soft-resets) */
     memcpy(rom, kiwi8_logo_2, rom_size);
-    rom_loaded = 1;
 
-    SoftReset();
+    /* Copy the entire rom to memory starting from 0x200 */
+    memcpy(memory + ENTRY_POINT, kiwi8_logo_2, BOOTROM_SIZE);
+
+    rom_loaded = 1;
     return 0;
 }
 
@@ -161,8 +163,9 @@ int Chip8::Load(const char *rom_name){
 
         /* Load ROM from GUI */
         char new_rom_name[PATH_MAX];
-        openFileDialog(new_rom_name);
-        Load(new_rom_name);
+        openFileDialog(new_rom_name) ?
+            fprintf(stderr, "User aborted the open file dialog.\n") :
+            Load(new_rom_name);
 
         /* Flip GUI toggle */
         display.gui.load_rom_flag = 0;
@@ -230,13 +233,13 @@ void Chip8::Run(){
         event = input.Poll();
 
         /* Do something based on response... */
-        if ((event & USER_QUIT) == USER_QUIT) break;
+        if ((event & USER_QUIT) == USER_QUIT) return;
         if ((event & LOAD_ROM) == LOAD_ROM) Load(NULL);
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
 
 
         /* Emulate a batch of cycles */
-        StepCPU();
+        StepCPU(cycles);
 
         t2 = SDL_GetTicks();
         
@@ -262,7 +265,7 @@ void Chip8::UpdateTimers(){
     } 
 }
 
-void Chip8::StepCPU(){
+void Chip8::StepCPU(int cycles){
     /* Execute a batch of instructions */
     if (!emulation_paused && rom_loaded) {
         for (int i = 0; i < cycles; i++) {
