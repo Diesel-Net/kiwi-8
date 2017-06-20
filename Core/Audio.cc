@@ -38,7 +38,7 @@ int Audio::Initialize() {
     }
 
     /* Start playing Audio */
-    SDL_PauseAudioDevice(device, 0);
+    //SDL_PauseAudioDevice(device, 0);
 
     return 0;
 }

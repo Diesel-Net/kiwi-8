@@ -61,5 +61,5 @@ resource: src\$(APPNAME).rc resources\$(APPNAME).ico
 # Clean any leftover build files
 clean:
 	DEL *.exe *.obj *.res *.pdb
-	cd debug & DEL *.exe *.ico *.dll *.ini
-	cd release & DEL *.exe *.ico *.dll *.ini 
+	cd debug & DEL *.exe *.dll 
+	cd release & DEL *.exe *.dll 

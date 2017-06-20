@@ -1,0 +1,3 @@
+#include "resource.h"
+
+kiwi8Icon   ICON    "resources\kiwi8.ico"
