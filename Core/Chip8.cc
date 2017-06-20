@@ -110,10 +110,10 @@ int Chip8::LoadBootROM() {
     memset(rom, 0 , rom_size);
 
     /* Save for later (Soft-resets) */
-    memcpy(rom, kiwi8_logo_2, rom_size);
+    memcpy(rom, bootrom, rom_size);
 
     /* Copy the entire rom to memory starting from 0x200 */
-    memcpy(memory + ENTRY_POINT, kiwi8_logo_2, BOOTROM_SIZE);
+    memcpy(memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
 
     rom_loaded = 1;
     return 0;
