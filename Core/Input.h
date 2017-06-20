@@ -4,10 +4,13 @@
 #include <SDL2/SDL.h>
 
 #define NUM_KEYS 16
+
+/* There is a 4 ( and no 3), so each value 
+can have its own bit slot */
 #define CONTINUE 0
 #define USER_QUIT 1
 #define SOFT_RESET 2
-#define LOAD_ROM 4
+#define LOAD_ROM 4 
 
 /* Forward declaration */
 class Display;

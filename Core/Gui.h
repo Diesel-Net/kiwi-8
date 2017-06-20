@@ -22,6 +22,7 @@ class Gui {
         bool *load_store_quirk;
         bool *shift_quirk;
         bool *vwrap;
+        bool *mute;
 
         /* Help-window toggles */
         bool show_controls;
@@ -39,7 +40,6 @@ class Gui {
         bool quit_flag;
         bool show_menu_flag;
         bool show_fps_flag;
-        
 
         Gui();
         ~Gui();
@@ -49,7 +49,8 @@ class Gui {
                         bool *paused, 
                         bool *load_store_quirk, 
                         bool *shift_quirk, 
-                        bool *vwrap);
+                        bool *vwrap,
+                        bool *mute);
 
         void ProcessEvents(SDL_Event *event);
         void NewFrame();

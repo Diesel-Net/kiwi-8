@@ -20,12 +20,10 @@ class Audio {
 
     public:
 
-        bool mute_flag;
-
         Audio();
         ~Audio();
         int Initialize();
-        void Update(int length);
+        void Beep(int length);
 };
 
 #endif

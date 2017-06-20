@@ -41,7 +41,8 @@ int Display::Initialize( bool fullscreen,
                          bool *paused,
                          bool *load_store_quirk,
                          bool *shift_quirk, 
-                         bool *vwrap) {
+                         bool *vwrap,
+                         bool *muted) {
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
@@ -105,12 +106,11 @@ int Display::Initialize( bool fullscreen,
                    paused, 
                    load_store_quirk, 
                    shift_quirk, 
-                   vwrap);
+                   vwrap, 
+                   muted );
 
     /* Set to fullscreen mode if flag present */
-    if (fullscreen) {
-        ToggleFullscreen();
-    }
+    if (fullscreen) ToggleFullscreen();
 
     return 0;
 }

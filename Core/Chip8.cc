@@ -65,17 +65,19 @@ int Chip8::Initialize(bool fullscreen,
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    /* init display & input */
+    /* init audio, display, input */
+    audio.Initialize();
     if (display.Initialize(fullscreen, 
                            &this->cycles,
                            &this->paused, 
                            &this->load_store_quirk, 
                            &this->shift_quirk, 
-                           &this->vwrap )) {
+                           &this->vwrap,
+                           &this->muted )) {
         return 1;
     }
     input.Initialize(&display, &cycles, &cpu_halt, &paused);
-    audio.Initialize();
+    
 
     /* init registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
@@ -94,10 +96,10 @@ int Chip8::Initialize(bool fullscreen,
         memory[i] = chip8_fontset[i];
     }
 
-    return LoadBootROM();
+    return LoadBootRom();
 }
 
-int Chip8::LoadBootROM() {
+int Chip8::LoadBootRom() {
     free(rom);
     rom_size = BOOTROM_SIZE;
     rom = (unsigned char *)malloc(rom_size);
@@ -235,10 +237,10 @@ void Chip8::Run(){
         
         if (!paused) {
             /* Emulate a batch of cycles */
-            StepCPU(cycles);
+            StepCpu(cycles);
 
             /* Update Audio */
-            if (sound_timer > 0) audio.Update((int)(SAMPLES_PER_FRAME));
+            if (sound_timer > 0 && !muted) audio.Beep(SAMPLES_PER_FRAME);
 
             /* Check internal timers */
             UpdateTimers();
@@ -272,7 +274,7 @@ void Chip8::UpdateTimers(){
     } 
 }
 
-void Chip8::StepCPU(int cycles){
+void Chip8::StepCpu(int cycles){
     /* Execute a batch of instructions */
     for (int i = 0; i < cycles; i++) {
         FetchOpcode();

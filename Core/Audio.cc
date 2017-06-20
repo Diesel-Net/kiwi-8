@@ -4,7 +4,6 @@
 Audio::Audio() {
     wave_position = 0;
     wave_increment = ((double) TONE * (2.0 * M_PI)) / (double) FREQUENCY;
-    mute_flag = 0;
 }
 
 Audio::~Audio() {
@@ -30,7 +29,7 @@ int Audio::Initialize() {
         return 1;
     }
 
-    audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30); /* A half a second (overkill until i figure out whats best) */
+    audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30); /* ~.5 seconds worth of audio */
     if (!audio_buffer) {
         fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
         return 1;
@@ -38,12 +37,6 @@ int Audio::Initialize() {
 
     /* Start playing Audio */
     SDL_PauseAudioDevice(device, 0);
-
-    /* Things to note: latency issues
-        -if buffer is too big, audio will appear more and more delayed (queue increasing in size)
-        -it would be a good idea to check the size of the queue every once in awhile
-        -need to generate a sine wave "as we go" to keep track of wave position so it sounds normal
-    */
 
     return 0;
 }
@@ -55,7 +48,7 @@ void Audio::SineWave(int length) {
     }
 }
 
-void Audio::Update(int length) {
+void Audio::Beep(int length) {
     if (SDL_GetQueuedAudioSize(device) < (SAMPLES_PER_FRAME * 2)) {
         SineWave(length);
         SDL_QueueAudio(device, audio_buffer, length); 

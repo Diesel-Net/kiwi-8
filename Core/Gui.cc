@@ -24,7 +24,8 @@ void Gui::Initialize(Display *display,
                      bool *paused, 
                      bool *load_store_quirk, 
                      bool *shift_quirk, 
-                     bool *vwrap) {
+                     bool *vwrap,
+                     bool *mute) {
 
     this->display = display;
 
@@ -34,6 +35,7 @@ void Gui::Initialize(Display *display,
     this->load_store_quirk = load_store_quirk;
     this->shift_quirk = shift_quirk;
     this->vwrap = vwrap;
+    this->mute = mute;
 
     ImGui_ImplSdl_Init(display->window);
 
@@ -97,7 +99,7 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Settings")) {
-                ImGui::MenuItem("Mute Audio", NULL, !!0);
+                ImGui::MenuItem("Mute Audio", NULL, mute);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
                 /* Toggle Vsync (disabled for now because it doesn't really 

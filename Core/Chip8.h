@@ -6,7 +6,7 @@
 #include "Input.h"
 #include "Audio.h"
 
-#define VERSION "Chip8 v1.03"
+#define NAME_VERSION "Kiwi8 v1.03"
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16
@@ -81,6 +81,9 @@ class Chip8 {
         Display display;
         Audio audio;
 
+        /* Mute audio toggle */
+        bool muted;
+
         /* If this flag is enabled, draw a frame at the end of the cycle */
         int draw_flag;
 
@@ -106,10 +109,10 @@ class Chip8 {
             0xF0, 0x80, 0xF0, 0x80, 0x80  // F
         };
 
-        int LoadBootROM();
+        int LoadBootRom();
         void SoftReset();
         void UpdateTimers();
-        void StepCPU(int cycles);
+        void StepCpu(int cycles);
         void FetchOpcode();
         void ExecuteOpcode();
 

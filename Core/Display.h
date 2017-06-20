@@ -54,7 +54,8 @@ class Display {
                         bool *paused,
                         bool *load_store_quirk,
                         bool *shift_quirk, 
-                        bool *vwrap);
+                        bool *vwrap,
+                        bool *muted );
 
         void Resize(int x, int y);
         void ToggleFullscreen();
