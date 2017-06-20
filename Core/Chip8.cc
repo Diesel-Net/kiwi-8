@@ -219,6 +219,7 @@ void Chip8::Run(){
     unsigned int t2;
     unsigned int elapsed;
     unsigned int remaining;
+    
 
     /* Slows execution speed (60hz) ~= 16.66 ms intervals 
        This makes it easy to decrement the Chip8 timers 
@@ -239,10 +240,30 @@ void Chip8::Run(){
 
 
         /* Emulate a batch of cycles */
-        StepCPU(cycles);
+        if (rom_loaded && !emulation_paused) {
+            StepCPU(cycles);
+
+            /* Update Audio */
+
+            //int audio_len = ((int) (((double) remaining /  16) * (double) SAMPLES_PER_FRAME * 2));
+            //if (sound_timer > 0) audio.Update(audio_len);
+
+            if (sound_timer > 0) audio.Update((int)(SAMPLES_PER_FRAME * 3.0));
+
+            UpdateTimers();
+        }
+
+        /* Draw a frame if we need to */
+        if (draw_flag && display.limit_fps_flag) {
+            display.RenderFrame(vram);
+            draw_flag = 0;
+        } else {
+            display.RenderFrame(NULL);
+        }
 
         t2 = SDL_GetTicks();
         
+        /* Calculate how long to sleep thread based on remaining frame time */
         elapsed = t2 - t1;
         remaining = interval - elapsed;
         if (elapsed < interval) {
@@ -255,36 +276,22 @@ void Chip8::Run(){
 void Chip8::UpdateTimers(){
     /* Update timers at 60 Hz */
     if (!cpu_halt) {
-        if(delay_timer > 0) {
-            delay_timer--;
-        }
-        if(sound_timer > 0) {
-            //if(sound_timer == 1) fprintf(stderr, "BEEP!\n");
-            sound_timer--;
-        }
+        if(delay_timer > 0) delay_timer--;
+        if(sound_timer > 0) sound_timer--;
     } 
 }
 
 void Chip8::StepCPU(int cycles){
     /* Execute a batch of instructions */
-    if (!emulation_paused && rom_loaded) {
-        for (int i = 0; i < cycles; i++) {
-            FetchOpcode();
-            ExecuteOpcode();
-            if(draw_flag && !display.limit_fps_flag){
-                display.RenderFrame(vram);
-                draw_flag = 0;
-            }
-        }
-        /* Update the internal timers */
-        UpdateTimers();
-    }
+    for (int i = 0; i < cycles; i++) {
+        FetchOpcode();
+        ExecuteOpcode();
 
-    if (draw_flag && display.limit_fps_flag) {
-        display.RenderFrame(vram);
-        draw_flag = 0;
-    } else {
-        display.RenderFrame(NULL);
+        /* Draw */
+        if(draw_flag && !display.limit_fps_flag){
+            display.RenderFrame(vram);
+            draw_flag = 0;
+        }
     }
 }
 
