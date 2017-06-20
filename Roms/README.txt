@@ -1,5 +1,5 @@
-Kiwi8 Rom's
+Kiwi8 ROMs
 
-A few ROM files put together to achieve a bootup logo. 
-These files were created with the help of a Chip-8 program 
+A few Chip-8 programs put together to achieve a bootup logo. 
+These files were created with the help of another Chip-8 program 
 called "BMP Viewer - [Hap, 2005].ch8".
