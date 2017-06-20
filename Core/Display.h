@@ -51,7 +51,7 @@ class Display {
 
         int Initialize( bool fullscreen,
                         int *cycles,
-                        bool *emulation_paused,
+                        bool *paused,
                         bool *load_store_quirk,
                         bool *shift_quirk, 
                         bool *vwrap);

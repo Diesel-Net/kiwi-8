@@ -38,7 +38,7 @@ Display::~Display(){
 
 int Display::Initialize( bool fullscreen,
                          int *steps,
-                         bool *emulation_paused,
+                         bool *paused,
                          bool *load_store_quirk,
                          bool *shift_quirk, 
                          bool *vwrap) {
@@ -102,7 +102,7 @@ int Display::Initialize( bool fullscreen,
     /* Setup ImGui binding */
     gui.Initialize(this, 
                    steps,
-                   emulation_paused, 
+                   paused, 
                    load_store_quirk, 
                    shift_quirk, 
                    vwrap);

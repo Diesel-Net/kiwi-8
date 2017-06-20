@@ -15,11 +15,11 @@ Input::~Input() {
 void Input::Initialize(Display *display, 
                        int *cycles, 
                        bool *cpu_halt, 
-                       bool *emulation_paused) {
+                       bool *paused) {
     this->cycles = cycles;
     this->display = display;
     this->cpu_halt = cpu_halt;
-    this->emulation_paused = emulation_paused;
+    this->paused = paused;
     Reset();
 }
 
@@ -84,7 +84,7 @@ int Input::ProcessEvents() {
             display->gui.show_fps_flag = !display->gui.show_fps_flag;
         }
         if (state[SDL_SCANCODE_P]) {
-            *emulation_paused = !*emulation_paused;
+            *paused = !*paused;
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
         	/* Slow emulation speed */

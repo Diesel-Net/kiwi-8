@@ -30,7 +30,7 @@ class Chip8 {
 
         /* whether ot not emulation is currently paused.
            This is different from CPU's HALT state. */
-        bool emulation_paused;
+        bool paused;
 
         /* Two quirks of the Chip8 CPU. 
            Some games assume these are enabled to run correctly.
@@ -60,7 +60,6 @@ class Chip8 {
         unsigned char memory[MEM_SIZE];
 
         /* A copy of the rom for soft resetting */
-        bool rom_loaded;
         unsigned char *rom;
         unsigned int rom_size;
 

@@ -11,13 +11,12 @@ Date: September 18, 2016
 
 Chip8::Chip8() {
     cycles = CYCLES_PER_STEP;
-    emulation_paused = 0;
+    paused = 0;
     vwrap = 1;
     display = Display();
     input = Input();    
     vram = NULL;
     rom = NULL;
-    rom_loaded = 0;
 }
 
 Chip8::~Chip8() {
@@ -69,13 +68,13 @@ int Chip8::Initialize(bool fullscreen,
     /* init display & input */
     if (display.Initialize(fullscreen, 
                            &this->cycles,
-                           &this->emulation_paused, 
+                           &this->paused, 
                            &this->load_store_quirk, 
                            &this->shift_quirk, 
                            &this->vwrap )) {
         return 1;
     }
-    input.Initialize(&display, &cycles, &cpu_halt, &emulation_paused);
+    input.Initialize(&display, &cycles, &cpu_halt, &paused);
     audio.Initialize();
 
     /* init registers and memory once */
@@ -89,7 +88,6 @@ int Chip8::Initialize(bool fullscreen,
     sound_timer = 0;
     cpu_halt = 0;
     draw_flag = 1;
-    emulation_paused = 0;
 
     /* Load fontset */
     for(int i = 0; i < FONTS_SIZE; ++i) {
@@ -115,7 +113,6 @@ int Chip8::LoadBootROM() {
     /* Copy the entire rom to memory starting from 0x200 */
     memcpy(memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
 
-    rom_loaded = 1;
     return 0;
 }
 
@@ -153,7 +150,6 @@ int Chip8::Load(const char *rom_name){
             fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
             return 1;
         }
-        rom_loaded = 1;
 
         SoftReset();
         fclose(file);
@@ -175,9 +171,6 @@ int Chip8::Load(const char *rom_name){
 }
 
 void Chip8::SoftReset() {
-    if (!rom_loaded) {
-        return;
-    }
     /* Clear the vram */
     for (int i = 0; i < WIDTH; i++) {
         memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -208,9 +201,12 @@ void Chip8::SoftReset() {
     cpu_halt = 0;
     draw_flag = 1;
 
+    /* Un-pause (if paused) whenever we Soft-Reset */
+    paused = 0;
+
     /* Flip the GUI bit */
     display.gui.soft_reset_flag = 0;
-    emulation_paused = 0;
+    
 }
 
 void Chip8::Run(){
@@ -219,7 +215,6 @@ void Chip8::Run(){
     unsigned int t2;
     unsigned int elapsed;
     unsigned int remaining;
-    
 
     /* Slows execution speed (60hz) ~= 16.66 ms intervals 
        This makes it easy to decrement the Chip8 timers 
@@ -237,19 +232,15 @@ void Chip8::Run(){
         if ((event & USER_QUIT) == USER_QUIT) return;
         if ((event & LOAD_ROM) == LOAD_ROM) Load(NULL);
         if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
-
-
-        /* Emulate a batch of cycles */
-        if (rom_loaded && !emulation_paused) {
+        
+        if (!paused) {
+            /* Emulate a batch of cycles */
             StepCPU(cycles);
 
             /* Update Audio */
+            if (sound_timer > 0) audio.Update((int)(SAMPLES_PER_FRAME));
 
-            //int audio_len = ((int) (((double) remaining /  16) * (double) SAMPLES_PER_FRAME * 2));
-            //if (sound_timer > 0) audio.Update(audio_len);
-
-            if (sound_timer > 0) audio.Update((int)(SAMPLES_PER_FRAME * 3.0));
-
+            /* Check internal timers */
             UpdateTimers();
         }
 
@@ -296,6 +287,7 @@ void Chip8::StepCPU(int cycles){
 }
 
 void Chip8::FetchOpcode() {
+    /* Fetch two bytes while being careful of byte alignment */
     opcode = memory[PC] << 8 | memory[PC + 1];
 }
 
@@ -695,7 +687,7 @@ void Chip8::ExecuteOpcode(){
 
                 default:
                     fprintf (stderr, "%s0x%X\n", unknown, opcode);
-                    PC+=2;
+                    PC += 2;
                     break;
             }
             break;

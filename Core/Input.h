@@ -22,7 +22,7 @@ class Input {
 
         int *cycles;
         bool *cpu_halt;
-        bool *emulation_paused;
+        bool *paused;
 
         int ProcessEvents();
         void ProcessKeys();
@@ -40,7 +40,7 @@ class Input {
         void Initialize(Display *display, 
                         int *cycles, 
                         bool *cpu_halt, 
-                        bool *emulation_paused);
+                        bool *paused);
         void Reset();
         int Poll();
         

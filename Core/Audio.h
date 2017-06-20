@@ -5,7 +5,7 @@
 
 #define FREQUENCY 48000
 #define TONE 440
-#define SAMPLES_PER_FRAME (FREQUENCY / 60) /* Sound timer ticks at 60 Hz */
+#define SAMPLES_PER_FRAME ((FREQUENCY / 60) * 3)
 
 class Audio {
     private:

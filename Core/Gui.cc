@@ -21,7 +21,7 @@ Gui::~Gui() {
 
 void Gui::Initialize(Display *display, 
                      int *cycles,
-                     bool *emulation_paused, 
+                     bool *paused, 
                      bool *load_store_quirk, 
                      bool *shift_quirk, 
                      bool *vwrap) {
@@ -30,7 +30,7 @@ void Gui::Initialize(Display *display,
 
     /* Connect pointers to chip8 toggles */
     this->cycles = cycles;
-    this->emulation_paused = emulation_paused;
+    this->paused = paused;
     this->load_store_quirk = load_store_quirk;
     this->shift_quirk = shift_quirk;
     this->vwrap = vwrap;
@@ -76,7 +76,7 @@ void Gui::MainMenu() {
 
             if (ImGui::BeginMenu("Emulation")) {
                 ImGui::MenuItem("Reset", "F5", &soft_reset_flag);
-                ImGui::MenuItem("Pause", "P", emulation_paused);
+                ImGui::MenuItem("Pause", "P", paused);
                 
                 /* CPU Frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
@@ -97,6 +97,7 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Settings")) {
+                ImGui::MenuItem("Mute Audio", NULL, !!0);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
                 /* Toggle Vsync (disabled for now because it doesn't really 
@@ -111,7 +112,7 @@ void Gui::MainMenu() {
                 //if (before != display->vsync_flag) display->ToggleVsync();
 
                 /* Color Chooser */
-                if (ImGui::BeginMenu("Color")) {
+                if (ImGui::BeginMenu("Colors")) {
                     ImGui::ColorEdit3("Background", display->background_color);
                     ImGui::ColorEdit3("Foreground", display->foreground_color);
                     ImGui::EndMenu();
