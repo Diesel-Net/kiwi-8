@@ -137,14 +137,15 @@ void Gui::MainMenu() {
 
 void Gui::HelpWindows() {
     if (show_usage) {
-        ImGui::SetNextWindowSize(ImVec2(270, 140), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(270, 150), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &show_usage);
         ImGui::TextWrapped( "Alternatively, you may launch Kiwi8\n"
                             "from the command line.\n"
                             "\n"
-                            "Usage: Kiwi8 filename [-FLSV]\n"
+                            "Usage: Kiwi8 [filename] [-FMLSV]\n"
                             "-F      Launch in fullscreen\n"
+                            "-M      Launch with audio muted\n"
                             "-L      Disable load/store quirk\n"
                             "-S      Disable shift quirk\n"
                             "-V      Disable vertical wrapping");
@@ -195,7 +196,7 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowSize(ImVec2(330, 120), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("About", &show_about);
-        ImGui::TextWrapped( "Kiwi8 v1.03\n"
+        ImGui::TextWrapped( APPNAME_VERSION "\n"
                             "\n"
                             "A cross-platform Chip-8 interpreter written\n"
                             "in C++ with SDL2 and ImGui.\n"

@@ -35,7 +35,8 @@ Chip8::~Chip8() {
 int Chip8::Initialize(bool fullscreen, 
                       bool load_store_quirk,
                       bool shift_quirk,
-                      bool vwrap){
+                      bool vwrap,
+                      bool muted){
 
     if (SDL_Init(  SDL_INIT_TIMER 
                  | SDL_INIT_AUDIO 
@@ -48,6 +49,7 @@ int Chip8::Initialize(bool fullscreen,
     this-> load_store_quirk = load_store_quirk;
     this-> shift_quirk = shift_quirk;
     this-> vwrap = vwrap;
+    this->muted = muted;
 
     /* init vram */
     vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));

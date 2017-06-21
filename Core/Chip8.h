@@ -6,7 +6,7 @@
 #include "Input.h"
 #include "Audio.h"
 
-#define NAME_VERSION "Kiwi8 v1.03"
+#define APPNAME_VERSION "Kiwi8 v1.03"
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16
@@ -124,7 +124,8 @@ class Chip8 {
         int Initialize(bool fullscreen, 
                        bool load_store_quirk,
                        bool shift_quirk,
-                       bool vwrap);
+                       bool vwrap,
+                       bool muted);
 
         int Load(const char *rom_name);
         void Run();

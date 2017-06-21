@@ -58,8 +58,9 @@ How to compile:
         2) Type "make".
 
 
-Usage: Kiwi8 filename [-FLSV]
+Usage: Kiwi8 [filename] [-FMLSV]
     -F      Launch in fullscreen
+    -M      Launch with audio muted
     -L      Disable load/store quirk
     -S      Disable shift quirk
     -V      Disable vertical wrapping

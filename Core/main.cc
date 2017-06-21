@@ -2,8 +2,9 @@
 Author: Thomas Daley
 Date: September 8, 2016
 
-Usage: Kiwi8 filename [-FLSV]
+Usage: Kiwi8 [filename] [-FMLSV]
     -F      Launch in fullscreen
+    -M      Launch with audio muted
     -L      Disable load/store quirk
     -S      Disable shift quirk
     -V      Disable vertical wrapping
@@ -12,17 +13,7 @@ Usage: Kiwi8 filename [-FLSV]
 #include "Chip8.h"
 #include <string.h>
 
-#ifdef __APPLE__
-/* There is an extra check here for launching Cocoa based .app's by 
-   double clicking on them or (equivalently) using the "open" command. 
-   On MacOS, GUI apps launch with an extra argument that gets sent in 
-   the form of -psn_X_XXXXX where X can be any number. This is the 
-   Process Serial Number. */
-#define ROM_PATH_EXISTS (argc >= 2 && strncmp(argv[1], "-psn", 4))
-#endif
-
 #ifdef _WIN32
-#define ROM_PATH_EXISTS (argc >= 2)
 #include "../Windows/src/resource.h" /* window icon */
 #endif
 
@@ -33,9 +24,10 @@ int main(int argc, char **argv){
     bool load_store_quirk = 1;
     bool shift_quirk = 1;
     bool vwrap = 1;
+    bool muted = 0;
 
     /* Parse and set any options present */
-    for (int i = 2; i < argc; i++){
+    for (int i = 1; i < argc; i++){
 
         char *pos = argv[i];
         if (*pos == '-') {
@@ -46,6 +38,7 @@ int main(int argc, char **argv){
             for (int j = 0; j < len; j++) {
 
                 if (*pos == 'F') fullscreen = 1;
+                if (*pos == 'M') muted = 1;
                 if (*pos == 'L') load_store_quirk = 0;
                 if (*pos == 'S') shift_quirk = 0;
                 if (*pos == 'V') vwrap = 0;
@@ -56,12 +49,12 @@ int main(int argc, char **argv){
     }
 
     Chip8 chip = Chip8();
-    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, vwrap)) {
+    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, vwrap, muted)) {
         return 1;
     }
 
     /* Load ROM from argument vector */
-    if (ROM_PATH_EXISTS) {
+    if (argc >= 2 && *argv[1] != '-') {
         if (chip.Load(argv[1])) return 1;  
     } 
 
