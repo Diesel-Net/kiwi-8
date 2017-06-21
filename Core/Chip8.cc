@@ -12,6 +12,7 @@ Date: September 18, 2016
 Chip8::Chip8() {
     cycles = CYCLES_PER_STEP;
     paused = 0;
+    muted = 0;
     vwrap = 1;
     display = Display();
     input = Input();    

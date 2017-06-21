@@ -43,6 +43,7 @@ int Audio::Initialize() {
 
 void Audio::SineWave(int length) {
     for (int i = 0; i < length; i++) {
+        /* This sine wave varies from 120 - 134 */
         audio_buffer[i] = (unsigned char) ((7 * sin(wave_position)) + 127);
         wave_position += wave_increment;
     }
