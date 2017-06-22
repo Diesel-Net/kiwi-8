@@ -6,21 +6,12 @@
 A cross-platform Chip-8 interpreter written 
 in C++ using SDL2, ImGui, and OpenGL.
 
-I can highly recommend this project to anyone 
-wanting to get their feet wet with emulator 
-programming, video-game programming, or even 
-cross-platform development. It has been a great 
-educational excercise involving major aspects 
-of modern day programs such as input handling, 
-user-interface design, 2D graphics rendering, 
-audio generation, and code profiling and more.
-
 **[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
 
 **[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
 
 ## Features
- - MacOS and Windows
+ - Windows and MacOS
  - Graphical user interface
  - Audio
  - Color customizer
@@ -62,5 +53,16 @@ added to PATH.
     -L      Disable load/store quirk
     -S      Disable shift quirk
     -V      Disable vertical wrapping
+
+---
+
+I can highly recommend this project to anyone 
+wanting to get their feet wet with emulator 
+programming, video-game programming, or even 
+cross-platform development. It has been a great 
+educational excercise involving major aspects 
+of modern day programs such as input handling, 
+user-interface design, 2D graphics rendering, 
+audio generation, and code profiling and more.
 
 _Enjoy!_
