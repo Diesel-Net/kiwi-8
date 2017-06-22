@@ -65,8 +65,8 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("View")) {
-                ImGui::MenuItem("Show Menu", "L-Alt", &show_menu_flag);
-                ImGui::MenuItem("Show FPS", "R-Alt", &show_fps_flag);
+                ImGui::MenuItem("Show Menu", "Left-Alt", &show_menu_flag);
+                ImGui::MenuItem("Show FPS", "Right-Alt", &show_fps_flag);
 
                 /* fullscreen toggle */
                 before = display->fullscreen_flag;
@@ -118,6 +118,21 @@ void Gui::MainMenu() {
                 if (ImGui::BeginMenu("Colors")) {
                     ImGui::ColorEdit3("Background", display->background_color);
                     ImGui::ColorEdit3("Foreground", display->foreground_color);
+                    before = ( display->background_color[0] == ((float) DEFAULT_BACKGROUND_R / (float) 0xFF) &&
+                               display->background_color[1] == ((float) DEFAULT_BACKGROUND_G / (float) 0xFF) &&
+                               display->background_color[2] == ((float) DEFAULT_BACKGROUND_B / (float) 0xFF) &&
+                               display->foreground_color[0] == ((float) DEFAULT_FOREGROUND_R / (float) 0xFF) &&
+                               display->foreground_color[1] == ((float) DEFAULT_FOREGROUND_G / (float) 0xFF) &&
+                               display->foreground_color[2] == ((float) DEFAULT_FOREGROUND_B / (float) 0xFF) );
+                    ImGui::MenuItem("Default", NULL, &before);
+                    if (before) {
+                        display->background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
+                        display->background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
+                        display->background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
+                        display->foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
+                        display->foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
+                        display->foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
+                    }
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
