@@ -63,6 +63,6 @@ cross-platform development. It has been a great
 educational excercise involving major aspects 
 of modern day programs such as input handling, 
 user-interface design, 2D graphics rendering, 
-audio generation, and code profiling and more.
+audio generation, code profiling and more.
 
 _Enjoy!_
