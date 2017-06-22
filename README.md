@@ -61,7 +61,7 @@ wanting to get their feet wet with emulator
 programming, video-game programming, or even 
 cross-platform development. It has been a great 
 educational excercise involving major aspects 
-of modern day programs such as input handling, 
+of modern day applications such as input handling, 
 user-interface design, 2D graphics rendering, 
 audio generation, code profiling and more.
 
