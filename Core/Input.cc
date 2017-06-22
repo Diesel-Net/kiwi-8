@@ -81,7 +81,8 @@ int Input::ProcessEvents() {
             /* TODO: resume the emulator, if paused_on_focus_loss */
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-            /* TODO: add a toggle for "pause on focus loss" */
+            /* focus is lost when a user tries to laod a rom */
+            if (display->lost_window_focus) display->RaiseWindow();
         }
 
         /* the window manager requests that the window be closed */

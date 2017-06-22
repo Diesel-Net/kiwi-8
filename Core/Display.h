@@ -40,6 +40,7 @@ class Display {
         bool fullscreen_flag;
         bool vsync_flag;
         bool limit_fps_flag;
+        bool lost_window_focus;
 
         /* RGB colors for foreground/background */
         float background_color[3];
@@ -61,6 +62,7 @@ class Display {
         void Resize(int x, int y);
         void ToggleFullscreen();
         void ToggleVsync();
+        void RaiseWindow();
         void RenderFrame(unsigned char **frame);
 };
 

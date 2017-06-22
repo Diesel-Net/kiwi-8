@@ -174,6 +174,7 @@ int Chip8::Load(const char *rom_name){
 
         /* flip GUI toggle */
         display.gui.load_rom_flag = 0;
+        display.lost_window_focus = 1;
     }
 
     return 0;

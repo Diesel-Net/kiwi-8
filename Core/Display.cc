@@ -11,6 +11,7 @@ Display::Display(){
     fullscreen_flag = 0;
     vsync_flag = 0;
     limit_fps_flag = 1;
+    lost_window_focus = 0;
 
     /* set rendering colors */
     background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
@@ -148,6 +149,11 @@ void Display::ToggleVsync() {
         SDL_GL_SetSwapInterval(1);
         vsync_flag = 1;
     }
+}
+
+void Display::RaiseWindow() {
+    SDL_RaiseWindow(window);
+    lost_window_focus = 0;
 }
 
 void Display::RenderFrame(unsigned char **frame){

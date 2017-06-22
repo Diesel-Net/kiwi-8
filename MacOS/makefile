@@ -52,7 +52,6 @@ test_release:
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
 	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
-	-M
 	
 
 # Removes latest build and object files
