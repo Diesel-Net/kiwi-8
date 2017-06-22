@@ -1,6 +1,8 @@
 # Kiwi8
 **v1.03**
 
+![boot](/images/screenshots/boot.png)
+
 A cross-platform Chip-8 interpreter written 
 in C++ using SDL2, ImGui, and OpenGL.
 
@@ -8,7 +10,7 @@ in C++ using SDL2, ImGui, and OpenGL.
 
 **[Download](https://github.com/tomdaley92/Kiwi8/releases)**
 
-![boot](/images/screenshots/boot.png)
+
 
 ## Building on Windows
 Microsoft's Visual C++ Build Tools 
