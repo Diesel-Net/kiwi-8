@@ -21,7 +21,7 @@ audio generation, and code profiling and more.
 
 ## Features
  - MacOS and Windows
- - Fully featured GUI
+ - Graphical user interface
  - Audio
  - Color customizer
  - CPU frequency selection
