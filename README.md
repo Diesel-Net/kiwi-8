@@ -4,20 +4,13 @@
 A cross-platform Chip-8 interpreter written 
 in C++ using SDL2, ImGui, and OpenGL.
 
-I have included pre-built binaries for both Windows
-and MacOS (.exe file and .app bundle respectively)
-
-The interpreter passes "SC Test.ch8" up to 
-error 23, which is the first SCHIP opcode 
-encountered.
-
-![logo](/images/screenshots/boot.png)
-
 **[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
 
 **[Download](https://github.com/tomdaley92/Kiwi8/releases)**
 
-## Building on Windows:
+![boot](/images/screenshots/boot.png)
+
+## Building on Windows
 Microsoft's Visual C++ Build Tools 
 (vcvarsall/cl/nmake) are assumed to be 
 installed and added to PATH.
@@ -27,7 +20,7 @@ installed and added to PATH.
    windows development environment.
 3) Type `nmake`.
 
-## Building on MacOS:
+## Building on MacOS
 Apple's Xcode command line tools 
 (clang++/make) are assumed to be 
 installed and added to PATH.
