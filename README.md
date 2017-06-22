@@ -6,17 +6,18 @@
 A cross-platform Chip-8 interpreter written 
 in C++ using SDL2, ImGui, and OpenGL. 
 
-Features:
+**[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
+
+**[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
+
+**Features**:
+ - MacOS and Windows
  - Fully featured GUI
  - Audio
  - Custom color pallete
  - CPU frequency selection
  - Command line support
- - No SCHIP support yet
-
-**[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
-
-**[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
+ - No SCHIP support
 
 ## Building on Windows
 Microsoft's Visual C++ Build Tools 
