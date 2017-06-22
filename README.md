@@ -8,7 +8,7 @@ in C++ using SDL2, ImGui, and OpenGL.
 
 **[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
 
-**[Download](https://github.com/tomdaley92/Kiwi8/releases)**
+**[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
 
 
 
@@ -35,6 +35,7 @@ installed and added to PATH.
 * [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
 * [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
 * [SDL Wiki](https://wiki.libsdl.org/)
+* [ImGui](https://github.com/ocornut/imgui)
 * [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
 
 ## Usage
