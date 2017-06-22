@@ -40,8 +40,9 @@ installed and added to PATH.
 
 ## Building on MacOS
 Apple's Xcode command line tools 
-(clang++/make) are assumed to be 
-installed and added to PATH.
+(clang++/make/install_name_tool) 
+are assumed to be installed and 
+added to PATH.
 1) Open the terminal and navigate 
    to the Kiwi8/MacOS directory.
 2) Type `make`.
