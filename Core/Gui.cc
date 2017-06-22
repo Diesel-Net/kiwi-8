@@ -102,7 +102,7 @@ void Gui::MainMenu() {
                 ImGui::MenuItem("Mute Audio", NULL, mute);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
-                /* Toggle Vsync (disabled for now because it doesn't really 
+                /* toggle Vsync is disabled for now because it doesn't really 
                    make sense with the current design. It ends up slowing down 
                    emulation to whatever cpu speed puts out 60 frames a second 
                    which more often than not ends up being unbearably slow. A 

@@ -54,74 +54,37 @@ int Input::Poll() {
 int Input::ProcessEvents() {
     int response = CONTINUE;
 
-    /* quit event */
-    if (event.type == SDL_QUIT){
-        /* close when the user clicks "X" */
-        response = USER_QUIT;
-    }
+    /* cose when the user clicks 'X' */
+    if (event.type == SDL_QUIT) response = USER_QUIT;
 
     /* keystroke events */
     if (event.type == SDL_KEYDOWN) {
-        if (state[SDL_SCANCODE_ESCAPE]){
-            /* close if escape is held down */
-            response = USER_QUIT;
-        }
-
-        if (state[SDL_SCANCODE_F5]) {
-            /* soft reset if F5 is held down */
-            response = SOFT_RESET;
-        }
-        if (state[SDL_SCANCODE_RETURN]) {
-            /* switch from windowed to fullscreen or vice-versa */
-            display->ToggleFullscreen();
-        }
-        if (state[SDL_SCANCODE_LALT]) {
-            /* hide/show menu */
-            display->gui.show_menu_flag = !display->gui.show_menu_flag;
-        }
-        if (state[SDL_SCANCODE_RALT]) {
-            /* hide/show FPS */
-            display->gui.show_fps_flag = !display->gui.show_fps_flag;
-        }
-        if (state[SDL_SCANCODE_P]) {
-            *paused = !*paused;
-        }
-        if (state[SDL_SCANCODE_PAGEDOWN]) {
-        	/* slow emulation speed */
-        	if (*cycles -1 < MIN_CYCLES_PER_STEP ) {
-        		*cycles = MIN_CYCLES_PER_STEP;
-        	} else {
-        		*cycles -= 1;
-        	}
-        }
-        if (state[SDL_SCANCODE_PAGEUP]) {
-        	/* raise emulation speed */
-        	if (*cycles +1 > MAX_CYCLES_PER_STEP ) {
-        		*cycles = MAX_CYCLES_PER_STEP;
-        	} else {
-        		*cycles += 1;
-        	}
-        }
+        if (state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
+        if (state[SDL_SCANCODE_F5]) response = SOFT_RESET;
+        if (state[SDL_SCANCODE_RETURN]) display->ToggleFullscreen();
+        if (state[SDL_SCANCODE_P]) *paused = !*paused;
+        if (state[SDL_SCANCODE_LALT]) display->gui.show_menu_flag = !display->gui.show_menu_flag;
+        if (state[SDL_SCANCODE_RALT]) display->gui.show_fps_flag = !display->gui.show_fps_flag;
+        
+        /* slow/raise emulation speed */
+        if (state[SDL_SCANCODE_PAGEDOWN]) (*cycles -1 < MIN_CYCLES_PER_STEP ) ? *cycles = MIN_CYCLES_PER_STEP : *cycles -= 1;
+        if (state[SDL_SCANCODE_PAGEUP]) (*cycles +1 > MAX_CYCLES_PER_STEP ) ? *cycles = MAX_CYCLES_PER_STEP : *cycles += 1;	
     }
 
     /* window events */
     if (event.window.type == SDL_WINDOWEVENT){
-        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
-            /* update the current rendering screen space */
-            display->Resize(event.window.data1, event.window.data2);
-        } 
+        /* update the current rendering screen space */
+        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) display->Resize(event.window.data1, event.window.data2);
+        
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
             /* TODO: resume the emulator, if paused_on_focus_loss */
-
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
             /* TODO: add a toggle for "pause on focus loss" */
+        }
 
-        }
-        if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-            /* the window manager requests that the window be closed */
-            response = USER_QUIT;
-        }
+        /* the window manager requests that the window be closed */
+        if (event.window.event == SDL_WINDOWEVENT_CLOSE) response = USER_QUIT;
     }
 
     return response;
@@ -151,7 +114,6 @@ void Input::ProcessKeys() {
         for (int i = 0; i < NUM_KEYS; i++) {
             if (keys[i]) {
                 awaiting_key_press = 0;
-                break;
             }
         }     
     }
