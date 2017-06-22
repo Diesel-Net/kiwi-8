@@ -30,6 +30,13 @@ installed and added to PATH.
    to the Kiwi8/MacOS directory.
 2) Type `make`.
 
+## Resources
+* [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
+* [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
+* [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
+* [SDL Wiki](https://wiki.libsdl.org/)
+* [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
+
 ## Usage
     Kiwi8 [filename] [-FMLSV]
     -F      Launch in fullscreen
@@ -39,10 +46,3 @@ installed and added to PATH.
     -V      Disable vertical wrapping
 
 _Enjoy!_
-
-## Resources
-* [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
-* [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
-* [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
-* [SDL Wiki](https://wiki.libsdl.org/)
-* [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
