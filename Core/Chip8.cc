@@ -307,7 +307,7 @@ void Chip8::ExecuteOpcode(){
             switch (OP_NNN) { 
                 case 0x0E0: exec00E0(); break;
                 case 0x0EE: exec00EE(); break;
-                default:     exec0NNN(); break;
+                default: exec0NNN(); break;
             } break;
         case 0x1: exec1NNN(); break;
         case 0x2: exec2NNN(); break;
@@ -339,7 +339,6 @@ void Chip8::ExecuteOpcode(){
                 case 0x9E: execEX9E(); break;
                 case 0xA1: execEXA1(); break;
                 default: execUnknown(); break;
-                    
             } break;
         case 0xF:
             switch (OP_NN) {
