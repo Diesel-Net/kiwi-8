@@ -4,8 +4,6 @@
 A cross-platform Chip-8 interpreter written 
 in C++ using SDL2, ImGui, and OpenGL.
 
-
-
 I have included pre-built binaries for both Windows
 and MacOS (.exe file and .app bundle respectively)
 
@@ -13,15 +11,11 @@ The interpreter passes "SC Test.ch8" up to
 error 23, which is the first SCHIP opcode 
 encountered.
 
-**[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
-**[Download](https://github.com/tomdaley92/Kiwi8/releases)**
+![logo](/images/screenshots/boot.png)
 
-## Resources
-* [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
-* [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
-* [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
-* [SDL Wiki](https://wiki.libsdl.org/)
-* [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
+**[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
+
+**[Download](https://github.com/tomdaley92/Kiwi8/releases)**
 
 ## Building on Windows:
 Microsoft's Visual C++ Build Tools 
@@ -51,3 +45,9 @@ installed and added to PATH.
 
 _Enjoy!_
 
+## Resources
+* [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
+* [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
+* [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
+* [SDL Wiki](https://wiki.libsdl.org/)
+* [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
