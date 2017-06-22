@@ -23,7 +23,7 @@ audio generation, and code profiling and more.
  - MacOS and Windows
  - Fully featured GUI
  - Audio
- - Custom color pallete
+ - Color customizer
  - CPU frequency selection
  - Command line support
  - No SCHIP support
@@ -48,12 +48,12 @@ added to PATH.
 2) Type `make`.
 
 ## Resources
-* [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
-* [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
-* [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
-* [SDL Wiki](https://wiki.libsdl.org/)
-* [ImGui](https://github.com/ocornut/imgui)
-* [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
+- [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
+- [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
+- [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
+- [SDL Wiki](https://wiki.libsdl.org/)
+- [ImGui](https://github.com/ocornut/imgui)
+- [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
 
 ## Usage
     Kiwi8 [filename] [-FMLSV]
