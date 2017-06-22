@@ -262,8 +262,8 @@ inline void Chip8::execFX1E() {
 }
 
 inline void Chip8::execFX29() {
-/* FX29: sets I to the location of the sprite for the character in VX. 
-   Characters 0-F (in hexadecimal) are represented by a 4x5 font. */
+    /* FX29: sets I to the location of the sprite for the character in VX. 
+       Characters 0-F (in hexadecimal) are represented by a 4x5 font. */
     I = V[OP_X] * 0x05;
     PC += 2;
 }
