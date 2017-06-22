@@ -7,14 +7,14 @@
 
 #define MENU_HEIGHT 38
 
-/* Forward declaration */
+/* forward declaration */
 class Display;
 
 class Gui {
 
     private:
 
-        /* Pointers to chip-8 data */
+        /* pointers to chip-8 data */
         Display *display;
 
         int *cycles;
@@ -24,7 +24,7 @@ class Gui {
         bool *vwrap;
         bool *mute;
 
-        /* Help-window toggles */
+        /* help-window toggles */
         bool show_controls;
         bool show_license;
         bool show_about;

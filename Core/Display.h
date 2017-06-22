@@ -22,10 +22,10 @@ class Display {
 
         SDL_GLContext glcontext;
 
-        /* Texture of 32x64x3 bytes (R, G, B) */
+        /* texture of 32x64x3 bytes (R, G, B) */
         unsigned char texture[HEIGHT][WIDTH][3];
 
-        /* Most recent copy of the chip8 vram */
+        /* most recent copy of the chip8 vram */
         unsigned char **back_buffer;
         
         int WINDOW_WIDTH;

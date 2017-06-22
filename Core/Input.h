@@ -5,19 +5,19 @@
 
 #define NUM_KEYS 16
 
-/* There is a 4 ( and no 3), so each value 
-can have its own bit slot */
+/* there is a 4 ( and no 3), so each value 
+can represent a unique bit position */
 #define CONTINUE 0
 #define USER_QUIT 1
 #define SOFT_RESET 2
 #define LOAD_ROM 4 
 
-/* Forward declaration */
+/* forward declaration */
 class Display;
 
 class Input {
     private:
-        /* For processing window/keyboard events */
+        /* for processing window/keyboard events */
         SDL_Event event;
         const unsigned char *state;
 
@@ -34,10 +34,10 @@ class Input {
         Input();
         ~Input();
 
-        /* Chip-8 HEX based keypad (0x0-0xF) */
+        /* chip-8 HEX based keypad (0x0-0xF) */
         unsigned char keys[NUM_KEYS];
 
-        /* For opcode 0xFX0A */
+        /* for opcode 0xFX0A */
         bool awaiting_key_press;
 
         void Initialize(Display *display, 

@@ -7,7 +7,7 @@ Audio::Audio() {
 }
 
 Audio::~Audio() {
-    /* Pause the audio */
+    /* pause & close the audio */
     SDL_PauseAudioDevice(device, 1);
     if (device) SDL_CloseAudioDevice(device); 
     free(audio_buffer);
@@ -21,7 +21,7 @@ int Audio::Initialize() {
     audiospec.callback = NULL;
     audiospec.userdata = NULL;
 
-    /* Open default audio device (Allow audio changes?) */
+    /* open default audio device (allow audio changes) */
     device = SDL_OpenAudioDevice(NULL, 0, &audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
     if (!device) {
@@ -29,13 +29,14 @@ int Audio::Initialize() {
         return 1;
     }
 
-    audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30); /* ~.5 seconds worth of audio */
+    /* ~.5 seconds worth of audio (probably overkill) */
+    audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30); 
     if (!audio_buffer) {
         fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
         return 1;
     } 
 
-    /* Start playing Audio */
+    /* start playing audio */
     SDL_PauseAudioDevice(device, 0);
 
     return 0;
@@ -43,8 +44,8 @@ int Audio::Initialize() {
 
 void Audio::SineWave(int length) {
     for (int i = 0; i < length; i++) {
-        /* This sine wave varies from 120 - 134 */
-        audio_buffer[i] = (unsigned char) ((7 * sin(wave_position)) + 127);
+        /* sine wave varies from 120 - 134 */
+        audio_buffer[i] = (unsigned char) ((AMPLITUDE * sin(wave_position)) + BIAS);
         wave_position += wave_increment;
     }
 }

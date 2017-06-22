@@ -5,6 +5,8 @@
 
 #define FREQUENCY 48000
 #define TONE 440
+#define AMPLITUDE 7
+#define BIAS 127
 #define SAMPLES_PER_FRAME ((FREQUENCY / 60) * 3)
 
 class Audio {

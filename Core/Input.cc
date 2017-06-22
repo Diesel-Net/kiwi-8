@@ -5,11 +5,11 @@
 #include <String.h>
 
 Input::Input() {
-    /* Empty */
+    /* empty */
 }
 
 Input::~Input() {
-    /* Empty */
+    /* empty */
 }
 
 void Input::Initialize(Display *display, 
@@ -31,21 +31,21 @@ void Input::Reset() {
 int Input::Poll() {
     int response = CONTINUE;
     
-    /* Purge any queued events */
+    /* purge any queued events */
     while (SDL_PollEvent(&event)) {
 
         state = SDL_GetKeyboardState(NULL);
 
-        /* Check Gui */
+        /* check GUI */
         display->gui.ProcessEvents(&event);
         if (display->gui.quit_flag) response |= USER_QUIT;
         if (display->gui.soft_reset_flag) response |= SOFT_RESET;
         if (display->gui.load_rom_flag) response |= LOAD_ROM;
 
-        /* Check SDL Events (Window & Hotkeys) */
+        /* check SDL events (window & hotkeys) */
         response |= ProcessEvents();
 
-        /* Check chip-8 input */
+        /* check chip-8 input */
         ProcessKeys(); 
     } 
     return response;
@@ -54,40 +54,40 @@ int Input::Poll() {
 int Input::ProcessEvents() {
     int response = CONTINUE;
 
-    /* Quit event */
+    /* quit event */
     if (event.type == SDL_QUIT){
-        /* Close when the user clicks "X" */
+        /* close when the user clicks "X" */
         response = USER_QUIT;
     }
 
-    /* Keystroke events */
+    /* keystroke events */
     if (event.type == SDL_KEYDOWN) {
         if (state[SDL_SCANCODE_ESCAPE]){
-            /* Close if escape is held down */
+            /* close if escape is held down */
             response = USER_QUIT;
         }
 
         if (state[SDL_SCANCODE_F5]) {
-            /* Soft reset if F5 is held down */
+            /* soft reset if F5 is held down */
             response = SOFT_RESET;
         }
         if (state[SDL_SCANCODE_RETURN]) {
-            /* Switch from windowed to fullscreen or vice-versa */
+            /* switch from windowed to fullscreen or vice-versa */
             display->ToggleFullscreen();
         }
         if (state[SDL_SCANCODE_LALT]) {
-            /* Hide/Show menu */
+            /* hide/show menu */
             display->gui.show_menu_flag = !display->gui.show_menu_flag;
         }
         if (state[SDL_SCANCODE_RALT]) {
-            /* Hide/Show FPS */
+            /* hide/show FPS */
             display->gui.show_fps_flag = !display->gui.show_fps_flag;
         }
         if (state[SDL_SCANCODE_P]) {
             *paused = !*paused;
         }
         if (state[SDL_SCANCODE_PAGEDOWN]) {
-        	/* Slow emulation speed */
+        	/* slow emulation speed */
         	if (*cycles -1 < MIN_CYCLES_PER_STEP ) {
         		*cycles = MIN_CYCLES_PER_STEP;
         	} else {
@@ -95,7 +95,7 @@ int Input::ProcessEvents() {
         	}
         }
         if (state[SDL_SCANCODE_PAGEUP]) {
-        	/* Raise emulation speed */
+        	/* raise emulation speed */
         	if (*cycles +1 > MAX_CYCLES_PER_STEP ) {
         		*cycles = MAX_CYCLES_PER_STEP;
         	} else {
@@ -104,22 +104,22 @@ int Input::ProcessEvents() {
         }
     }
 
-    /* Window events */
+    /* window events */
     if (event.window.type == SDL_WINDOWEVENT){
         if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
-            /* Update the current rendering screen space */
+            /* update the current rendering screen space */
             display->Resize(event.window.data1, event.window.data2);
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-            /* TODO: Resume the emulator, if paused */
+            /* TODO: resume the emulator, if paused_on_focus_loss */
 
         } 
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
-            /* TODO: Add a toggle for "pause on focus loss" */
+            /* TODO: add a toggle for "pause on focus loss" */
 
         }
         if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-            /* The window manager requests that the window be closed */
+            /* the window manager requests that the window be closed */
             response = USER_QUIT;
         }
     }
@@ -128,7 +128,7 @@ int Input::ProcessEvents() {
 }
 
 void Input::ProcessKeys() {
-    /* Map the state of the keys */
+    /* map the state of the keys */
     keys[0x1] = state[SDL_SCANCODE_1];
     keys[0x2] = state[SDL_SCANCODE_2];
     keys[0x3] = state[SDL_SCANCODE_3];
@@ -146,7 +146,7 @@ void Input::ProcessKeys() {
     keys[0xB] = state[SDL_SCANCODE_C];
     keys[0xF] = state[SDL_SCANCODE_V];
 
-    /* Check if cpu is awaiting a keypress for opcode FX0A */
+    /* check if cpu is awaiting a keypress for opcode FX0A */
     if (cpu_halt && awaiting_key_press) {
         for (int i = 0; i < NUM_KEYS; i++) {
             if (keys[i]) {

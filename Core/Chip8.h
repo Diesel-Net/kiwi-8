@@ -17,12 +17,11 @@
 #define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
 
-
 class Chip8 {
 
     private:
 
-        /* Number of cycles per step */
+        /* number of cycles per step */
         int cycles;
 
         /* whether or not cpu is currently halted by opcode FX0A */
@@ -48,10 +47,10 @@ class Chip8 {
         bool load_store_quirk;
         bool shift_quirk;
 
-        /* Vertical wrapping toggle */
+        /* vertical wrapping toggle */
         bool vwrap;
 
-        /* Two bytes for each instruction */
+        /* two bytes for each instruction */
         unsigned short opcode;
 
         /* 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
@@ -59,14 +58,14 @@ class Chip8 {
            0x200-0xFFF - Program ROM and work RAM */
         unsigned char memory[MEM_SIZE];
 
-        /* A copy of the rom for soft resetting */
+        /* copy of the rom for soft resetting */
         unsigned char *rom;
         unsigned int rom_size;
 
         /* 15 general prupose regsiters, and a carry flag register */
         unsigned char V[NUM_REGISTERS]; 
 
-        /* Index register and program counter */
+        /* index register and program counter */
         unsigned short I;
         unsigned short PC;
 
@@ -81,10 +80,10 @@ class Chip8 {
         Display display;
         Audio audio;
 
-        /* Mute audio toggle */
+        /* mute audio toggle */
         bool muted;
 
-        /* If this flag is enabled, draw a frame at the end of the cycle */
+        /* if this flag is enabled, draw a frame at the end of the cycle */
         int draw_flag;
 
         /* 1-bit encoded screen pixels (32x64) */
@@ -116,8 +115,46 @@ class Chip8 {
         void FetchOpcode();
         void ExecuteOpcode();
 
+        /* definitions in opcodes.cc */
+        inline void exec00E0();
+        inline void exec00EE();
+        inline void exec0NNN();
+        inline void exec1NNN();
+        inline void exec2NNN();
+        inline void exec3XNN();
+        inline void exec4XNN();
+        inline void exec5XY0();
+        inline void exec6XNN();
+        inline void exec7XNN();
+        inline void exec8XY0();
+        inline void exec8XY1();
+        inline void exec8XY2();
+        inline void exec8XY3();
+        inline void exec8XY4();
+        inline void exec8XY5();
+        inline void exec8XY6();
+        inline void exec8XY7();
+        inline void exec8XYE();
+        inline void exec9XY0();
+        inline void execANNN();
+        inline void execBNNN();
+        inline void execCXNN();
+        inline void execDXYN();
+        inline void execEX9E();
+        inline void execEXA1();
+        inline void execFX07();
+        inline void execFX0A();
+        inline void execFX15();
+        inline void execFX18();
+        inline void execFX1E();
+        inline void execFX29();
+        inline void execFX33();
+        inline void execFX55();
+        inline void execFX65();
+        inline void execUnknown();
+
     public:
-        /* Constructor */
+
         Chip8();
         ~Chip8();
 

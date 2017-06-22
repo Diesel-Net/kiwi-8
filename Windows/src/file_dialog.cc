@@ -5,7 +5,7 @@
 #include <string.h>
 
 int openFileDialog(char *rom_name, char *filters) {
-    /* Open file dialogue */
+    /* open file dialogue */
     char cwd[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, cwd);
 
@@ -27,11 +27,11 @@ int openFileDialog(char *rom_name, char *filters) {
     ofn.lpstrInitialDir=NULL ;
     ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 
-    /* Change current working directory back to location of executable */
+    /* change current working directory back to location of executable */
     SetCurrentDirectory(cwd);
 
     if (!GetOpenFileName( &ofn)) {
-        /* User hit cancel */
+        /* user hit cancel */
         return 1;
     }
     

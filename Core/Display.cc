@@ -12,7 +12,7 @@ Display::Display(){
     vsync_flag = 0;
     limit_fps_flag = 1;
 
-    /* Set rendering colors */
+    /* set rendering colors */
     background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
     background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
     background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
@@ -23,7 +23,7 @@ Display::Display(){
 }
 
 Display::~Display(){
-    /* Clean-up */
+    /* clean-up */
     if (back_buffer) {
         for (int i = 0; i < WIDTH; i++) {
             free(back_buffer[i]);
@@ -46,7 +46,7 @@ int Display::Initialize( bool fullscreen,
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
-    /* Init the backbuffer */
+    /* init the backbuffer */
     back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     const char *err_str = "Unable to allocate memory on the heap.\n";
 
@@ -65,7 +65,7 @@ int Display::Initialize( bool fullscreen,
         memset(back_buffer[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    /* Setup window with opengl context */
+    /* setup window with openGL context */
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -86,21 +86,21 @@ int Display::Initialize( bool fullscreen,
 
     glcontext = SDL_GL_CreateContext(window);
 
-    /* Disable V-Sync */
+    /* disable V-Sync */
     SDL_GL_SetSwapInterval(0);
 
-    /* Specify the texture */
+    /* specify the texture */
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0,
                  GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)texture);
 
-    /* Configure the texture */
+    /* configure the texture */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    /* Enable textures */
+    /* enable textures */
     glEnable(GL_TEXTURE_2D);
 
-    /* Setup ImGui binding */
+    /* setup ImGui binding */
     gui.Initialize(this, 
                    steps,
                    paused, 
@@ -109,29 +109,31 @@ int Display::Initialize( bool fullscreen,
                    vwrap, 
                    muted );
 
-    /* Set to fullscreen mode if flag present */
+    /* set to fullscreen mode if flag present */
     if (fullscreen) ToggleFullscreen();
 
     return 0;
 }
 
 void Display::Resize(int x, int y) {
-    /* Get the current window size */
+    /* get the current window size */
     WINDOW_WIDTH = x;
     WINDOW_HEIGHT = y;
 }
 
 void Display::ToggleFullscreen() {
-    /* Check if already fullscreen */
+    /* check if already fullscreen */
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
-        /* Set Windowed */
+        /* set windowed */
         SDL_SetWindowFullscreen(window, 0);
         SDL_ShowCursor(SDL_ENABLE);
         fullscreen_flag = 0;
 
     } else {
-        /* Set Fullscreen */
+        /* set fullscreen */
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        /* currently, a new ImGui Frame will draw the mouse cursor 
+           regardless of SDL2's cursor visibility function */
         SDL_ShowCursor(SDL_DISABLE);
         fullscreen_flag = 1;
         
@@ -149,8 +151,6 @@ void Display::ToggleVsync() {
 }
 
 void Display::RenderFrame(unsigned char **frame){
-    /* Currently, a new ImGui Frame will draw the mouse cursor 
-       regardless of SDL2's cursor visibility function */
     gui.NewFrame();
 
     /* copy the frame to back_buffer */
@@ -160,7 +160,7 @@ void Display::RenderFrame(unsigned char **frame){
         }
     }
 
-    /* Set Viewport & Clear the screen (sets the background color) */
+    /* set Viewport & Clear the screen (sets the background color) */
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -183,15 +183,15 @@ void Display::RenderFrame(unsigned char **frame){
         }
     }
     
-    /* Send texture to GPU */
+    /* send texture to GPU */
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT,
                     GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)texture);
 
-    /* Create room at the top for menu bar */
+    /* create room at the top for menu bar */
     float top_edge = gui.show_menu_flag ? 
         (float)(WINDOW_HEIGHT - MENU_HEIGHT) / WINDOW_HEIGHT : (float) 1.0;
 
-    /* Render the texture */
+    /* render the texture */
     glBegin(GL_QUADS);
 
         /* bottom left */

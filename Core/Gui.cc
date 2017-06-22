@@ -29,7 +29,7 @@ void Gui::Initialize(Display *display,
 
     this->display = display;
 
-    /* Connect pointers to chip8 toggles */
+    /* connect pointers to chip8 toggles */
     this->cycles = cycles;
     this->paused = paused;
     this->load_store_quirk = load_store_quirk;
@@ -39,7 +39,7 @@ void Gui::Initialize(Display *display,
 
     ImGui_ImplSdl_Init(display->window);
 
-    /* Disable imgui.ini file saving */
+    /* disable imgui.ini file saving */
     ImGui::GetIO().IniFilename = NULL;
 }
 
@@ -68,7 +68,7 @@ void Gui::MainMenu() {
                 ImGui::MenuItem("Show Menu", "L-Alt", &show_menu_flag);
                 ImGui::MenuItem("Show FPS", "R-Alt", &show_fps_flag);
 
-                /* Fullscreen Toggle */
+                /* fullscreen toggle */
                 before = display->fullscreen_flag;
                 ImGui::MenuItem("Fullscreen", "Enter", &(display->fullscreen_flag));
                 if (before != display->fullscreen_flag) display->ToggleFullscreen();
@@ -80,7 +80,7 @@ void Gui::MainMenu() {
                 ImGui::MenuItem("Reset", "F5", &soft_reset_flag);
                 ImGui::MenuItem("Pause", "P", paused);
                 
-                /* CPU Frequency */
+                /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
                     ImGui::MenuItem("", "PageDown/PageUp", !!0);
                     int cpu_frequency = *cycles * TICKS;
@@ -109,11 +109,12 @@ void Gui::MainMenu() {
                    workaround I've found is to have both 60_fps_limit toggled on 
                    and vsync toggled on at the same time, but of course this 
                    will only work properly on 60hz monitors */
-                //before = display->vsync_flag;
-                //ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
-                //if (before != display->vsync_flag) display->ToggleVsync();
 
-                /* Color Chooser */
+                /* before = display->vsync_flag;
+                ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
+                if (before != display->vsync_flag) display->ToggleVsync(); */
+
+                /* color chooser */
                 if (ImGui::BeginMenu("Colors")) {
                     ImGui::ColorEdit3("Background", display->background_color);
                     ImGui::ColorEdit3("Foreground", display->foreground_color);
@@ -199,7 +200,7 @@ void Gui::HelpWindows() {
         ImGui::TextWrapped( APPNAME_VERSION "\n"
                             "\n"
                             "A cross-platform Chip-8 interpreter written\n"
-                            "in C++ with SDL2 and ImGui.\n"
+                            "in C++ using SDL2, ImGui, and OpenGL.\n"
                             "\n"
                             "<https://github.com/tomdaley92/Kiwi8>\n");
         ImGui::End();

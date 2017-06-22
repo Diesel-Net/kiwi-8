@@ -1,7 +1,7 @@
 Kiwi8 v1.03
 
 A cross-platform Chip-8 interpreter written 
-in C++ with SDL2 and ImGui.
+in C++ using SDL2, ImGui, and OpenGL.
 
 For more information about the Chip-8 visit:
 https://en.wikipedia.org/wiki/CHIP-8
@@ -11,8 +11,6 @@ and MacOS (.exe file and .app bundle respectively)
 
 You can download them here:
 https://github.com/tomdaley92/Kiwi8/releases
- 
-No audio is implemented. A work in progress.
 
 The interpreter passes "SC Test.ch8" up to 
 error 23, which is the first SCHIP opcode 
