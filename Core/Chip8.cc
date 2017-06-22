@@ -46,9 +46,9 @@ int Chip8::Initialize(bool fullscreen,
         return 1;
     }
 
-    this-> load_store_quirk = load_store_quirk;
-    this-> shift_quirk = shift_quirk;
-    this-> vwrap = vwrap;
+    this->load_store_quirk = load_store_quirk;
+    this->shift_quirk = shift_quirk;
+    this->vwrap = vwrap;
     this->muted = muted;
 
     /* init vram */
@@ -79,7 +79,11 @@ int Chip8::Initialize(bool fullscreen,
                            &this->muted )) {
         return 1;
     }
-    input.Initialize(&display, &cycles, &cpu_halt, &paused);
+    input.Initialize( &this->display, 
+                      &this->cycles, 
+                      &this->cpu_halt, 
+                      &this->paused, 
+                      &this->muted);
     
 
     /* init registers and memory once */

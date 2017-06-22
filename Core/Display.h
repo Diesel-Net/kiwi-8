@@ -8,6 +8,7 @@
 #define HEIGHT 32
 #define SCALE 12 /* 64x32 Scaled by X amount */
 
+/* default render colors */
 #define DEFAULT_BACKGROUND_R 25
 #define DEFAULT_BACKGROUND_G 20
 #define DEFAULT_BACKGROUND_B 40

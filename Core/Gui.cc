@@ -99,7 +99,7 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Settings")) {
-                ImGui::MenuItem("Mute Audio", NULL, mute);
+                ImGui::MenuItem("Mute Audio", "M", mute);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
                 /* toggle Vsync is disabled for now because it doesn't really 
@@ -153,7 +153,7 @@ void Gui::HelpWindows() {
         ImGui::End();
     }
     if (show_controls) {
-        ImGui::SetNextWindowSize(ImVec2(345, 220), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(345, 245), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Controls", &show_controls);
         ImGui::TextWrapped( "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
@@ -169,7 +169,9 @@ void Gui::HelpWindows() {
                             "toggle fullscreen           enter\n"
                             "toggle menu                 left alt\n"
                             "show fps                    right alt\n"
-                            "soft reset                  f5");
+                            "soft reset                  f5\n"
+                            "pause                       p\n"
+                            "mute                        m");
         ImGui::End();
     }
     if (show_license) {

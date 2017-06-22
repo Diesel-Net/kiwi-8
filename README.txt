@@ -33,6 +33,8 @@ toggle fullscreen           enter
 toggle menu                 left alt
 show fps                    right alt
 soft reset                  f5
+pause                       p
+mute                        m
 
 
 How to compile:

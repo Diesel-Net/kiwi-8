@@ -1,8 +1,6 @@
 #include "Chip8.h"
 #include "Input.h"
 #include "Display.h"
-#include <stdio.h>
-#include <String.h>
 
 Input::Input() {
     /* empty */
@@ -15,11 +13,13 @@ Input::~Input() {
 void Input::Initialize(Display *display, 
                        int *cycles, 
                        bool *cpu_halt, 
-                       bool *paused) {
+                       bool *paused,
+                       bool *muted) {
     this->cycles = cycles;
     this->display = display;
     this->cpu_halt = cpu_halt;
     this->paused = paused;
+    this->muted = muted;
     Reset();
 }
 
@@ -62,7 +62,8 @@ int Input::ProcessEvents() {
         if (state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
         if (state[SDL_SCANCODE_F5]) response = SOFT_RESET;
         if (state[SDL_SCANCODE_RETURN]) display->ToggleFullscreen();
-        if (state[SDL_SCANCODE_P]) *paused = !*paused;
+        if (state[SDL_SCANCODE_P]) *paused = !(*paused);
+        if (state[SDL_SCANCODE_M]) *muted = !(*muted);
         if (state[SDL_SCANCODE_LALT]) display->gui.show_menu_flag = !display->gui.show_menu_flag;
         if (state[SDL_SCANCODE_RALT]) display->gui.show_fps_flag = !display->gui.show_fps_flag;
         

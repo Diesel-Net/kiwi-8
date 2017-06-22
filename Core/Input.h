@@ -26,6 +26,7 @@ class Input {
         int *cycles;
         bool *cpu_halt;
         bool *paused;
+        bool *muted;
 
         int ProcessEvents();
         void ProcessKeys();
@@ -43,7 +44,8 @@ class Input {
         void Initialize(Display *display, 
                         int *cycles, 
                         bool *cpu_halt, 
-                        bool *paused);
+                        bool *paused,
+                        bool *muted);
         void Reset();
         int Poll();
         
