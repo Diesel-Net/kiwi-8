@@ -19,6 +19,14 @@ in C++ using SDL2, ImGui, and OpenGL.
  - Command line support
  - No SCHIP support
 
+## Usage
+    Kiwi8 [filename] [-FMLSV]
+    -F      Launch in fullscreen
+    -M      Launch with audio muted
+    -L      Disable load/store quirk
+    -S      Disable shift quirk
+    -V      Disable vertical wrapping
+
 ## Building on Windows
 Microsoft's Visual C++ Build Tools 
 (vcvarsall/cl/nmake) are assumed to be 
@@ -45,14 +53,6 @@ added to PATH.
 - [SDL Wiki](https://wiki.libsdl.org/)
 - [ImGui](https://github.com/ocornut/imgui)
 - [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
-
-## Usage
-    Kiwi8 [filename] [-FMLSV]
-    -F      Launch in fullscreen
-    -M      Launch with audio muted
-    -L      Disable load/store quirk
-    -S      Disable shift quirk
-    -V      Disable vertical wrapping
 
 ---
 
