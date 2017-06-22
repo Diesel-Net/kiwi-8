@@ -13,7 +13,7 @@ cross-platform development. It has been a great
 educational excercise involving major aspects 
 of modern day programs such as input handling, 
 user-interface design, 2D graphics rendering, 
-audio generation, and code profiling.
+audio generation, and code profiling and more.
 
 **[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
 
@@ -27,23 +27,6 @@ audio generation, and code profiling.
  - CPU frequency selection
  - Command line support
  - No SCHIP support
-
-## Controls
-| Key              | Binding          |
-|:----------------:|:----------------:|
-|1 2 3 C           |1 2 3 4           |
-|4 5 6 D           |q w e r           |
-|7 8 9 E           |a s d f           |
-|A 0 B F           |z x c v           |
-|increase speed    |page up           |
-|decrease speed    |page down         |
-|quit              |esc               |
-|toggle fullscreen |enter             |
-|toggle menu       |left alt          |
-|show fps          |right alt         |
-|soft reset        |f5                |
-|pause             |p                 |
-|mute              |m                 |
 
 ## Building on Windows
 Microsoft's Visual C++ Build Tools 
