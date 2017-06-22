@@ -18,7 +18,7 @@ low-level design.
 
 **[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
 
-**Features**
+## Features
  - MacOS and Windows
  - Fully featured GUI
  - Audio
