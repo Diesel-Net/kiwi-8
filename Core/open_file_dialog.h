@@ -1,7 +1,7 @@
 #ifndef OPEN_FILE_DIALOG_H
 #define OPEN_FILE_DIALOG_H
 
-#ifdef __APPLE__
+#if defined( __APPLE__ ) || defined ( __Linux__ )
 #include <limits.h> /* PATH_MAX */
 #endif
 

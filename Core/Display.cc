@@ -3,6 +3,10 @@
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
 
+#ifdef __Linux__
+#include <GL/gl.h>
+#endif
+
 Display::Display(){
     WINDOW_WIDTH = WIDTH * (int)SCALE;
     WINDOW_HEIGHT = HEIGHT * (int)SCALE;
