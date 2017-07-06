@@ -1,6 +1,8 @@
 # Kiwi8
 **v1.03**
 
+![boot](/images/screenshots/Kiwi8_Linux_x86_64_ericb_2017_07_06.png)
+
 ![boot](/images/screenshots/boot.png)
 
 A cross-platform Chip-8 interpreter written 
