@@ -178,8 +178,8 @@ void Gui::Initialize(Display *display,
     }
 
     style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.0f, 0.0f, 0.0f, 0.9f);
-#endif /* BLUE_STYLE */
 #endif /* BLUE_DARK_STYLE */
+#endif /* BLUE_STYLE */
 #endif /* Linux */
     /* disable imgui.ini file saving */
     ImGui::GetIO().IniFilename = NULL;
