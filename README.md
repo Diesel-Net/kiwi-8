@@ -1,7 +1,8 @@
 # Kiwi8
 **v1.03**
 
-![boot](/images/screenshots/boot.png)
+![Windows_boot](/images/screenshots/Windows_boot.png)
+![MacOS_boot](/images/screenshots/MacOS_boot.png)
 
 A cross-platform Chip-8 interpreter written 
 in C++ using SDL2, ImGui, and OpenGL.
