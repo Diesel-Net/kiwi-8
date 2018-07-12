@@ -44,13 +44,15 @@ class Gui {
         Gui();
         ~Gui();
 
-        void Initialize(Display *display,
-                        int *cycles, 
-                        bool *paused, 
-                        bool *load_store_quirk, 
-                        bool *shift_quirk, 
-                        bool *vwrap,
-                        bool *mute);
+        void Initialize(
+            Display *display,
+            int *cycles, 
+            bool *paused, 
+            bool *load_store_quirk, 
+            bool *shift_quirk, 
+            bool *vwrap,
+            bool *mute
+        );
 
         void ProcessEvents(SDL_Event *event);
         void NewFrame();

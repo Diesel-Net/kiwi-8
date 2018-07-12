@@ -42,7 +42,7 @@ inline void Chip8::exec1NNN() {
 inline void Chip8::exec2NNN() {
     /* 0x2NNN: calls subroutine at NNN */
     stack[sp] = PC;
-    ++sp;
+    sp++;
     PC = OP_NNN;
 }
 

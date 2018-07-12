@@ -41,11 +41,14 @@ class Input {
         /* for opcode 0xFX0A */
         bool awaiting_key_press;
 
-        void Initialize(Display *display, 
-                        int *cycles, 
-                        bool *cpu_halt, 
-                        bool *paused,
-                        bool *muted);
+        void Initialize(
+            Display *display, 
+            int *cycles, 
+            bool *cpu_halt, 
+            bool *paused,
+            bool *muted
+        );
+        
         void Reset();
         int Poll();
         

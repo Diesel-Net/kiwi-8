@@ -32,16 +32,21 @@ Chip8::~Chip8() {
     SDL_Quit();
 }
 
-int Chip8::Initialize(bool fullscreen, 
-                      bool load_store_quirk,
-                      bool shift_quirk,
-                      bool vwrap,
-                      bool muted){
+int Chip8::Initialize(
+    bool fullscreen, 
+    bool load_store_quirk,
+    bool shift_quirk,
+    bool vwrap,
+    bool muted
+) {
 
-    if (SDL_Init(  SDL_INIT_TIMER 
-                 | SDL_INIT_AUDIO 
-                 | SDL_INIT_VIDEO 
-                 | SDL_INIT_EVENTS)) {
+    if (SDL_Init(  
+            SDL_INIT_TIMER |
+            SDL_INIT_AUDIO |
+            SDL_INIT_VIDEO |
+            SDL_INIT_EVENTS
+        )
+    ) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -70,21 +75,25 @@ int Chip8::Initialize(bool fullscreen,
 
     /* init audio, display, input */
     audio.Initialize();
-    if (display.Initialize(fullscreen, 
-                           &this->cycles,
-                           &this->paused, 
-                           &this->load_store_quirk, 
-                           &this->shift_quirk, 
-                           &this->vwrap,
-                           &this->muted )) {
-        return 1;
-    }
-    input.Initialize( &this->display, 
-                      &this->cycles, 
-                      &this->cpu_halt, 
-                      &this->paused, 
-                      &this->muted);
     
+    if (display.Initialize(
+            fullscreen, 
+            &this->cycles,
+            &this->paused, 
+            &this->load_store_quirk, 
+            &this->shift_quirk, 
+            &this->vwrap,
+            &this->muted 
+        )
+    ) return 1;
+
+    input.Initialize( 
+        &this->display, 
+        &this->cycles, 
+        &this->cpu_halt, 
+        &this->paused, 
+        &this->muted
+    );
 
     /* init registers and memory once */
     memset(V, 0 , NUM_REGISTERS);
@@ -125,9 +134,8 @@ int Chip8::LoadBootRom() {
     return 0;
 }
 
-int Chip8::Load(const char *rom_name){
+int Chip8::Load(const char *rom_name) {
     if (rom_name) {
-
         /* open the file */
         FILE *file;
         file = fopen(rom_name, "rb");
@@ -162,10 +170,8 @@ int Chip8::Load(const char *rom_name){
 
         SoftReset();
         fclose(file);
-        
 
     } else {
-
         /* load ROM from GUI */
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name) ?
@@ -239,9 +245,9 @@ void Chip8::Run(){
         event = input.Poll();
 
         /* do something based on response... */
-        if ((event & USER_QUIT) == USER_QUIT) return;
-        if ((event & LOAD_ROM) == LOAD_ROM) Load(NULL);
-        if ((event & SOFT_RESET) == SOFT_RESET) SoftReset();
+        if (event & USER_QUIT) return;
+        if (event & LOAD_ROM) Load(NULL);
+        if (event & SOFT_RESET) SoftReset();
         
         if (!paused) {
             /* emulate a number of cycles */

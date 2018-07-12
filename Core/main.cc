@@ -50,9 +50,14 @@ int main(int argc, char **argv){
     }
 
     /* calling initialize() also loads the bootrom */
-    if (chip.Initialize(fullscreen, load_store_quirk, shift_quirk, vwrap, muted)) {
-        return 1;
-    }
+    if (chip.Initialize(
+            fullscreen, 
+            load_store_quirk, 
+            shift_quirk, 
+            vwrap, 
+            muted
+        )
+    ) return 1;
 
     /* load ROM from argument vector */
     if (argc >= 2 && *argv[1] != '-') {

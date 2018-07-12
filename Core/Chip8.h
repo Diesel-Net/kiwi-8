@@ -34,7 +34,7 @@ class Chip8 {
         /* Two quirks of the Chip8 CPU. 
            Some games assume these are enabled to run correctly.
 
-           Load/store quirks - Instructions OxFX55 and 0xF65 increments 
+           Load/store quirks - Instructions OxFX55 and 0xFX65 increments 
            value of I register but some CHIP-8 programs assumes that 
            they don't. Enabling this quirk causes I register to become 
            unchanged after the instruction.
@@ -86,7 +86,7 @@ class Chip8 {
         /* if this flag is enabled, draw a frame at the end of the cycle */
         int draw_flag;
 
-        /* 1-bit encoded screen pixels (32x64) */
+        /* 1-bit encoded screen pixels (64x32) */
         unsigned char **vram;
 
         const unsigned char chip8_fontset[FONTS_SIZE] = { 
@@ -158,11 +158,13 @@ class Chip8 {
         Chip8();
         ~Chip8();
 
-        int Initialize(bool fullscreen, 
-                       bool load_store_quirk,
-                       bool shift_quirk,
-                       bool vwrap,
-                       bool muted);
+        int Initialize(
+            bool fullscreen, 
+            bool load_store_quirk,
+            bool shift_quirk,
+            bool vwrap,
+            bool muted
+        );
 
         int Load(const char *rom_name);
         void Run();

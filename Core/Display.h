@@ -51,13 +51,15 @@ class Display {
         Display();
         ~Display();
 
-        int Initialize( bool fullscreen,
-                        int *cycles,
-                        bool *paused,
-                        bool *load_store_quirk,
-                        bool *shift_quirk, 
-                        bool *vwrap,
-                        bool *muted );
+        int Initialize( 
+            bool fullscreen,
+            int *cycles,
+            bool *paused,
+            bool *load_store_quirk,
+            bool *shift_quirk, 
+            bool *vwrap,
+            bool *muted 
+        );
 
         void Resize(int x, int y);
         void ToggleFullscreen();

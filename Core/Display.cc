@@ -37,13 +37,15 @@ Display::~Display(){
 }
     
 
-int Display::Initialize( bool fullscreen,
-                         int *steps,
-                         bool *paused,
-                         bool *load_store_quirk,
-                         bool *shift_quirk, 
-                         bool *vwrap,
-                         bool *muted) {
+int Display::Initialize( 
+    bool fullscreen,
+    int *steps,
+    bool *paused,
+    bool *load_store_quirk,
+    bool *shift_quirk, 
+    bool *vwrap,
+    bool *muted
+) {
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
@@ -73,12 +75,14 @@ int Display::Initialize( bool fullscreen,
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    window = SDL_CreateWindow("Kiwi8", 
-                              SDL_WINDOWPOS_CENTERED, 
-                              SDL_WINDOWPOS_CENTERED, 
-                              WINDOW_WIDTH, 
-                              WINDOW_HEIGHT, 
-                              window_mode);
+    window = SDL_CreateWindow(
+        "Kiwi8", 
+        SDL_WINDOWPOS_CENTERED, 
+        SDL_WINDOWPOS_CENTERED, 
+        WINDOW_WIDTH, 
+        WINDOW_HEIGHT, 
+        window_mode
+    );
 
     if (window == NULL) {
         fprintf(stderr, "Error: %s\n", SDL_GetError());
@@ -91,8 +95,17 @@ int Display::Initialize( bool fullscreen,
     SDL_GL_SetSwapInterval(0);
 
     /* specify the texture */
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)texture);
+    glTexImage2D(
+        GL_TEXTURE_2D, 
+        0, 
+        GL_RGB, 
+        WIDTH, 
+        HEIGHT, 
+        0,
+        GL_RGB, 
+        GL_UNSIGNED_BYTE, 
+        (GLvoid *) texture
+    );
 
     /* configure the texture */
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -102,13 +115,15 @@ int Display::Initialize( bool fullscreen,
     glEnable(GL_TEXTURE_2D);
 
     /* setup ImGui binding */
-    gui.Initialize(this, 
-                   steps,
-                   paused, 
-                   load_store_quirk, 
-                   shift_quirk, 
-                   vwrap, 
-                   muted );
+    gui.Initialize(
+        this, 
+        steps,
+        paused, 
+        load_store_quirk, 
+        shift_quirk, 
+        vwrap, 
+        muted 
+    );
 
     /* set to fullscreen mode if flag present */
     if (fullscreen) ToggleFullscreen();
@@ -174,7 +189,6 @@ void Display::RenderFrame(unsigned char **frame){
     for (int i = 0; i < WIDTH; i++){
         for (int j = 0; j < HEIGHT; j++){
             if (back_buffer[i][HEIGHT-j-1]) {
-                
                 /* Fill the foreground pixel */
                 texture[j][i][0] = (unsigned char)(foreground_color[0] * (float) 0xFF); //R
                 texture[j][i][1] = (unsigned char)(foreground_color[1] * (float) 0xFF); //G
@@ -182,16 +196,25 @@ void Display::RenderFrame(unsigned char **frame){
 
             } else {
                 /* Fill the background pixel */
-                texture[j][i][0] = (unsigned char)(background_color[0] * (float) 0xFF);
-                texture[j][i][1] = (unsigned char)(background_color[1] * (float) 0xFF);
-                texture[j][i][2] = (unsigned char)(background_color[2] * (float) 0xFF);
+                texture[j][i][0] = (unsigned char)(background_color[0] * (float) 0xFF); //R
+                texture[j][i][1] = (unsigned char)(background_color[1] * (float) 0xFF); //G
+                texture[j][i][2] = (unsigned char)(background_color[2] * (float) 0xFF); //B
             }
         }
     }
     
     /* send texture to GPU */
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, WIDTH, HEIGHT,
-                    GL_RGB, GL_UNSIGNED_BYTE, (GLvoid*)texture);
+    glTexSubImage2D(
+        GL_TEXTURE_2D, 
+        0, 
+        0, 
+        0, 
+        WIDTH, 
+        HEIGHT,
+        GL_RGB, 
+        GL_UNSIGNED_BYTE, 
+        (GLvoid *) texture
+    );
 
     /* create room at the top for menu bar */
     float top_edge = gui.show_menu_flag ? 

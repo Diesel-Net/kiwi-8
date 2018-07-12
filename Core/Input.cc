@@ -10,11 +10,13 @@ Input::~Input() {
     /* empty */
 }
 
-void Input::Initialize(Display *display, 
-                       int *cycles, 
-                       bool *cpu_halt, 
-                       bool *paused,
-                       bool *muted) {
+void Input::Initialize(
+    Display *display, 
+    int *cycles, 
+    bool *cpu_halt, 
+    bool *paused,
+    bool *muted
+) {
     this->cycles = cycles;
     this->display = display;
     this->cpu_halt = cpu_halt;
