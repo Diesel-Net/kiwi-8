@@ -18,6 +18,7 @@ CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
 		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \
 		 /ENTRY:mainCRTStartup
+
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
 	   /I$(MAKEDIR)/../frameworks/imgui/
 LIBS = user32.lib \
