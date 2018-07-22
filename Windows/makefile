@@ -43,8 +43,7 @@ build_release: objects resource
 
 test_debug:
 	debug\$(APPNAME).exe \
-	"C:/Roms/CHIP-8/Chip-8 Games/Brix [Andreas Gustafsson, 1990].ch8" \
-	
+	"C:\Roms\CHIP-8\Games\Brix [Andreas Gustafsson, 1990].ch8"
 
 test_release: 
 	release\$(APPNAME).exe \
