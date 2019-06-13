@@ -1,6 +1,9 @@
 #ifndef GUI_H
 #define GUI_H
 
+#if defined( __Linux__ )
+#include <GL/gl.h>
+#endif
 #include <imgui.h>
 #include "imgui_impl_sdl.h"
 #include <SDL2/SDL.h>

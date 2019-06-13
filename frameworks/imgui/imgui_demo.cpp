@@ -2255,7 +2255,16 @@ struct ExampleAppConsole
         }
         else if (Stricmp(command_line, "HISTORY") == 0)
         {
-            for (int i = History.Size >= 10 ? History.Size - 10 : 0; i < History.Size; i++)
+            unsigned int aSize = 0;
+            unsigned int aMax = 0;
+
+            if (History.Size > 0)
+                aMax = History.Size;
+
+            if (History.Size >= 10)
+                aSize = History.Size - 10;
+//            for (int i = History.Size >= 10 ? History.Size - 10 : 0; i < History.Size; i++)
+            for (unsigned int i = aSize; i < aMax; i++)
                 AddLog("%3d: %s\n", i, History[i]);
         }
         else

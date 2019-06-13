@@ -1,6 +1,8 @@
 # Kiwi8
 **v1.03**
 
+![boot](/images/screenshots/Kiwi8_Linux_x86_64_ericb_2017_07_06.png)
+
 ![boot](/images/screenshots/boot.png)
 
 A cross-platform Chip-8 interpreter written 
@@ -11,13 +13,15 @@ in C++ using SDL2, ImGui, and OpenGL.
 **[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
 
 ## Features
- - Windows and MacOS
+ - Windows, MacOS and Linux**
  - Graphical user interface
  - Audio
  - Color customizer
  - CPU frequency selection
  - Command line support
  - No SCHIP support
+
+**(tested on Intel x86_64, but may work wit other archs)
 
 ## Usage
     Kiwi8 [filename] [-FMLSV]
@@ -45,6 +49,26 @@ added to PATH.
 1) Open the terminal and navigate 
    to the Kiwi8/MacOS directory.
 2) Type `make`.
+
+## Building on Linux
+
+1) go into the Linux directory
+2) read the README file, and check you got all dependencies installed
+
+3) once everything is installed, you can build the Kiwi8 binary typing :
+
+make
+
+if nothing went wrong, the binary is located in the "Linux/release" subdir.
+
+cd release 
+To test : 
+
+./Kiwi8 [options] # see the options above 
+
+Notice : the Linux implementation is a terrible hack, and you use it at your own risks !
+-- 
+ericb
 
 ## Resources
 - [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
