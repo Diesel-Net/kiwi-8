@@ -3,7 +3,7 @@
 
 ![boot](/images/screenshots/boot.png)
 
-A cross-platform Chip-8 interpreter written 
+A cross-platform Chip-8 interpreter written
 in C++ using SDL2, ImGui, and OpenGL.
 
 **[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
@@ -28,21 +28,21 @@ in C++ using SDL2, ImGui, and OpenGL.
     -V      Disable vertical wrapping
 
 ## Building on Windows
-Microsoft's Visual C++ Build Tools 
-(vcvarsall/cl/nmake) are assumed to be 
+Microsoft's Visual C++ Build Tools
+(vcvarsall/cl/nmake) are assumed to be
 installed and added to PATH.
-1) Open the command prompt and navigate 
+1) Open the command prompt and navigate
    to the Kiwi8/Windows directory.
-2) Type `vcvarsall x86` to load the 
+2) Type `vcvarsall x86` to load the
    windows development environment.
 3) Type `nmake`.
 
 ## Building on MacOS
-Apple's Xcode command line tools 
-(clang++/make/install_name_tool) 
-are assumed to be installed and 
+Apple's Xcode command line tools
+(clang++/make/install_name_tool)
+are assumed to be installed and
 added to PATH.
-1) Open the terminal and navigate 
+1) Open the terminal and navigate
    to the Kiwi8/MacOS directory.
 2) Type `make`.
 
@@ -56,13 +56,13 @@ added to PATH.
 
 ---
 
-I can highly recommend this project to anyone 
-wanting to get their feet wet with emulator 
-programming, video-game programming, or even 
-cross-platform development. It has been a great 
-educational excercise involving major aspects 
-of modern day applications such as input handling, 
-user-interface design, 2D graphics rendering, 
-audio generation, code profiling and more.
+_"I would highly recommend this project to anyone
+wanting to get their feet wet with emulator
+programming, video-game programming, or even
+cross-platform development. It has been a great
+educational excercise involving major aspects
+of modern day applications such as input handling,
+user-interface design, 2D graphics rendering,
+audio generation, code profiling and more."_
 
 _Enjoy!_
