@@ -35,8 +35,11 @@ if (-Not (Test-Path $EXTRACT_DIR)) {
     }
 }
 
+# Convert to absolute path before changing directory
+$BUILD_DIR = (Resolve-Path "$TP_DIR/$EXTRACT_DIR/build-x64").Path
+$EXTRACT_DIR_ABS = (Resolve-Path "$TP_DIR/$EXTRACT_DIR").Path
+
 # Configure & build
-$BUILD_DIR = "$EXTRACT_DIR/build-x64"
 New-Item -ItemType Directory -Force -Path $BUILD_DIR | Out-Null
 Push-Location $BUILD_DIR
 
@@ -67,7 +70,7 @@ Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2main.lib" -Destination "$INSTALL_
 
 # Install headers
 Remove-Item -Path "$INSTALL_DIR/include/SDL2" -Recurse -Force -ErrorAction SilentlyContinue
-Copy-Item -Path "$EXTRACT_DIR/include/SDL2" -Destination "$INSTALL_DIR/include/" -Recurse -Force
+Copy-Item -Path "$EXTRACT_DIR_ABS/include/SDL2" -Destination "$INSTALL_DIR/include/" -Recurse -Force
 Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h" -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
 
 Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
