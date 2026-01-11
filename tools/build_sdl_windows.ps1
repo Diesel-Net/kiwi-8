@@ -47,39 +47,8 @@ Push-Location $BUILD_DIR
 
 Write-Host "Building SDL for x64..."
 cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
-cmake --build . --config Release -- -m
+cmake --build . --config Release --parallel
 
 # Install using CMake (handles all headers including SDL_config.h)
 Write-Host "Installing SDL artifacts..."
 cmake --install . --config Release
-
-# Create x64-specific symlinks for compatibility with makefile
-New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/lib/x64" | Out-Null
-if (Test-Path "$INSTALL_DIR/lib/SDL2.lib") {
-    Copy-Item -Path "$INSTALL_DIR/lib/SDL2.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2.lib" -Force
-}
-if (Test-Path "$INSTALL_DIR/lib/SDL2.dll") {
-    Copy-Item -Path "$INSTALL_DIR/lib/SDL2.dll" -Destination "$INSTALL_DIR/lib/x64/SDL2.dll" -Force
-}
-if (Test-Path "$INSTALL_DIR/lib/SDL2main.lib") {
-    Copy-Item -Path "$INSTALL_DIR/lib/SDL2main.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2main.lib" -Force
-}
-
-# Backup
-$timestamp = Get-Date -Format "yyyyMMddHHmmss"
-$BACKUP_DIR = "$INSTALL_DIR/backups"
-New-Item -ItemType Directory -Force -Path $BACKUP_DIR | Out-Null
-if (Test-Path "$INSTALL_DIR/lib") {
-    Copy-Item -Path "$INSTALL_DIR/lib" -Destination "$BACKUP_DIR/lib.$timestamp" -Recurse -Force -ErrorAction SilentlyContinue
-}
-if (Test-Path "$INSTALL_DIR/include") {
-    Copy-Item -Path "$INSTALL_DIR/include" -Destination "$BACKUP_DIR/include.$timestamp" -Recurse -Force -ErrorAction SilentlyContinue
-}
-
-# Create install directories
-New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/lib/x64" | Out-Null
-New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/include" | Out-Null
-
-Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
-Pop-Location
-Pop-Location

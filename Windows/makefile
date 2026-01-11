@@ -11,14 +11,8 @@ APPNAME = Kiwi8
 ARCH = x64
 
 # SDL dependency files
-SDL_LIB = frameworks/sdl/lib/x64/SDL2.lib
-SDL_DLL = frameworks/sdl/lib/x64/SDL2.dll
-
-# Build SDL if not present
-sdl: $(SDL_LIB) $(SDL_DLL)
-
-$(SDL_LIB) $(SDL_DLL):
-	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
+SDL_LIB = frameworks/sdl/lib/SDL2.lib
+SDL_DLL = frameworks/sdl/lib/SDL2.dll
 
 DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
@@ -26,7 +20,7 @@ RELEASE = /SUBSYSTEM:WINDOWS
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
-		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \
+		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib \
 		 /ENTRY:mainCRTStartup
 
 INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
@@ -40,6 +34,12 @@ LIBS = user32.lib \
 # Default target
 all: sdl clean build_debug build_release
 	DEL *.exe *.obj *.res *.pdb
+
+# Build SDL if not present
+sdl: $(SDL_LIB) $(SDL_DLL)
+
+$(SDL_LIB) $(SDL_DLL):
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
 build_debug: objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)

@@ -32,16 +32,7 @@ cd "$BUILD_DIR"
 SDL_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET:-11.0}"
 echo "Building SDL with CMAKE_OSX_DEPLOYMENT_TARGET=${SDL_DEPLOYMENT_TARGET}"
 cmake .. -DCMAKE_OSX_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET}" -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
-cmake --build . -- -j $(sysctl -n hw.ncpu)
-
-# backup (only if install dir exists)
-if [ -d "$INSTALL_DIR/lib" ] || [ -d "$INSTALL_DIR/include" ]; then
-  ts=$(date +%Y%m%d%H%M%S)
-  mkdir -p "$INSTALL_DIR/backups"
-  [ -d "$INSTALL_DIR/lib" ] && cp -a "$INSTALL_DIR/lib" "$INSTALL_DIR/backups/lib.$ts"
-  [ -d "$INSTALL_DIR/include" ] && cp -a "$INSTALL_DIR/include" "$INSTALL_DIR/backups/include.$ts"
-  echo "Backed up existing SDL to $INSTALL_DIR/backups"
-fi
+cmake --build . --config Release --parallel
 
 # install using CMake (handles all files correctly)
 echo "Installing SDL ${SDL_VERSION}..."
