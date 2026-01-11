@@ -1,4 +1,7 @@
 **/.DS_Store
 
-MacOS/frameworks/sdl/backups/
-MacOS/third_party/
+# MacOS/frameworks/sdl/
+# MacOS/third_party/
+
+# Windows/frameworks/sdl/
+# Windows/third_party/
