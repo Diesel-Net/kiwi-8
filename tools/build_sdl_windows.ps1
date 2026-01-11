@@ -74,7 +74,39 @@ Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2main.lib" -Destination "$INSTALL_
 Remove-Item -Path "$INSTALL_DIR/include/SDL2" -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/include/SDL2" | Out-Null
 Copy-Item -Path "$EXTRACT_DIR_ABS/include/*" -Destination "$INSTALL_DIR/include/SDL2/" -Recurse -Force
-Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h" -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
+
+# Find and copy SDL_config.h (generated during build, location varies)
+$CONFIG_H = $null
+Write-Host "Looking for SDL_config.h..."
+Write-Host "  Checking: $BUILD_DIR/$RELEASE_BUILD/SDL_config.h"
+Write-Host "  Checking: $BUILD_DIR/SDL_config.h"
+Write-Host "  Checking: $EXTRACT_DIR_ABS/include/SDL_config.h"
+
+# Try common CMake-generated locations
+$CANDIDATES = @(
+    "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h",
+    "$BUILD_DIR/SDL_config.h",
+    "$BUILD_DIR/include/SDL_config.h",
+    "$EXTRACT_DIR_ABS/include/SDL_config.h"
+)
+
+foreach ($candidate in $CANDIDATES) {
+    if (Test-Path $candidate) {
+        Write-Host "  Found at: $candidate"
+        $CONFIG_H = $candidate
+        break
+    }
+}
+
+if ($CONFIG_H) {
+    Copy-Item -Path $CONFIG_H -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
+    Write-Host "SDL_config.h copied from $CONFIG_H"
+} else {
+    Write-Host "SDL_config.h not found. Searching build directory..."
+    Get-ChildItem -Path $BUILD_DIR -Filter "SDL_config.h" -Recurse | ForEach-Object {
+        Write-Host "  Found: $($_.FullName)"
+    }
+}
 
 Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
 Pop-Location
