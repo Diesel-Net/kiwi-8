@@ -10,6 +10,16 @@
 APPNAME = Kiwi8
 ARCH = x64
 
+# SDL dependency files
+SDL_LIB = frameworks/sdl/lib/x64/SDL2.lib
+SDL_DLL = frameworks/sdl/lib/x64/SDL2.dll
+
+# Build SDL if not present
+sdl: $(SDL_LIB) $(SDL_DLL)
+
+$(SDL_LIB) $(SDL_DLL):
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
+
 DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
 
@@ -28,7 +38,7 @@ LIBS = user32.lib \
 	   Comdlg32.lib
 
 # Default target
-all: clean build_debug build_release
+all: sdl clean build_debug build_release
 	DEL *.exe *.obj *.res *.pdb
 
 build_debug: objects resource
@@ -43,7 +53,6 @@ build_release: objects resource
 
 test_debug:
 	debug\$(APPNAME).exe \
-	"C:\Roms\CHIP-8\Games\Brix [Andreas Gustafsson, 1990].ch8"
 
 test_release:
 	release\$(APPNAME).exe \
@@ -57,8 +66,18 @@ resource: src\$(APPNAME).rc resources\$(APPNAME).ico
 	RC src\$(APPNAME).rc
 	MOVE src\$(APPNAME).res $(APPNAME).res
 
-# Clean any leftover build files
+# Clean any leftover build files (keeps SDL)
 clean:
 	DEL *.exe *.obj *.res *.pdb
 	cd debug & DEL *.exe *.dll
 	cd release & DEL *.exe *.dll
+
+# Remove just SDL (for forcing recompile)
+clean-sdl:
+	RD /S /Q frameworks\sdl\lib
+	RD /S /Q frameworks\sdl\include
+
+# Remove everything including SDL (full reset)
+distclean: clean clean-sdl
+	RD /S /Q frameworks\sdl\backups
+	RD /S /Q ..\Windows\third_party

@@ -10,16 +10,23 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 
 APPNAME = Kiwi8
 
-# Default target
-$(APPNAME): objects
-	# Removing previous build
-	cd release; $(RM) -r *.app
+# SDL dependency files
+SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
+SDL_HEADERS = frameworks/sdl/include/SDL2/SDL.h
 
+all: $(APPNAME)
+	$(RM) *.o *.app
+
+# Build SDL if not present
+sdl: $(SDL_LIB) $(SDL_HEADERS)
+
+$(SDL_LIB) $(SDL_HEADERS):
+	bash ../tools/build_sdl_macos.sh
+
+# Default target
+$(APPNAME): sdl clean objects
 	# Compiling main executable
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) *.o -o $@ $(LFLAGS)
-
-	# Removing leftover objects
-	$(RM) *.o
 
 	# Creating empty .app bundle
 	mkdir $@.app
@@ -65,7 +72,17 @@ check-dylibs:
 	otool -L release/$(APPNAME).app/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
 
 
-# Removes latest build and object files
+# Removes build artifacts (objects, app bundle) but keeps SDL
 clean:
 	$(RM) *.o *.app
 	$(RM) -r release
+
+# Removes just SDL (for forcing recompile)
+clean-sdl:
+	$(RM) -r frameworks/sdl/lib
+	$(RM) -r frameworks/sdl/include
+
+# Removes everything including SDL (full reset)
+distclean: clean clean-sdl
+	$(RM) -r frameworks/sdl/backups
+	$(RM) -r ../MacOS/third_party
