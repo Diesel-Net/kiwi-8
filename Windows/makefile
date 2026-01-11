@@ -11,8 +11,8 @@ APPNAME = Kiwi8
 ARCH = x64
 
 # SDL dependency files
-SDL_LIB = frameworks/sdl/lib/SDL2.lib
-SDL_DLL = frameworks/sdl/lib/SDL2.dll
+SDL_LIB = frameworks\sdl\lib\SDL2.lib
+SDL_DLL = frameworks\sdl\bin\SDL2.dll
 
 DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
@@ -20,11 +20,11 @@ RELEASE = /SUBSYSTEM:WINDOWS
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
-		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib \
+		 /LIBPATH:frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
 
-INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
-	   /I$(MAKEDIR)/../frameworks/imgui/
+INCS = /Iframeworks\sdl\include \
+	   /I..\frameworks\imgui
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
@@ -44,12 +44,12 @@ $(SDL_LIB) $(SDL_DLL):
 build_debug: objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
-	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll debug\SDL2.dll
+	COPY frameworks\sdl\bin\SDL2.dll debug\SDL2.dll
 
 build_release: objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
-	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll release\SDL2.dll
+	COPY frameworks\sdl\bin\SDL2.dll release\SDL2.dll
 
 test_debug:
 	debug\$(APPNAME).exe \
