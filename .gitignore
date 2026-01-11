@@ -3,6 +3,7 @@
 MacOS/frameworks/sdl/
 MacOS/third_party/
 MacOS/release/
+MacOS/debug/
 
 Windows/frameworks/sdl/
 Windows/third_party/
