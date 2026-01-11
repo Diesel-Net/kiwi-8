@@ -25,11 +25,13 @@ if (-Not (Test-Path $ARCHIVE)) {
 $EXTRACT_DIR = "SDL2-${SDL_VERSION}"
 if (-Not (Test-Path $EXTRACT_DIR)) {
     Write-Host "Extracting SDL..."
-    # Use 7z if available, otherwise tar (PowerShell 7+)
-    if (Get-Command 7z -ErrorAction SilentlyContinue) {
-        7z x $ARCHIVE
-    } else {
+    # Use tar directly (simpler for .tar.gz)
+    if (Get-Command tar -ErrorAction SilentlyContinue) {
         tar -xzf $ARCHIVE
+    } else {
+        # Fallback: 7z requires two-step extraction for .tar.gz
+        7z x $ARCHIVE
+        7z x "SDL2-${SDL_VERSION}.tar"
     }
 }
 
@@ -65,7 +67,7 @@ Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2main.lib" -Destination "$INSTALL_
 
 # Install headers
 Remove-Item -Path "$INSTALL_DIR/include/SDL2" -Recurse -Force -ErrorAction SilentlyContinue
-Copy-Item -Path "$BUILD_DIR/include/SDL2" -Destination "$INSTALL_DIR/include/" -Recurse -Force
+Copy-Item -Path "$EXTRACT_DIR/include/SDL2" -Destination "$INSTALL_DIR/include/" -Recurse -Force
 Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h" -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
 
 Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
