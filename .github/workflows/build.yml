@@ -56,6 +56,10 @@ jobs:
       - name: Setup MSVC
         uses: microsoft/setup-msbuild@v1.1
 
+      - name: Install nmake
+        run: |
+          choco install visualstudio2022buildtools -y --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools"
+
       - name: Build SDL 2.32.10 for Windows x64
         shell: pwsh
         run: |
