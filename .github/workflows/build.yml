@@ -21,19 +21,10 @@ jobs:
         run: |
           brew install cmake pkg-config nasm
 
-      - name: Build SDL 2.32.10 for macOS universal
-        run: |
-          bash tools/build_sdl_macos.sh
-
       - name: Build macOS (x86_64 + arm64)
         run: |
           cd MacOS
           make
-
-      - name: Verify dylib linking
-        run: |
-          cd MacOS
-          make check-dylibs
 
       - name: Zip application bundle
         run: zip -r -y "MacOS/release/Kiwi8.zip" "MacOS/release/Kiwi8.app"
@@ -56,23 +47,11 @@ jobs:
         with:
             arch: amd64
 
-      - name: Print directory structure
-        uses: FiorelaCiroku/print-directory-structure@v1.0.2
-        with:
-          path: 'Windows'
-          depth: 6
-
       - name: Build Windows (x64)
         shell: cmd
         run: |
           cd Windows
           nmake
-
-      - name: Print directory structure
-        uses: FiorelaCiroku/print-directory-structure@v1.0.2
-        with:
-          path: 'Windows/frameworks/sdl'
-          depth: 4
 
       - name: Create Zip Archive
         run: Compress-Archive -Path release\* -DestinationPath release\Kiwi8.zip
