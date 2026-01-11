@@ -4,11 +4,11 @@
 
 # Note: Microsoft Visual C++ Build Tools are assumed to be installed and added to PATH
 
-# 1) vcvarsall x86
+# 1) vcvarsall x64
 # 2) nmake
 
 APPNAME = Kiwi8
-ARCH = x86
+ARCH = x64
 
 DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
@@ -45,7 +45,7 @@ test_debug:
 	debug\$(APPNAME).exe \
 	"C:\Roms\CHIP-8\Games\Brix [Andreas Gustafsson, 1990].ch8"
 
-test_release: 
+test_release:
 	release\$(APPNAME).exe \
 
 # Build object files
@@ -60,5 +60,5 @@ resource: src\$(APPNAME).rc resources\$(APPNAME).ico
 # Clean any leftover build files
 clean:
 	DEL *.exe *.obj *.res *.pdb
-	cd debug & DEL *.exe *.dll 
-	cd release & DEL *.exe *.dll 
+	cd debug & DEL *.exe *.dll
+	cd release & DEL *.exe *.dll

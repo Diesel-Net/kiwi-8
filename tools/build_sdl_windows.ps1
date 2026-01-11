@@ -1,0 +1,73 @@
+# build_sdl_windows.ps1
+# Builds SDL 2.32.10 for Windows x64 and installs it into Windows/frameworks/sdl
+
+param(
+    [string]$SDL_VERSION = "2.32.10",
+    [string]$ROOT_DIR = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+)
+
+$SDL_URL = "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"
+$TP_DIR = "$ROOT_DIR/Windows/third_party"
+$INSTALL_DIR = "$ROOT_DIR/Windows/frameworks/sdl"
+
+# Create third_party directory
+New-Item -ItemType Directory -Force -Path $TP_DIR | Out-Null
+Push-Location $TP_DIR
+
+# Download if needed
+$ARCHIVE = "SDL2-${SDL_VERSION}.tar.gz"
+if (-Not (Test-Path $ARCHIVE)) {
+    Write-Host "Downloading SDL ${SDL_VERSION}..."
+    Invoke-WebRequest -Uri $SDL_URL -OutFile $ARCHIVE
+}
+
+# Extract if needed
+$EXTRACT_DIR = "SDL2-${SDL_VERSION}"
+if (-Not (Test-Path $EXTRACT_DIR)) {
+    Write-Host "Extracting SDL..."
+    # Use 7z if available, otherwise tar (PowerShell 7+)
+    if (Get-Command 7z -ErrorAction SilentlyContinue) {
+        7z x $ARCHIVE
+    } else {
+        tar -xzf $ARCHIVE
+    }
+}
+
+# Configure & build
+$BUILD_DIR = "$EXTRACT_DIR/build-x64"
+New-Item -ItemType Directory -Force -Path $BUILD_DIR | Out-Null
+Push-Location $BUILD_DIR
+
+Write-Host "Building SDL for x64..."
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON
+cmake --build . --config Release -- -m
+
+# Backup
+$timestamp = Get-Date -Format "yyyyMMddHHmmss"
+$BACKUP_DIR = "$INSTALL_DIR/backups"
+New-Item -ItemType Directory -Force -Path $BACKUP_DIR | Out-Null
+if (Test-Path "$INSTALL_DIR/lib") {
+    Copy-Item -Path "$INSTALL_DIR/lib" -Destination "$BACKUP_DIR/lib.$timestamp" -Recurse -Force
+}
+if (Test-Path "$INSTALL_DIR/include") {
+    Copy-Item -Path "$INSTALL_DIR/include" -Destination "$BACKUP_DIR/include.$timestamp" -Recurse -Force
+}
+
+# Create install directories
+New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/lib/x64" | Out-Null
+New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/include" | Out-Null
+
+# Copy artifacts (Release build)
+$RELEASE_BUILD = "Release"
+Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2.lib" -Force
+Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2.dll" -Destination "$INSTALL_DIR/lib/x64/SDL2.dll" -Force
+Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2main.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2main.lib" -Force
+
+# Install headers
+Remove-Item -Path "$INSTALL_DIR/include/SDL2" -Recurse -Force -ErrorAction SilentlyContinue
+Copy-Item -Path "$BUILD_DIR/include/SDL2" -Destination "$INSTALL_DIR/include/" -Recurse -Force
+Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h" -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
+
+Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
+Pop-Location
+Pop-Location
