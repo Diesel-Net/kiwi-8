@@ -1,0 +1,14 @@
+name: Core Lint
+
+on:
+  push: {}
+  pull_request: {}
+
+jobs:
+  core-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Core no-OO linter
+        run: |
+          bash tools/check_no_oo.sh Core
