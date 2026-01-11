@@ -3,7 +3,7 @@
 # Purpose: Builds the application into a standalone .app bundle for distribution
 
 CC = clang++
-CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.9 -arch x86_64
+CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.11 -arch x86_64
 LFLAGS = -mmacosx-version-min=10.9
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
@@ -32,14 +32,22 @@ $(APPNAME): objects
 	# Copying the frameworks into .app bundle
 	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $@.app/Contents/Frameworks/libSDL2-2.0.0.dylib
 
-	# Re-linking the dylibs to newly compiled executable
+	# Set the dylib's install name to be relative to the bundle
+	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+
+	# Re-linking the dylibs to newly compiled executable (handle previous absolute path and @rpath)
 	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
 
 	# Moving the configured executable and copying other files into .app bundle
 	cp resources/$@.icns $@.app/Contents/Resources/$@.icns
 	cp src/Info.plist $@.app/Contents/Info.plist
 	mv $@ $@.app/Contents/MacOS/$@
 	mv $@.app release/$@.app
+
+	# Verification: ensure the executable and dylib have correct references
+	otool -L release/$@.app/Contents/MacOS/$@ | sed -n '1,120p' | grep -q '@executable_path/../Frameworks/libSDL2-2.0.0.dylib' || (echo 'Error: executable not linked to bundled SDL' && exit 1)
+	otool -L release/$@.app/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p' | grep -q '@executable_path/../Frameworks/libSDL2-2.0.0.dylib' || (echo 'Error: SDL dylib install name not set' && exit 1)
 
 # Builds object files
 objects:	src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
@@ -52,6 +60,12 @@ test_release:
 # Runs the program with an attached terminal (Application must be built prior)
 test_debug:
 	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
+
+
+# Check dylib linking inside release bundle
+check-dylibs:
+	otool -L release/$(APPNAME).app/Contents/MacOS/$(APPNAME) | sed -n '1,120p'
+	otool -L release/$(APPNAME).app/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
 
 
 # Removes latest build and object files
