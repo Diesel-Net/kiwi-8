@@ -28,7 +28,6 @@ jobs:
       - name: Build macOS (x86_64 + arm64)
         run: |
           cd MacOS
-          make clean
           make
 
       - name: Verify dylib linking
@@ -36,12 +35,15 @@ jobs:
           cd MacOS
           make check-dylibs
 
+      - name: Zip application bundle
+        run: zip -r -y "MacOS/release/Kiwi8.zip" "MacOS/release/Kiwi8.app"
+
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         if: success()
         with:
           name: Kiwi8-macOS
-          path: MacOS/release/Kiwi8.app
+          path: MacOS/release/Kiwi8.zip
           retention-days: 7
 
   build-windows:
@@ -49,43 +51,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install CMake
-        run: |
-          choco install cmake -y
-
-      - name: Setup MSVC
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Install nmake
-        run: |
-          choco install visualstudio2022buildtools -y --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools"
+      - name: Install and configures build dependencies for AMD64
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+            arch: amd64
 
       - name: Build SDL 2.32.10 for Windows x64
         shell: pwsh
         run: |
-          cd ${{ github.workspace }}
-          .\tools\build_sdl_windows.ps1
+          tools/build_sdl_windows.ps1
 
       - name: Build Windows (x64)
         shell: cmd
         run: |
-          for /f "usebackq tokens=*" %%i in (`vswhere -latest -products * -requires Microsoft.VisualStudio.Workload.VCTools -property installationPath`) do set VS_PATH=%%i
-          if "%VS_PATH%"=="" (
-            echo Visual Studio not found
-            exit /b 1
-          )
-          echo Found Visual Studio at: %VS_PATH%
-          call "%VS_PATH%\VC\Auxiliary\Build\vcvarsall.bat" x64
           cd Windows
-          nmake clean
-          nmake build_release
+          nmake
+
+      - name: Create Zip Archive
+        run: Compress-Archive -Path release\* -DestinationPath release\Kiwi8.zip
 
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: Kiwi8-Windows-x64
+          name: Kiwi8-Windows
           path: |
-            Windows/release/Kiwi8.exe
-            Windows/release/SDL2.dll
+            Windows/release/Kiwi8.zip
           retention-days: 7
