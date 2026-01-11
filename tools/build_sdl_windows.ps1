@@ -46,67 +46,39 @@ $EXTRACT_DIR_ABS = (Resolve-Path "$TP_DIR/$EXTRACT_DIR").Path
 Push-Location $BUILD_DIR
 
 Write-Host "Building SDL for x64..."
-cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
 cmake --build . --config Release -- -m
+
+# Install using CMake (handles all headers including SDL_config.h)
+Write-Host "Installing SDL artifacts..."
+cmake --install . --config Release
+
+# Create x64-specific symlinks for compatibility with makefile
+New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/lib/x64" | Out-Null
+if (Test-Path "$INSTALL_DIR/lib/SDL2.lib") {
+    Copy-Item -Path "$INSTALL_DIR/lib/SDL2.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2.lib" -Force
+}
+if (Test-Path "$INSTALL_DIR/lib/SDL2.dll") {
+    Copy-Item -Path "$INSTALL_DIR/lib/SDL2.dll" -Destination "$INSTALL_DIR/lib/x64/SDL2.dll" -Force
+}
+if (Test-Path "$INSTALL_DIR/lib/SDL2main.lib") {
+    Copy-Item -Path "$INSTALL_DIR/lib/SDL2main.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2main.lib" -Force
+}
 
 # Backup
 $timestamp = Get-Date -Format "yyyyMMddHHmmss"
 $BACKUP_DIR = "$INSTALL_DIR/backups"
 New-Item -ItemType Directory -Force -Path $BACKUP_DIR | Out-Null
 if (Test-Path "$INSTALL_DIR/lib") {
-    Copy-Item -Path "$INSTALL_DIR/lib" -Destination "$BACKUP_DIR/lib.$timestamp" -Recurse -Force
+    Copy-Item -Path "$INSTALL_DIR/lib" -Destination "$BACKUP_DIR/lib.$timestamp" -Recurse -Force -ErrorAction SilentlyContinue
 }
 if (Test-Path "$INSTALL_DIR/include") {
-    Copy-Item -Path "$INSTALL_DIR/include" -Destination "$BACKUP_DIR/include.$timestamp" -Recurse -Force
+    Copy-Item -Path "$INSTALL_DIR/include" -Destination "$BACKUP_DIR/include.$timestamp" -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # Create install directories
 New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/lib/x64" | Out-Null
 New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/include" | Out-Null
-
-# Copy artifacts (Release build)
-$RELEASE_BUILD = "Release"
-Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2.lib" -Force
-Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2.dll" -Destination "$INSTALL_DIR/lib/x64/SDL2.dll" -Force
-Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2main.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2main.lib" -Force
-
-# Install headers (SDL2 source headers are in include/, not include/SDL2/)
-Remove-Item -Path "$INSTALL_DIR/include/SDL2" -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/include/SDL2" | Out-Null
-Copy-Item -Path "$EXTRACT_DIR_ABS/include/*" -Destination "$INSTALL_DIR/include/SDL2/" -Recurse -Force
-
-# Find and copy SDL_config.h (generated during build, location varies)
-$CONFIG_H = $null
-Write-Host "Looking for SDL_config.h..."
-Write-Host "  Checking: $BUILD_DIR/$RELEASE_BUILD/SDL_config.h"
-Write-Host "  Checking: $BUILD_DIR/SDL_config.h"
-Write-Host "  Checking: $EXTRACT_DIR_ABS/include/SDL_config.h"
-
-# Try common CMake-generated locations
-$CANDIDATES = @(
-    "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h",
-    "$BUILD_DIR/SDL_config.h",
-    "$BUILD_DIR/include/SDL_config.h",
-    "$EXTRACT_DIR_ABS/include/SDL_config.h"
-)
-
-foreach ($candidate in $CANDIDATES) {
-    if (Test-Path $candidate) {
-        Write-Host "  Found at: $candidate"
-        $CONFIG_H = $candidate
-        break
-    }
-}
-
-if ($CONFIG_H) {
-    Copy-Item -Path $CONFIG_H -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
-    Write-Host "SDL_config.h copied from $CONFIG_H"
-} else {
-    Write-Host "SDL_config.h not found. Searching build directory..."
-    Get-ChildItem -Path $BUILD_DIR -Filter "SDL_config.h" -Recurse | ForEach-Object {
-        Write-Host "  Found: $($_.FullName)"
-    }
-}
 
 Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
 Pop-Location
