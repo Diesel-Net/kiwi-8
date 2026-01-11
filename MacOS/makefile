@@ -1,10 +1,6 @@
-# Author: Thomas Daley
-# Date: September 8, 2016
-# Purpose: Builds the application into a standalone .app bundle for distribution
-
 CC = clang++
 CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.11 -arch x86_64
-LFLAGS = -mmacosx-version-min=10.9
+LFLAGS = -mmacosx-version-min=10.11
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
 LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
