@@ -69,6 +69,7 @@ jobs:
       - name: Build Windows (x64)
         shell: cmd
         run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64
           cd Windows
           nmake clean
           nmake build_release
