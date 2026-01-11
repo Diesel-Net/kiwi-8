@@ -31,26 +31,18 @@ cd "$BUILD_DIR"
 # Allow overriding the deployment target via SDL_DEPLOYMENT_TARGET env var (defaults to 11.0)
 SDL_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET:-11.0}"
 echo "Building SDL with CMAKE_OSX_DEPLOYMENT_TARGET=${SDL_DEPLOYMENT_TARGET}"
-cmake .. -DCMAKE_OSX_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET}" -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON
+cmake .. -DCMAKE_OSX_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET}" -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
 cmake --build . -- -j $(sysctl -n hw.ncpu)
 
-# backup
-ts=$(date +%Y%m%d%H%M%S)
-mkdir -p "$INSTALL_DIR/backups"
-cp -a "$INSTALL_DIR/lib" "$INSTALL_DIR/backups/lib.$ts"
-cp -a "$INSTALL_DIR/include" "$INSTALL_DIR/backups/include.$ts"
+# backup (only if install dir exists)
+if [ -d "$INSTALL_DIR/lib" ] || [ -d "$INSTALL_DIR/include" ]; then
+  ts=$(date +%Y%m%d%H%M%S)
+  mkdir -p "$INSTALL_DIR/backups"
+  [ -d "$INSTALL_DIR/lib" ] && cp -a "$INSTALL_DIR/lib" "$INSTALL_DIR/backups/lib.$ts"
+  [ -d "$INSTALL_DIR/include" ] && cp -a "$INSTALL_DIR/include" "$INSTALL_DIR/backups/include.$ts"
+  echo "Backed up existing SDL to $INSTALL_DIR/backups"
+fi
 
-# copy artifacts
-cp "$BUILD_DIR/libSDL2-2.0.0.dylib" "$INSTALL_DIR/lib/libSDL2-2.0.0.dylib"
-ln -sf libSDL2-2.0.0.dylib "$INSTALL_DIR/lib/libSDL2-2.0.dylib"
-ln -sf libSDL2-2.0.0.dylib "$INSTALL_DIR/lib/libSDL2.dylib"
-cp "$BUILD_DIR/libSDL2.a" "$INSTALL_DIR/lib/libSDL2.a"
-cp "$BUILD_DIR/libSDL2_test.a" "$INSTALL_DIR/lib/libSDL2_test.a"
-cp "$BUILD_DIR/libSDL2main.a" "$INSTALL_DIR/lib/libSDL2main.a"
-
-# install headers
-rm -rf "$INSTALL_DIR/include/SDL2"
-cp -a "$BUILD_DIR/include/SDL2" "$INSTALL_DIR/include/"
-cp -a "$BUILD_DIR/include-config-release/SDL2/SDL_config.h" "$INSTALL_DIR/include/SDL2/SDL_config.h"
-
-echo "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
+# install using CMake (handles all files correctly)
+echo "Installing SDL ${SDL_VERSION}..."
+cmake --install . --config Release

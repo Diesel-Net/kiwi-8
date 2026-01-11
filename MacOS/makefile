@@ -39,6 +39,7 @@ $(APPNAME): objects
 	cp resources/$@.icns $@.app/Contents/Resources/$@.icns
 	cp src/Info.plist $@.app/Contents/Info.plist
 	mv $@ $@.app/Contents/MacOS/$@
+	mkdir release
 	mv $@.app release/$@.app
 
 	# Verification: ensure the executable and dylib have correct references
@@ -67,4 +68,4 @@ check-dylibs:
 # Removes latest build and object files
 clean:
 	$(RM) *.o *.app
-	cd release; $(RM) -r *.app
+	$(RM) -r release
