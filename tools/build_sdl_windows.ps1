@@ -70,9 +70,10 @@ Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2.lib" -Destination "$INSTALL_DIR/
 Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2.dll" -Destination "$INSTALL_DIR/lib/x64/SDL2.dll" -Force
 Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL2main.lib" -Destination "$INSTALL_DIR/lib/x64/SDL2main.lib" -Force
 
-# Install headers
+# Install headers (SDL2 source headers are in include/, not include/SDL2/)
 Remove-Item -Path "$INSTALL_DIR/include/SDL2" -Recurse -Force -ErrorAction SilentlyContinue
-Copy-Item -Path "$EXTRACT_DIR_ABS/include/SDL2" -Destination "$INSTALL_DIR/include/" -Recurse -Force
+New-Item -ItemType Directory -Force -Path "$INSTALL_DIR/include/SDL2" | Out-Null
+Copy-Item -Path "$EXTRACT_DIR_ABS/include/*" -Destination "$INSTALL_DIR/include/SDL2/" -Recurse -Force
 Copy-Item -Path "$BUILD_DIR/$RELEASE_BUILD/SDL_config.h" -Destination "$INSTALL_DIR/include/SDL2/SDL_config.h" -Force
 
 Write-Host "SDL ${SDL_VERSION} built and installed into ${INSTALL_DIR}"
