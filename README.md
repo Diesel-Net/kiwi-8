@@ -2,8 +2,8 @@
 
 # Kiwi8
 
-[![Main Build](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml)
-
+[![Release](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml)
+[![Build](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml)
 <br>
 
 ![boot](/images/screenshots/boot.png)
