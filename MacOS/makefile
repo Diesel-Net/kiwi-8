@@ -63,7 +63,7 @@ $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Update directory timestamp so Make knows bundle is up-to-date
 	@touch $(APP_BUNDLE)
 
-# Pattern rules for different source file types
+# Pattern rules for incremental compilation
 %.o: ../Core/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 

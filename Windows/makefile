@@ -53,8 +53,15 @@ $(SDL_LIB):
 $(SDL_DLL): $(SDL_LIB)
 	@REM DLL is created by same script that creates LIB
 
-$(OBJS): $(CORE_SRCS) $(IMGUI_SRCS) $(WINDOWS_SRCS)
-	$(CC) $(CFLAGS) /c $(INCS) $(CORE_SRCS) $(IMGUI_SRCS) $(WINDOWS_SRCS)
+# Inference rules for incremental compilation
+{..\Core}.cc{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
+
+{..\frameworks\imgui}.cpp{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
+
+{src}.cc{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
 
 $(RESOURCE): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
@@ -72,10 +79,10 @@ $(APP_RELEASE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
 	COPY $(SDL_DLL) release\SDL2.dll
 	MOVE $(APP_NAME).exe $@
 
-test_debug:
+test-debug:
 	debug\$(APP_NAME).exe
 
-test_release:
+test-release:
 	release\$(APP_NAME).exe
 
 # Clean any leftover build files (keeps SDL)
