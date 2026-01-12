@@ -1,5 +1,5 @@
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
@@ -8,81 +8,92 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 		-framework Cocoa \
 		-framework OpenGL
 
-APPNAME = Kiwi8
-
 # SDL dependency files
 SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
 SDL_HEADERS = frameworks/sdl/include/SDL2/SDL.h
 
-all: $(APPNAME)
-	$(RM) *.o *.app
+APP_NAME = Kiwi8
+APP_BUNDLE = release/$(APP_NAME).app
+APP_EXECUTABLE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
-# Build SDL if not present
-sdl: $(SDL_LIB) $(SDL_HEADERS)
+# Source files
+CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
+            ../Core/imgui_impl_sdl.cc ../Core/Input.cc ../Core/main.cc \
+            ../Core/opcodes.cc ../Core/open_file_dialog.cc
+IMGUI_SRCS = ../frameworks/imgui/imgui.cpp ../frameworks/imgui/imgui_demo.cpp \
+             ../frameworks/imgui/imgui_draw.cpp
+MACOS_SRCS = src/file_dialog.mm
 
-$(SDL_LIB) $(SDL_HEADERS):
-	bash ../tools/build_sdl_macos.sh
+# Object files (convert source paths to .o in current directory)
+OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
+DEPS = $(OBJS:.o=.d)
 
-# Default target
-$(APPNAME): sdl clean objects
-	# Compiling main executable
-	$(CC) $(CFLAGS) $(LIBS) $(INCS) *.o -o $@ $(LFLAGS)
-
-	# Creating empty .app bundle
-	mkdir $@.app
-	cd $@.app; mkdir Contents; cd Contents; mkdir MacOS; mkdir Resources; mkdir Frameworks
-
+$(APP_BUNDLE): $(APP_EXECUTABLE) $(SDL_LIB)
 	# Copying the frameworks into .app bundle
-	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $@.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 	# Set the dylib's install name to be relative to the bundle
-	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+
+	# Moving the configured executable and copying other files into .app bundle
+	cp resources/Kiwi8.icns $(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
+	cp src/Info.plist $(APP_BUNDLE)/Contents/Info.plist
+
+	# modify timestamp for make to handle rebuilding only when deps change
+	touch $(APP_BUNDLE)
+
+$(APP_EXECUTABLE): $(SDL_LIB) $(SDL_HEADERS) $(OBJS)
+	# Creating empty .app bundle
+	mkdir -p $(APP_BUNDLE)
+	cd $(APP_BUNDLE); mkdir -p Contents; cd Contents; mkdir -p MacOS; mkdir -p Resources; mkdir -p Frameworks
+
+	# Compiling main executable
+	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 	# Re-linking the dylibs to newly compiled executable (handle previous absolute path and @rpath)
 	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
 	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
 
-	# Moving the configured executable and copying other files into .app bundle
-	cp resources/$@.icns $@.app/Contents/Resources/$@.icns
-	cp src/Info.plist $@.app/Contents/Info.plist
-	mv $@ $@.app/Contents/MacOS/$@
-	mkdir release
-	mv $@.app release/$@.app
+$(SDL_LIB) $(SDL_HEADERS):
+	bash ../tools/build_sdl_macos.sh
 
-	# Verification: ensure the executable and dylib have correct references
-	otool -L release/$@.app/Contents/MacOS/$@ | sed -n '1,120p' | grep -q '@executable_path/../Frameworks/libSDL2-2.0.0.dylib' || (echo 'Error: executable not linked to bundled SDL' && exit 1)
-	otool -L release/$@.app/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p' | grep -q '@executable_path/../Frameworks/libSDL2-2.0.0.dylib' || (echo 'Error: SDL dylib install name not set' && exit 1)
+# Pattern rules for different source file types
+%.o: ../Core/%.cc
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-# Builds object files
-objects:	src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
-	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
+%.o: ../frameworks/imgui/%.cpp
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-# Tests the release version
-test_release:
-	open ./release/$(APPNAME).app --args \
+%.o: src/%.mm
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-# Runs the program with an attached terminal (Application must be built prior)
-test_debug:
-	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
+test-release: $(APP_BUNDLE)
+	open ./$(APP_BUNDLE)
+
+test-debug: $(APP_BUNDLE)
+	./$(APP_BUNDLE)/Contents/MacOS/$(APPNAME)
 
 
-# Check dylib linking inside release bundle
 check-dylibs:
-	otool -L release/$(APPNAME).app/Contents/MacOS/$(APPNAME) | sed -n '1,120p'
-	otool -L release/$(APPNAME).app/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
-
-
-# Removes build artifacts (objects, app bundle) but keeps SDL
-clean:
-	$(RM) *.o *.app
-	$(RM) -r release
+	otool -L $(APP_EXECUTABLE) | sed -n '1,120p'
+	otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
 
 # Removes just SDL (for forcing recompile)
 clean-sdl:
 	$(RM) -r frameworks/sdl/lib
 	$(RM) -r frameworks/sdl/include
 
+# Removes build artifacts (objects, app bundle) but keeps SDL
+clean:
+	$(RM) *.o *.d
+	$(RM) -r $(APP_BUNDLE)
+
 # Removes everything including SDL (full reset)
 distclean: clean clean-sdl
 	$(RM) -r frameworks/sdl/backups
 	$(RM) -r ../MacOS/third_party
+
+.PHONY: clean clean-sdl distclean test-release test-debug check-dylibs
+
+# Include auto-generated dependency files
+-include $(DEPS)

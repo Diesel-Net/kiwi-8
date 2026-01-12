@@ -1,4 +1,5 @@
 # Kiwi8
+
 **v1.03**
 
 ![boot](/images/screenshots/boot.png)
@@ -11,15 +12,17 @@ in C++ using SDL2, ImGui, and OpenGL.
 **[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
 
 ## Features
- - Windows and MacOS
- - Graphical user interface
- - Audio
- - Color customizer
- - CPU frequency selection
- - Command line support
- - No SCHIP support
+
+- Windows and MacOS
+- Graphical user interface
+- Audio
+- Color customizer
+- CPU frequency selection
+- Command line support
+- No SCHIP support
 
 ## Usage
+
     Kiwi8 [filename] [-FMLSV]
     -F      Launch in fullscreen
     -M      Launch with audio muted
@@ -28,25 +31,44 @@ in C++ using SDL2, ImGui, and OpenGL.
     -V      Disable vertical wrapping
 
 ## Building on Windows
+
 Microsoft's Visual C++ Build Tools
 (vcvarsall/cl/nmake) are assumed to be
 installed and added to PATH.
-1) Open the command prompt and navigate
+
+1. Configure Windows Development environment:
+
+   ```cmd
+   vcvarsall x86
+   ```
+
+1. Build with `nmake`:
+
+   ```zsh
+   cd Windows; nmake
+   ```
+
+1. Open the command prompt and navigate
    to the Kiwi8/Windows directory.
-2) Type `vcvarsall x86` to load the
+1. Type `vcvarsall x86` to load the
    windows development environment.
-3) Type `nmake`.
+1. Type `nmake`.
 
 ## Building on MacOS
+
 Apple's Xcode command line tools
 (clang++/make/install_name_tool)
 are assumed to be installed and
 added to PATH.
-1) Open the terminal and navigate
-   to the Kiwi8/MacOS directory.
-2) Type `make`.
+
+1. Build with `make`:
+
+   ```zsh
+   make -C MacOS
+   ```
 
 ## Resources
+
 - [Chip-8 wikipedia](https://en.wikipedia.org/wiki/CHIP-8)
 - [Emu-Docs](https://github.com/Emu-Docs/Emu-Docs)
 - [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
