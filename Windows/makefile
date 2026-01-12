@@ -1,5 +1,30 @@
+APP_NAME = Kiwi8
+
+# Auto-detect version: use GITHUB_REF_NAME if set (CI), else git describe, else git branch
+!IFNDEF GITHUB_REF_NAME
+# Try git describe for exact tag match
+!IF [git describe --tags --exact-match > .version.tmp 2>nul] == 0
+!INCLUDE .version.tmp
+# Try git branch name
+!ELSE IF [git rev-parse --abbrev-ref HEAD > .version.tmp 2>nul] == 0
+!INCLUDE .version.tmp
+!ELSE
+VERSION = unknown
+!ENDIF
+# Clean up temp file
+!IF [del .version.tmp 2>nul]
+!ENDIF
+!ELSE
+VERSION = $(GITHUB_REF_NAME)
+!ENDIF
+
+APP_NAME_VERSION = $(APP_NAME) $(VERSION)
+APP_EXE = $(APP_NAME).exe
+APP_PDB = $(APP_NAME).pdb
+APP_RES = $(APP_NAME).res
+
 CC = CL
-CFLAGS = /MD /nologo /W3 /w44996
+CFLAGS = /MD /nologo /W3 /w44996 /DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\"
 LFLAGS = /link \
 		 /LIBPATH:frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
@@ -30,11 +55,6 @@ OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
        main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
        imgui_draw.obj file_dialog.obj
 
-
-APP_NAME = Kiwi8
-APP_EXE = $(APP_NAME).exe
-APP_PDB = $(APP_NAME).pdb
-APP_RES = $(APP_NAME).res
 
 # Default target
 all: debug\$(APP_EXE) release\$(APP_EXE)

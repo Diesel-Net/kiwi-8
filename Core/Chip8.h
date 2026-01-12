@@ -6,7 +6,12 @@
 #include "Input.h"
 #include "Audio.h"
 
-#define APPNAME_VERSION "Kiwi8 v1.03"
+// APPNAME_VERSION is defined by the compiler via -DAPPNAME_VERSION="..."
+// Falls back to generic name if not defined (shouldn't happen in normal builds)
+#ifndef APPNAME_VERSION
+#define APPNAME_VERSION "Kiwi8"
+#endif
+
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
 #define STACK_DEPTH 16

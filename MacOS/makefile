@@ -1,5 +1,18 @@
+APP_NAME = Kiwi8
+
+# Auto-detect version: use GITHUB_REF_NAME if set (CI), else git describe, else git branch
+ifeq ($(origin GITHUB_REF_NAME), environment)
+VERSION := $(GITHUB_REF_NAME)
+else
+VERSION := $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+endif
+
+APP_NAME_VERSION = $(APP_NAME) $(VERSION)
+APP_BUNDLE = release/$(APP_NAME).app
+APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
+
 CC = clang++
-CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP
+CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"Kiwi8 $(VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
@@ -22,10 +35,6 @@ MACOS_SRCS = src/file_dialog.mm
 # Object files (convert source paths to .o in current directory)
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
-
-APP_NAME = Kiwi8
-APP_BUNDLE = release/$(APP_NAME).app
-APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 # Include auto-generated dependency files (must be before targets)
 -include $(DEPS)

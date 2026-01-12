@@ -1,6 +1,6 @@
-Kiwi8 v1.03
+Kiwi8
 
-A cross-platform Chip-8 interpreter written 
+A cross-platform Chip-8 interpreter written
 in C++ using SDL2, ImGui, and OpenGL.
 
 For more information about the Chip-8 visit:
@@ -12,8 +12,8 @@ and MacOS (.exe file and .app bundle respectively)
 You can download them here:
 https://github.com/tomdaley92/Kiwi8/releases
 
-The interpreter passes "SC Test.ch8" up to 
-error 23, which is the first SCHIP opcode 
+The interpreter passes "SC Test.ch8" up to
+error 23, which is the first SCHIP opcode
 encountered.
 
 ROM Compatibility is discussed here:
@@ -40,21 +40,21 @@ mute                        m
 How to compile:
 
     Windows:
-        Microsoft's Visual C++ Build Tools 
-        (vcvarsall/cl/nmake) are assumed to be 
+        Microsoft's Visual C++ Build Tools
+        (vcvarsall/cl/nmake) are assumed to be
         installed and added to PATH.
-        1) Open the command prompt and navigate 
+        1) Open the command prompt and navigate
            to the Kiwi8/Windows directory.
-        2) Type "vcvarsall x86" to load the 
+        2) Type "vcvarsall x86" to load the
            windows development environment.
         3) Type "nmake".
 
     MacOS:
-        Apple's Xcode command line tools 
-        (clang++/make/install_name_tool) 
-        are assumed to be installed and 
+        Apple's Xcode command line tools
+        (clang++/make/install_name_tool)
+        are assumed to be installed and
         added to PATH.
-        1) Open the terminal and navigate 
+        1) Open the terminal and navigate
            to the Kiwi8/MacOS directory.
         2) Type "make".
 
