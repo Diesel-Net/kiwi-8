@@ -4,79 +4,9 @@ on:
   push:
     branches:
       - develop
-
-#   pull_request:
-#     types:
-#       - closed
-#     branches:
-#       - develop
+      - feature/*
+      - main
 
 jobs:
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache SDL
-        uses: actions/cache@v4
-        with:
-          path: MacOS/frameworks/sdl
-          key: sdl-2.32.10-${{ runner.os }}-${{ runner.arch }}
-          restore-keys: |
-            sdl-2.32.10-macOS
-
-      - name: Install build dependencies
-        run: |
-          brew install cmake pkg-config nasm
-
-      - name: Build macOS (x86_64 + arm64)
-        run: |
-          cd MacOS
-          make
-
-      - name: Zip application bundle
-        run: zip -r -y "MacOS/release/Kiwi8.zip" "MacOS/release/Kiwi8.app"
-
-      - name: Upload macOS build artifact
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: Kiwi8-macOS
-          path: MacOS/release/Kiwi8.zip
-          retention-days: 7
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache SDL
-        uses: actions/cache@v4
-        with:
-          path: Windows/frameworks/sdl
-          key: sdl-2.32.10-${{ runner.os }}-${{ runner.arch }}
-          restore-keys: |
-            sdl-2.32.10-Windows
-
-      - name: Configures build environment for AMD64
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-            arch: amd64
-
-      - name: Build Windows (x64)
-        shell: cmd
-        run: |
-          cd Windows
-          nmake
-
-      - name: Create Zip Archive
-        run: Compress-Archive -Path Windows\release\* -DestinationPath Windows\release\Kiwi8.zip
-
-      - name: Upload Windows build artifact
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: Kiwi8-Windows
-          path: |
-            Windows/release/Kiwi8.zip
-          retention-days: 7
+  build:
+    uses: ./.github/workflows/build-reusable.yml

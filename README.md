@@ -1,11 +1,9 @@
 # Kiwi8
 
-**v1.03**
-
 ![boot](/images/screenshots/boot.png)
 
 A cross-platform Chip-8 interpreter written
-in C++ using SDL2, ImGui, and OpenGL.
+in C-style C++ using SDL2, ImGui, and OpenGL.
 
 **[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
 
@@ -32,39 +30,49 @@ in C++ using SDL2, ImGui, and OpenGL.
 
 ## Building on Windows
 
-Microsoft's Visual C++ Build Tools
-(vcvarsall/cl/nmake) are assumed to be
-installed and added to PATH.
+Microsoft's Visual C++ Build Tools must be installed and added to your **PATH**:
 
-1. Configure Windows Development environment:
+>vcvarsall<br>
+>nmake<br>
+>cl<br>
+
+1. Change current working directory
 
    ```cmd
-   vcvarsall x86
+   cd Windows
    ```
 
-1. Build with `nmake`:
+1. Configure environment for 64-bit architecture
 
-   ```zsh
-   cd Windows; nmake
+   ```cmd
+   vcvarsall.bat x86_amd64
    ```
 
-1. Open the command prompt and navigate
-   to the Kiwi8/Windows directory.
-1. Type `vcvarsall x86` to load the
-   windows development environment.
-1. Type `nmake`.
+1. Compile with Microsoft's `nmake` utility
+
+   ```cmd
+   nmake
+   ```
 
 ## Building on MacOS
 
-Apple's Xcode command line tools
-(clang++/make/install_name_tool)
-are assumed to be installed and
-added to PATH.
+Apple's Xcode command line tools must be installed and added to your **PATH**:
 
-1. Build with `make`:
+>make<br>
+>clang++<br>
+>install_name_tool<br>
+>otool<br>
 
-   ```zsh
-   make -C MacOS
+1. Change current working directory
+
+   ```bash
+   cd MacOS
+   ```
+
+1. Compile with GNU's `make` utility
+
+   ```bash
+   make
    ```
 
 ## Resources
@@ -78,10 +86,10 @@ added to PATH.
 
 ---
 
-_"I would highly recommend this project to anyone
+_"I highly recommend this project to anyone
 wanting to get their feet wet with emulator
 programming, video-game programming, or even
-cross-platform development. It has been a great
+cross-platform development. It's been a great
 educational excercise involving major aspects
 of modern day applications such as input handling,
 user-interface design, 2D graphics rendering,
