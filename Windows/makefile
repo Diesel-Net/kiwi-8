@@ -24,7 +24,7 @@ APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /MD /nologo /W3 /w44996 /DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\"
+CFLAGS = /MD /nologo /W3 /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
 LFLAGS = /link \
 		 /LIBPATH:frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
