@@ -17,6 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache SDL
+        uses: actions/cache@v4
+        with:
+          path: MacOS/frameworks/sdl
+          key: sdl-macos-2.32.10-${{ runner.os }}-${{ runner.arch }}
+          restore-keys: |
+            sdl-macos-2.32.10-
+
       - name: Install build dependencies
         run: |
           brew install cmake pkg-config nasm
@@ -41,6 +49,14 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache SDL
+        uses: actions/cache@v4
+        with:
+          path: Windows/frameworks/sdl
+          key: sdl-windows-2.32.10-${{ runner.os }}-${{ runner.arch }}
+          restore-keys: |
+            sdl-windows-2.32.10-
 
       - name: Configures build environment for AMD64
         uses: ilammy/msvc-dev-cmd@v1
