@@ -1,18 +1,9 @@
-# Author: Thomas Daley
-# Date: September 8, 2016
-# Purpose: Builds debug & release version of the application on windows
-
-# Note: Microsoft Visual C++ Build Tools are assumed to be installed and added to PATH
-
-# 1) vcvarsall x64
-# 2) nmake
-
 APPNAME = Kiwi8
 ARCH = x64
 
 # SDL dependency files
-SDL_LIB = frameworks\sdl\lib\SDL2.lib
-SDL_DLL = frameworks\sdl\bin\SDL2.dll
+SDL_LIB = $(MAKEDIR)\frameworks\sdl\lib\SDL2.lib
+SDL_DLL = $(MAKEDIR)\frameworks\sdl\bin\SDL2.dll
 
 DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
@@ -20,11 +11,11 @@ RELEASE = /SUBSYSTEM:WINDOWS
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
-		 /LIBPATH:frameworks\sdl\lib \
+		 /LIBPATH:$(MAKEDIR)\frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
 
-INCS = /Iframeworks\sdl\include \
-	   /I..\frameworks\imgui
+INCS = /I$(MAKEDIR)\frameworks\sdl\include \
+	   /I$(MAKEDIR)\..\frameworks\imgui
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
@@ -35,18 +26,19 @@ LIBS = user32.lib \
 all: clean build_debug build_release
 	DEL *.exe *.obj *.res *.pdb
 
-# Build SDL if not present
-sdl: $(SDL_LIB) $(SDL_DLL)
+# Build SDL if lib doesn't exist (DLL and headers come together)
+sdl:
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
 $(SDL_LIB) $(SDL_DLL):
 	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
-build_debug: sdl objects resource
+build_debug: $(SDL_LIB) $(SDL_HEADER) objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll debug\SDL2.dll
 
-build_release: sdl objects resource
+build_release: $(SDL_LIB) $(SDL_HEADER) objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll release\SDL2.dll
