@@ -20,7 +20,8 @@ LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
 	   opengl32.lib \
-	   Comdlg32.lib
+	   Comdlg32.lib \
+	   Shell32.lib
 
 # Default target
 all: clean build_debug build_release
