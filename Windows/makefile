@@ -1,12 +1,3 @@
-ARCH = x64
-
-# SDL dependency files
-SDL_LIB = frameworks\sdl\lib\SDL2.lib
-SDL_DLL = frameworks\sdl\bin\SDL2.dll
-
-DEBUG = /SUBSYSTEM:CONSOLE
-RELEASE = /SUBSYSTEM:WINDOWS
-
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
@@ -22,6 +13,10 @@ LIBS = user32.lib \
 	   Comdlg32.lib \
 	   Shell32.lib
 
+# SDL dependency files
+SDL_LIB = frameworks\sdl\lib\SDL2.lib
+SDL_DLL = frameworks\sdl\bin\SDL2.dll
+
 # Source files
 CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
             ..\Core\imgui_impl_sdl.cc ..\Core\Input.cc ..\Core\main.cc \
@@ -35,16 +30,13 @@ OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
        main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
        imgui_draw.obj file_dialog.obj
 
-RESOURCE = Kiwi8.res
 
 APP_NAME = Kiwi8
-APP_EXE = Kiwi8.exe
-
-APP_DEBUG = debug\$(APP_NAME).exe
-APP_RELEASE = release\$(APP_NAME).exe
+APP_EXE = $(APP_NAME).exe
+RESOURCE = $(APP_NAME).res
 
 # Default target
-all: $(APP_DEBUG) $(APP_RELEASE)
+all: debug\$(APP_EXE) release\$(APP_EXE)
 
 # Build SDL (force rebuild with: nmake sdl)
 sdl:
@@ -71,23 +63,23 @@ $(RESOURCE): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
 	MOVE src\Kiwi8.res $@
 
-$(APP_DEBUG): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
-	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
+debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
+	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
 	IF NOT EXIST debug MKDIR debug
 	COPY $(SDL_DLL) debug\SDL2.dll
-	MOVE $(APP_NAME).exe $@
+	MOVE $(APP_EXE) $@
 
-$(APP_RELEASE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
-	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
+release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
+	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
 	IF NOT EXIST release MKDIR release
 	COPY $(SDL_DLL) release\SDL2.dll
-	MOVE $(APP_NAME).exe $@
+	MOVE $(APP_EXE) $@
 
 test-debug:
-	debug\$(APP_NAME).exe
+	debug\$(APP_EXE)
 
 test-release:
-	release\$(APP_NAME).exe
+	release\$(APP_EXE)
 
 # Remove just SDL (for forcing recompile)
 clean-sdl:
@@ -96,7 +88,7 @@ clean-sdl:
 
 # Clean any leftover build files (keeps SDL)
 clean:
-	-DEL /Q $(APP_DEBUG) $(APP_RELEASE) *.obj *.res *.pdb 2>nul
+	-DEL /Q *.obj *.res *.pdb 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 

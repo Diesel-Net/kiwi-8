@@ -36,11 +36,11 @@ all: $(APP_BUNDLE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
-	@bash ../tools/build_sdl_macos.sh
+	bash ../tools/build_sdl_macos.sh
 
 # Build SDL if lib doesn't exist (headers come together)
 $(SDL_LIB):
-	@bash ../tools/build_sdl_macos.sh
+	bash ../tools/build_sdl_macos.sh
 
 # Pattern rules for incremental compilation
 %.o: ../Core/%.cc
@@ -54,7 +54,7 @@ $(SDL_LIB):
 
 $(APP_EXE): $(SDL_LIB) $(OBJS)
 	# Create app bundle directory structure
-	@mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
+	mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
 
 	# Compiling main executable
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
@@ -75,7 +75,7 @@ $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	cp src/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 
 	# Update directory timestamp so Make knows bundle is up-to-date
-	@touch $(APP_BUNDLE)
+	touch $(APP_BUNDLE)
 
 test-debug: $(APP_BUNDLE)
 	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
@@ -84,8 +84,8 @@ test-release: $(APP_BUNDLE)
 	open ./$(APP_BUNDLE)
 
 check-dylibs: $(APP_BUNDLE)
-	@otool -L $(APP_EXE) | sed -n '1,120p'
-	@otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
+	otool -L $(APP_EXE) | sed -n '1,120p'
+	otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
 
 # Removes just SDL (for forcing recompile)
 clean-sdl:
