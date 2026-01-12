@@ -33,6 +33,7 @@ OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
 
 APP_NAME = Kiwi8
 APP_EXE = $(APP_NAME).exe
+APP_PDB = $(APP_NAME).pdb
 RESOURCE = $(APP_NAME).res
 
 # Default target
@@ -64,13 +65,13 @@ $(RESOURCE): src\Kiwi8.rc resources\Kiwi8.ico
 	MOVE src\Kiwi8.res $@
 
 debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
-	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
+	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) $(OBJS) $(RESOURCE) $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
 	IF NOT EXIST debug MKDIR debug
 	COPY $(SDL_DLL) debug\SDL2.dll
 	MOVE $(APP_EXE) $@
 
 release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
-	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
+	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) $(OBJS) $(RESOURCE) $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
 	IF NOT EXIST release MKDIR release
 	COPY $(SDL_DLL) release\SDL2.dll
 	MOVE $(APP_EXE) $@
@@ -88,7 +89,7 @@ clean-sdl:
 
 # Clean any leftover build files (keeps SDL)
 clean:
-	-DEL /Q *.obj *.res *.pdb 2>nul
+	-DEL /Q $(OBJS) $(RESOURCE) $(APP_PDB) 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 
