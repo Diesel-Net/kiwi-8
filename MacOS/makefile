@@ -10,7 +10,6 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 
 # SDL dependency files
 SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
-SDL_HEADERS = frameworks/sdl/include/SDL2/SDL.h
 
 # Source files
 CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
@@ -39,10 +38,7 @@ all: $(APP_BUNDLE)
 $(SDL_LIB):
 	@bash ../tools/build_sdl_macos.sh
 
-$(SDL_HEADERS): $(SDL_LIB)
-	@# Headers are created by same script that creates lib
-
-$(APP_EXE): $(SDL_LIB) $(SDL_HEADERS) $(OBJS)
+$(APP_EXE): $(SDL_LIB) $(OBJS)
 	# Create app bundle directory structure
 	@mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
 
