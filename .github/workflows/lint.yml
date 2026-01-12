@@ -8,6 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Core no-OO linter (informational only)
+      - name: Run Core no-OO linter
         run: |
-          bash tools/check_no_oo.sh Core || true
+          bash tools/check_no_oo.sh Core
