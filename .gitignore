@@ -1,1 +1,16 @@
-**/.DS_Store
+.DS_Store
+
+*.o
+*.d
+
+MacOS/frameworks/sdl/
+MacOS/third_party/
+MacOS/release/
+MacOS/debug/
+MacOS/build/
+
+Windows/frameworks/sdl/
+Windows/third_party/
+Windows/release/
+Windows/debug/
+Windows/build/

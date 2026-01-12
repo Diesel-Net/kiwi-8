@@ -1,10 +1,6 @@
-# Author: Thomas Daley
-# Date: September 8, 2016
-# Purpose: Builds the application into a standalone .app bundle for distribution
-
 CC = clang++
-CFLAGS = -std=c++11 -Wall -mmacosx-version-min=10.9
-LFLAGS = -mmacosx-version-min=10.9
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP
+LFLAGS = -mmacosx-version-min=11.0
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
 LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
@@ -12,49 +8,98 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 		-framework Cocoa \
 		-framework OpenGL
 
-APPNAME = Kiwi8
+# SDL dependency files
+SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
 
-# Default target
-$(APPNAME): objects
-	# Removing previous build
-	cd release; $(RM) -r *.app
+# Source files
+CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
+            ../Core/imgui_impl_sdl.cc ../Core/Input.cc ../Core/main.cc \
+            ../Core/opcodes.cc ../Core/open_file_dialog.cc
+IMGUI_SRCS = ../frameworks/imgui/imgui.cpp ../frameworks/imgui/imgui_demo.cpp \
+             ../frameworks/imgui/imgui_draw.cpp
+MACOS_SRCS = src/file_dialog.mm
+
+# Object files (convert source paths to .o in current directory)
+OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
+DEPS = $(OBJS:.o=.d)
+
+APP_NAME = Kiwi8
+APP_BUNDLE = release/$(APP_NAME).app
+APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
+
+# Include auto-generated dependency files (must be before targets)
+-include $(DEPS)
+
+.DEFAULT_GOAL := all
+
+all: $(APP_BUNDLE)
+
+# Build SDL (force rebuild with: make sdl)
+sdl:
+	bash ../tools/build_sdl_macos.sh
+
+# Build SDL if lib doesn't exist (headers come together)
+$(SDL_LIB):
+	bash ../tools/build_sdl_macos.sh
+
+# Pattern rules for incremental compilation
+%.o: ../Core/%.cc
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+%.o: ../frameworks/imgui/%.cpp
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+%.o: src/%.mm
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+$(APP_EXE): $(SDL_LIB) $(OBJS)
+	# Create app bundle directory structure
+	mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
 
 	# Compiling main executable
-	$(CC) $(CFLAGS) $(LIBS) $(INCS) *.o -o $@ $(LFLAGS)
+	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
-	# Removing leftover objects 
-	$(RM) *.o
+	# Re-linking the dylibs to newly compiled executable (handle previous absolute path and @rpath)
+	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
 
-	# Creating empty .app bundle
-	mkdir $@.app
-	cd $@.app; mkdir Contents; cd Contents; mkdir MacOS; mkdir Resources; mkdir Frameworks
-
+$(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Copying the frameworks into .app bundle
-	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $@.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
-	# Re-linking the dylibs to newly compiled executable
-	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@ 
+	# Set the dylib's install name to be relative to the bundle
+	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 	# Moving the configured executable and copying other files into .app bundle
-	cp resources/$@.icns $@.app/Contents/Resources/$@.icns
-	cp src/Info.plist $@.app/Contents/Info.plist
-	mv $@ $@.app/Contents/MacOS/$@
-	mv $@.app release/$@.app
+	cp resources/Kiwi8.icns $(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
+	cp src/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 
-# Builds object files
-objects:	src/*.mm ../Core/*.c* ../frameworks/imgui/imgui*.cpp
-	$(CC) $(CFLAGS) -c $(INCS) $(CFLAGS) $?
+	# Update directory timestamp so Make knows bundle is up-to-date
+	touch $(APP_BUNDLE)
 
-# Tests the release version
-test_release:
-	open ./release/$(APPNAME).app --args \
+test-debug: $(APP_BUNDLE)
+	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
-# Runs the program with an attached terminal (Application must be built prior)
-test_debug:
-	./release/$(APPNAME).app/Contents/MacOS/$(APPNAME) \
-	
+test-release: $(APP_BUNDLE)
+	open ./$(APP_BUNDLE)
 
-# Removes latest build and object files
+check-dylibs: $(APP_BUNDLE)
+	otool -L $(APP_EXE) | sed -n '1,120p'
+	otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
+
+# Remove just SDL
+clean-sdl:
+	$(RM) -r frameworks/sdl/lib
+	$(RM) -r frameworks/sdl/include
+
+# Removes build artifacts (objects, app bundle) but keeps SDL
 clean:
-	$(RM) *.o *.app
-	cd release; $(RM) -r *.app
+	$(RM) *.o *.d
+	$(RM) -r $(APP_BUNDLE)
+
+# Removes everything including SDL (full reset)
+distclean: clean clean-sdl
+	$(RM) -r frameworks/sdl/backups
+	$(RM) -r ../MacOS/third_party
+
+.PHONY: all sdl clean clean-sdl distclean test-release test-debug check-dylibs

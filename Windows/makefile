@@ -1,64 +1,100 @@
-# Author: Thomas Daley
-# Date: September 8, 2016
-# Purpose: Builds debug & release version of the application on windows
-
-# Note: Microsoft Visual C++ Build Tools are assumed to be installed and added to PATH
-
-# 1) vcvarsall x86
-# 2) nmake
-
-APPNAME = Kiwi8
-ARCH = x86
-
-DEBUG = /SUBSYSTEM:CONSOLE
-RELEASE = /SUBSYSTEM:WINDOWS
-
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
-		 /LIBPATH:$(MAKEDIR)/frameworks/sdl/lib/$(ARCH) \
+		 /LIBPATH:frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
 
-INCS = /I$(MAKEDIR)/frameworks/sdl/include/ \
-	   /I$(MAKEDIR)/../frameworks/imgui/
+INCS = /Iframeworks\sdl\include \
+	   /I..\frameworks\imgui
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
 	   opengl32.lib \
-	   Comdlg32.lib
+	   Comdlg32.lib \
+	   Shell32.lib
+
+# SDL dependency files
+SDL_LIB = frameworks\sdl\lib\SDL2.lib
+SDL_DLL = frameworks\sdl\bin\SDL2.dll
+
+# Source files
+CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
+            ..\Core\imgui_impl_sdl.cc ..\Core\Input.cc ..\Core\main.cc \
+            ..\Core\opcodes.cc ..\Core\open_file_dialog.cc
+IMGUI_SRCS = ..\frameworks\imgui\imgui.cpp ..\frameworks\imgui\imgui_demo.cpp \
+             ..\frameworks\imgui\imgui_draw.cpp
+WINDOWS_SRCS = src\file_dialog.cc
+
+# Object files (all built in current directory)
+OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
+       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
+       imgui_draw.obj file_dialog.obj
+
+
+APP_NAME = Kiwi8
+APP_EXE = $(APP_NAME).exe
+RESOURCE = $(APP_NAME).res
 
 # Default target
-all: clean build_debug build_release
-	DEL *.exe *.obj *.res *.pdb
+all: debug\$(APP_EXE) release\$(APP_EXE)
 
-build_debug: objects resource
-	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
-	MOVE $(APPNAME).exe debug\$(APPNAME).exe
-	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll debug\SDL2.dll
+# Build SDL (force rebuild with: nmake sdl)
+sdl:
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
-build_release: objects resource
-	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
-	MOVE $(APPNAME).exe release\$(APPNAME).exe
-	COPY frameworks\sdl\lib\$(ARCH)\SDL2.dll release\SDL2.dll
+# Build SDL if lib doesn't exist (DLL and headers come together)
+$(SDL_LIB):
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
-test_debug:
-	debug\$(APPNAME).exe \
-	"C:\Roms\CHIP-8\Games\Brix [Andreas Gustafsson, 1990].ch8"
+$(SDL_DLL): $(SDL_LIB)
+	@REM DLL is created by same script that creates LIB
 
-test_release: 
-	release\$(APPNAME).exe \
+# Inference rules for incremental compilation
+{..\Core}.cc{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
 
-# Build object files
-objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
-	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
+{..\frameworks\imgui}.cpp{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
 
-# Build resource file
-resource: src\$(APPNAME).rc resources\$(APPNAME).ico
-	RC src\$(APPNAME).rc
-	MOVE src\$(APPNAME).res $(APPNAME).res
+{src}.cc{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
 
-# Clean any leftover build files
+$(RESOURCE): src\Kiwi8.rc resources\Kiwi8.ico
+	RC src\Kiwi8.rc
+	MOVE src\Kiwi8.res $@
+
+debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
+	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
+	IF NOT EXIST debug MKDIR debug
+	COPY $(SDL_DLL) debug\SDL2.dll
+	MOVE $(APP_EXE) $@
+
+release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
+	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
+	IF NOT EXIST release MKDIR release
+	COPY $(SDL_DLL) release\SDL2.dll
+	MOVE $(APP_EXE) $@
+
+test-debug:
+	debug\$(APP_EXE)
+
+test-release:
+	release\$(APP_EXE)
+
+# Remove just SDL
+clean-sdl:
+	-RD /S /Q frameworks\sdl\lib
+	-RD /S /Q frameworks\sdl\include
+
+# Clean any leftover build files (keeps SDL)
 clean:
-	DEL *.exe *.obj *.res *.pdb
-	cd debug & DEL *.exe *.dll 
-	cd release & DEL *.exe *.dll 
+	-DEL /Q *.obj *.res *.pdb 2>nul
+	-IF EXIST debug RD /S /Q debug
+	-IF EXIST release RD /S /Q release
+
+# Remove everything including SDL (full reset)
+distclean: clean clean-sdl
+	-RD /S /Q frameworks\sdl\backups
+	-RD /S /Q ..\Windows\third_party
+
+.PHONY: all sdl test-debug test-release clean clean-sdl distclean

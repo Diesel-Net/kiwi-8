@@ -1,0 +1,14 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/*
+      - hotfix/*
+      - bugfix/*
+      - main
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-reusable.yml

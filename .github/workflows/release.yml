@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-reusable.yml
+
+  upload-to-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Upload macOS to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Kiwi8-macOS/Kiwi8-macOS.zip
+
+      - name: Upload Windows to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Kiwi8-Windows/Kiwi8-Windows.zip
