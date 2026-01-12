@@ -87,7 +87,7 @@ check-dylibs: $(APP_BUNDLE)
 	otool -L $(APP_EXE) | sed -n '1,120p'
 	otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
 
-# Removes just SDL (for forcing recompile)
+# Remove just SDL
 clean-sdl:
 	$(RM) -r frameworks/sdl/lib
 	$(RM) -r frameworks/sdl/include

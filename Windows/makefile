@@ -81,7 +81,7 @@ test-debug:
 test-release:
 	release\$(APP_EXE)
 
-# Remove just SDL (for forcing recompile)
+# Remove just SDL
 clean-sdl:
 	-RD /S /Q frameworks\sdl\lib
 	-RD /S /Q frameworks\sdl\include
