@@ -27,27 +27,27 @@ all: clean build_debug build_release
 	DEL *.exe *.obj *.res *.pdb
 
 # Build SDL if lib doesn't exist (DLL and headers come together)
-sdl:
+$(SDL_LIB):
 	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
-$(SDL_LIB) $(SDL_DLL):
-	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
+$(SDL_DLL): $(SDL_LIB)
+	@REM DLL is created by same script that creates LIB
 
-build_debug: $(SDL_LIB) $(SDL_HEADER) objects resource
+build_debug: $(SDL_LIB) $(SDL_DLL) objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll debug\SDL2.dll
 
-build_release: $(SDL_LIB) $(SDL_HEADER) objects resource
+build_release: $(SDL_LIB) $(SDL_DLL) objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll release\SDL2.dll
 
 test_debug:
-	debug\$(APPNAME).exe \
+	debug\$(APPNAME).exe
 
 test_release:
-	release\$(APPNAME).exe \
+	release\$(APPNAME).exe
 
 # Build object files
 objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp

@@ -35,11 +35,12 @@ APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 all: $(APP_BUNDLE)
 
-sdl:
+# Build SDL if lib doesn't exist (headers come together)
+$(SDL_LIB):
 	@bash ../tools/build_sdl_macos.sh
 
-$(SDL_LIB) $(SDL_HEADERS):
-	@bash ../tools/build_sdl_macos.sh
+$(SDL_HEADERS): $(SDL_LIB)
+	@# Headers are created by same script that creates lib
 
 $(APP_EXE): $(SDL_LIB) $(SDL_HEADERS) $(OBJS)
 	# Create app bundle directory structure
