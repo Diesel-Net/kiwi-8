@@ -85,6 +85,8 @@ Apple's Xcode command line tools must be installed and added to your **PATH**:
 - [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
 
 ---
+<br>
+<br>
 
 _"I highly recommend this project to anyone
 wanting to get their feet wet with emulator
