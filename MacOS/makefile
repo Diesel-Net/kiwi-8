@@ -71,7 +71,7 @@ test-release: $(APP_BUNDLE)
 	open ./$(APP_BUNDLE)
 
 test-debug: $(APP_BUNDLE)
-	./$(APP_BUNDLE)/Contents/MacOS/$(APPNAME)
+	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 
 check-dylibs:
