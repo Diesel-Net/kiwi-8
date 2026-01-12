@@ -36,11 +36,13 @@ $(SDL_DLL): $(SDL_LIB)
 
 build_debug: $(SDL_LIB) $(SDL_DLL) objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
+	IF NOT EXIST debug MKDIR debug
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll debug\SDL2.dll
 
 build_release: $(SDL_LIB) $(SDL_DLL) objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
+	IF NOT EXIST release MKDIR release
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll release\SDL2.dll
 
