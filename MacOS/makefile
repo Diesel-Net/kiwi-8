@@ -12,10 +12,6 @@ LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
 SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
 SDL_HEADERS = frameworks/sdl/include/SDL2/SDL.h
 
-APP_NAME = Kiwi8
-APP_BUNDLE = release/$(APP_NAME).app
-APP_EXECUTABLE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
-
 # Source files
 CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
             ../Core/imgui_impl_sdl.cc ../Core/Input.cc ../Core/main.cc \
@@ -28,7 +24,35 @@ MACOS_SRCS = src/file_dialog.mm
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
 
-$(APP_BUNDLE): $(APP_EXECUTABLE) $(SDL_LIB)
+APP_NAME = Kiwi8
+APP_BUNDLE = release/$(APP_NAME).app
+APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
+
+# Include auto-generated dependency files (must be before targets)
+-include $(DEPS)
+
+.DEFAULT_GOAL := all
+
+all: $(APP_BUNDLE)
+
+sdl:
+	@bash ../tools/build_sdl_macos.sh
+
+$(SDL_LIB) $(SDL_HEADERS):
+	@bash ../tools/build_sdl_macos.sh
+
+$(APP_EXE): $(SDL_LIB) $(SDL_HEADERS) $(OBJS)
+	# Create app bundle directory structure
+	@mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
+
+	# Compiling main executable
+	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
+
+	# Re-linking the dylibs to newly compiled executable (handle previous absolute path and @rpath)
+	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
+
+$(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Copying the frameworks into .app bundle
 	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
@@ -39,23 +63,8 @@ $(APP_BUNDLE): $(APP_EXECUTABLE) $(SDL_LIB)
 	cp resources/Kiwi8.icns $(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
 	cp src/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 
-	# modify timestamp for make to handle rebuilding only when deps change
-	touch $(APP_BUNDLE)
-
-$(APP_EXECUTABLE): $(SDL_LIB) $(SDL_HEADERS) $(OBJS)
-	# Creating empty .app bundle
-	mkdir -p $(APP_BUNDLE)
-	cd $(APP_BUNDLE); mkdir -p Contents; cd Contents; mkdir -p MacOS; mkdir -p Resources; mkdir -p Frameworks
-
-	# Compiling main executable
-	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
-
-	# Re-linking the dylibs to newly compiled executable (handle previous absolute path and @rpath)
-	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
-	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
-
-$(SDL_LIB) $(SDL_HEADERS):
-	bash ../tools/build_sdl_macos.sh
+	# Update directory timestamp so Make knows bundle is up-to-date
+	@touch $(APP_BUNDLE)
 
 # Pattern rules for different source file types
 %.o: ../Core/%.cc
@@ -73,10 +82,9 @@ test-release: $(APP_BUNDLE)
 test-debug: $(APP_BUNDLE)
 	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
-
-check-dylibs:
-	otool -L $(APP_EXECUTABLE) | sed -n '1,120p'
-	otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
+check-dylibs: $(APP_BUNDLE)
+	@otool -L $(APP_EXE) | sed -n '1,120p'
+	@otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
 
 # Removes just SDL (for forcing recompile)
 clean-sdl:
@@ -93,7 +101,4 @@ distclean: clean clean-sdl
 	$(RM) -r frameworks/sdl/backups
 	$(RM) -r ../MacOS/third_party
 
-.PHONY: clean clean-sdl distclean test-release test-debug check-dylibs
-
-# Include auto-generated dependency files
--include $(DEPS)
+.PHONY: all sdl clean clean-sdl distclean test-release test-debug check-dylibs
