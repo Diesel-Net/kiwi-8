@@ -46,6 +46,10 @@ APP_RELEASE = release\$(APP_NAME).exe
 # Default target
 all: $(APP_DEBUG) $(APP_RELEASE)
 
+# Build SDL (force rebuild with: nmake sdl)
+sdl:
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
+
 # Build SDL if lib doesn't exist (DLL and headers come together)
 $(SDL_LIB):
 	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
@@ -101,4 +105,4 @@ distclean: clean clean-sdl
 	-RD /S /Q frameworks\sdl\backups
 	-RD /S /Q ..\Windows\third_party
 
-.PHONY: all test-debug test-release clean clean-sdl distclean
+.PHONY: all sdl test-debug test-release clean clean-sdl distclean

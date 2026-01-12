@@ -34,6 +34,10 @@ APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 all: $(APP_BUNDLE)
 
+# Build SDL (force rebuild with: make sdl)
+sdl:
+	@bash ../tools/build_sdl_macos.sh
+
 # Build SDL if lib doesn't exist (headers come together)
 $(SDL_LIB):
 	@bash ../tools/build_sdl_macos.sh
@@ -98,4 +102,4 @@ distclean: clean clean-sdl
 	$(RM) -r frameworks/sdl/backups
 	$(RM) -r ../MacOS/third_party
 
-.PHONY: all clean clean-sdl distclean test-release test-debug check-dylibs
+.PHONY: all sdl clean clean-sdl distclean test-release test-debug check-dylibs
