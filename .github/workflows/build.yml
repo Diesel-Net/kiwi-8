@@ -10,5 +10,6 @@ on:
       - main
 
 jobs:
+
   build:
     uses: ./.github/workflows/build-reusable.yml

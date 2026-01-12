@@ -4,6 +4,7 @@ on:
   workflow_call:
 
 jobs:
+
   build-macos:
     runs-on: macos-latest
     steps:
@@ -13,9 +14,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: MacOS/frameworks/sdl
-          key: sdl-macos-2.32.10-${{ runner.os }}-${{ runner.arch }}
-          restore-keys: |
-            sdl-macos-2.32.10-
+          key: sdl-2.32.10-${{ runner.os }}-${{ runner.arch }}
 
       - name: Install build dependencies
         run: |
@@ -27,13 +26,13 @@ jobs:
           make
 
       - name: Zip application bundle
-        run: zip -r -y "MacOS/release/Kiwi8-${{ github.ref_name }}-macOS.zip" "MacOS/release/Kiwi8.app"
+        run: zip -r -y "MacOS/release/Kiwi8.zip" "MacOS/release/Kiwi8.app"
 
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-macOS
-          path: MacOS/release/Kiwi8-${{ github.ref_name }}-macOS.zip
+          name: Kiwi8-${{ github.ref_name }}-macOS
+          path: MacOS/release/Kiwi8.zip
           retention-days: 7
 
   build-windows:
@@ -45,9 +44,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: Windows/frameworks/sdl
-          key: sdl-windows-2.32.10-${{ runner.os }}-${{ runner.arch }}
-          restore-keys: |
-            sdl-windows-2.32.10-
+          key: sdl-2.32.10-${{ runner.os }}-${{ runner.arch }}
 
       - name: Configures build environment for AMD64
         uses: ilammy/msvc-dev-cmd@v1
@@ -61,11 +58,11 @@ jobs:
           nmake
 
       - name: Create Zip Archive
-        run: Compress-Archive -Path Windows\release\* -DestinationPath Windows\release\Kiwi8-${{ github.ref_name }}-Windows.zip
+        run: Compress-Archive -Path Windows\release\* -DestinationPath Windows\release\Kiwi8.zip
 
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-Windows
-          path: Windows\release\Kiwi8-${{ github.ref_name }}-Windows.zip
+          name: Kiwi8-${{ github.ref_name }}-Windows
+          path: Windows\release\Kiwi8.zip
           retention-days: 7

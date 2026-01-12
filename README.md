@@ -1,12 +1,20 @@
+
+
 # Kiwi8
+
+[![Release](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml)
+[![Build](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml)
+<br>
 
 ![boot](/images/screenshots/boot.png)
 
 A cross-platform Chip-8 interpreter written
 in C-style C++ using SDL2, ImGui, and OpenGL.
 
+
 **[<ins>Compatibility Notes<ins>](https://github.com/tomdaley92/Kiwi8/issues/9)**<br>
 **[<ins>Downloads<ins>](https://github.com/tomdaley92/Kiwi8/releases)**
+
 
 ## Features
 

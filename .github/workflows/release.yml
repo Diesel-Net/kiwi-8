@@ -5,6 +5,7 @@ on:
     types: [published]
 
 jobs:
+
   build:
     uses: ./.github/workflows/build-reusable.yml
 
@@ -15,12 +16,9 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
-      - name: Upload macOS to Release
+      - name: Upload builds to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Kiwi8-macOS/Kiwi8-macOS.zip
-
-      - name: Upload Windows to Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: Kiwi8-Windows/Kiwi8-Windows.zip
+          files: |
+            Kiwi8-${{ github.ref_name }}-macOS/Kiwi8.zip
+            Kiwi8-${{ github.ref_name }}-Windows/Kiwi8.zip

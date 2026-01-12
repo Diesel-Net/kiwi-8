@@ -1,5 +1,30 @@
+APP_NAME = Kiwi8
+
+# Auto-detect version: use GITHUB_REF_NAME if set (CI), else git describe, else git branch
+!IFNDEF GITHUB_REF_NAME
+# Try git describe for exact tag match
+!IF [git describe --tags --exact-match > .version.tmp 2>nul] == 0
+!INCLUDE .version.tmp
+# Try git branch name
+!ELSE IF [git rev-parse --abbrev-ref HEAD > .version.tmp 2>nul] == 0
+!INCLUDE .version.tmp
+!ELSE
+VERSION = unknown
+!ENDIF
+# Clean up temp file
+!IF [del .version.tmp 2>nul]
+!ENDIF
+!ELSE
+VERSION = $(GITHUB_REF_NAME)
+!ENDIF
+
+APP_NAME_VERSION = $(APP_NAME) $(VERSION)
+APP_EXE = $(APP_NAME).exe
+APP_PDB = $(APP_NAME).pdb
+APP_RES = $(APP_NAME).res
+
 CC = CL
-CFLAGS = /MD /nologo /W3 /w44996
+CFLAGS = /MD /nologo /W3 /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
 LFLAGS = /link \
 		 /LIBPATH:frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
@@ -31,10 +56,6 @@ OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
        imgui_draw.obj file_dialog.obj
 
 
-APP_NAME = Kiwi8
-APP_EXE = $(APP_NAME).exe
-RESOURCE = $(APP_NAME).res
-
 # Default target
 all: debug\$(APP_EXE) release\$(APP_EXE)
 
@@ -59,26 +80,26 @@ $(SDL_DLL): $(SDL_LIB)
 {src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-$(RESOURCE): src\Kiwi8.rc resources\Kiwi8.ico
+$(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
 	MOVE src\Kiwi8.res $@
 
-debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
-	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
+debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
+	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
 	IF NOT EXIST debug MKDIR debug
 	COPY $(SDL_DLL) debug\SDL2.dll
 	MOVE $(APP_EXE) $@
 
-release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
-	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
+release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
+	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
 	IF NOT EXIST release MKDIR release
 	COPY $(SDL_DLL) release\SDL2.dll
 	MOVE $(APP_EXE) $@
 
-test-debug:
+run-debug:
 	debug\$(APP_EXE)
 
-test-release:
+run-release:
 	release\$(APP_EXE)
 
 # Remove just SDL
@@ -88,7 +109,7 @@ clean-sdl:
 
 # Clean any leftover build files (keeps SDL)
 clean:
-	-DEL /Q *.obj *.res *.pdb 2>nul
+	-DEL /Q $(OBJS) $(APP_RES) $(APP_PDB) 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 
@@ -97,4 +118,4 @@ distclean: clean clean-sdl
 	-RD /S /Q frameworks\sdl\backups
 	-RD /S /Q ..\Windows\third_party
 
-.PHONY: all sdl test-debug test-release clean clean-sdl distclean
+.PHONY: all sdl run-debug run-release clean clean-sdl distclean
