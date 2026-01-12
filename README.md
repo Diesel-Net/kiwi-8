@@ -5,9 +5,8 @@
 A cross-platform Chip-8 interpreter written
 in C-style C++ using SDL2, ImGui, and OpenGL.
 
-**[Compatibility Notes](https://github.com/tomdaley92/Kiwi8/issues/9)**
-
-**[Downloads](https://github.com/tomdaley92/Kiwi8/releases)**
+**[<ins>Compatibility Notes<ins>](https://github.com/tomdaley92/Kiwi8/issues/9)**<br>
+**[<ins>Downloads<ins>](https://github.com/tomdaley92/Kiwi8/releases)**
 
 ## Features
 
@@ -88,13 +87,12 @@ Apple's Xcode command line tools must be installed and added to your **PATH**:
 <br>
 <br>
 
-_"I highly recommend this project to anyone
-wanting to get their feet wet with emulator
-programming, video-game programming, or even
+"I can _highly_ recommend this project to anyone
+wanting to get their feet wet in reverse-engineering, game-programming, and/or
 cross-platform development. It's been a great
 educational excercise involving major aspects
 of modern day applications such as input handling,
 user-interface design, 2D graphics rendering,
-audio generation, code profiling and more."_
+audio generation, code profiling and more!"
 
 _Enjoy!_
