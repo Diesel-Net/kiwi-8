@@ -1,5 +1,5 @@
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP
+CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I$(CURDIR)/frameworks/sdl/include/ \
 	   -I$(CURDIR)/../frameworks/imgui/
@@ -65,7 +65,7 @@ $(APP_EXE): $(SDL_LIB) $(OBJS)
 
 $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Copying the frameworks into .app bundle
-	cp frameworks/sdl/lib/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+	cp $(SDL_LIB) $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
@@ -77,10 +77,10 @@ $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Update directory timestamp so Make knows bundle is up-to-date
 	touch $(APP_BUNDLE)
 
-test-debug: $(APP_BUNDLE)
+run-debug: $(APP_BUNDLE)
 	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
-test-release: $(APP_BUNDLE)
+run-release: $(APP_BUNDLE)
 	open ./$(APP_BUNDLE)
 
 check-dylibs: $(APP_BUNDLE)
@@ -102,4 +102,4 @@ distclean: clean clean-sdl
 	$(RM) -r frameworks/sdl/backups
 	$(RM) -r ../MacOS/third_party
 
-.PHONY: all sdl clean clean-sdl distclean test-release test-debug check-dylibs
+.PHONY: all sdl clean clean-sdl distclean run-release run-debug check-dylibs
