@@ -54,7 +54,7 @@ jobs:
           nmake
 
       - name: Create Zip Archive
-        run: Compress-Archive -Path release\* -DestinationPath release\Kiwi8.zip
+        run: Compress-Archive -Path Windows\release\* -DestinationPath Windows\release\Kiwi8.zip
 
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
