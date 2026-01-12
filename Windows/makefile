@@ -85,18 +85,20 @@ test-debug:
 test-release:
 	release\$(APP_NAME).exe
 
+# Remove just SDL (for forcing recompile)
+clean-sdl:
+	-RD /S /Q frameworks\sdl\lib
+	-RD /S /Q frameworks\sdl\include
+
 # Clean any leftover build files (keeps SDL)
 clean:
 	-DEL /Q $(APP_DEBUG) $(APP_RELEASE) *.obj *.res *.pdb 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 
-# Remove just SDL (for forcing recompile)
-clean-sdl:
-	-RD /S /Q frameworks\sdl\lib
-	-RD /S /Q frameworks\sdl\include
-
 # Remove everything including SDL (full reset)
 distclean: clean clean-sdl
 	-RD /S /Q frameworks\sdl\backups
 	-RD /S /Q ..\Windows\third_party
+
+.PHONY: all test-debug test-release clean clean-sdl distclean

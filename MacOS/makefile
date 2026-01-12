@@ -38,6 +38,16 @@ all: $(APP_BUNDLE)
 $(SDL_LIB):
 	@bash ../tools/build_sdl_macos.sh
 
+# Pattern rules for incremental compilation
+%.o: ../Core/%.cc
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+%.o: ../frameworks/imgui/%.cpp
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+%.o: src/%.mm
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
 $(APP_EXE): $(SDL_LIB) $(OBJS)
 	# Create app bundle directory structure
 	@mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
@@ -63,21 +73,11 @@ $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Update directory timestamp so Make knows bundle is up-to-date
 	@touch $(APP_BUNDLE)
 
-# Pattern rules for incremental compilation
-%.o: ../Core/%.cc
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
-%.o: ../frameworks/imgui/%.cpp
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
-%.o: src/%.mm
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+test-debug: $(APP_BUNDLE)
+	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 test-release: $(APP_BUNDLE)
 	open ./$(APP_BUNDLE)
-
-test-debug: $(APP_BUNDLE)
-	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 check-dylibs: $(APP_BUNDLE)
 	@otool -L $(APP_EXE) | sed -n '1,120p'
@@ -98,4 +98,4 @@ distclean: clean clean-sdl
 	$(RM) -r frameworks/sdl/backups
 	$(RM) -r ../MacOS/third_party
 
-.PHONY: all sdl clean clean-sdl distclean test-release test-debug check-dylibs
+.PHONY: all clean clean-sdl distclean test-release test-debug check-dylibs
