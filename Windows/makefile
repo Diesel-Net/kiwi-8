@@ -2,8 +2,8 @@ APPNAME = Kiwi8
 ARCH = x64
 
 # SDL dependency files
-SDL_LIB = $(MAKEDIR)\frameworks\sdl\lib\SDL2.lib
-SDL_DLL = $(MAKEDIR)\frameworks\sdl\bin\SDL2.dll
+SDL_LIB = frameworks\sdl\lib\SDL2.lib
+SDL_DLL = frameworks\sdl\bin\SDL2.dll
 
 DEBUG = /SUBSYSTEM:CONSOLE
 RELEASE = /SUBSYSTEM:WINDOWS
@@ -11,11 +11,11 @@ RELEASE = /SUBSYSTEM:WINDOWS
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996
 LFLAGS = /link \
-		 /LIBPATH:$(MAKEDIR)\frameworks\sdl\lib \
+		 /LIBPATH:frameworks\sdl\lib \
 		 /ENTRY:mainCRTStartup
 
-INCS = /I$(MAKEDIR)\frameworks\sdl\include \
-	   /I$(MAKEDIR)\..\frameworks\imgui
+INCS = /Iframeworks\sdl\include \
+	   /I..\frameworks\imgui
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
