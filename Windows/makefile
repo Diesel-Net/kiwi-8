@@ -76,10 +76,10 @@ release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
 	COPY $(SDL_DLL) release\SDL2.dll
 	MOVE $(APP_EXE) $@
 
-test-debug:
+run-debug:
 	debug\$(APP_EXE)
 
-test-release:
+run-release:
 	release\$(APP_EXE)
 
 # Remove just SDL
@@ -98,4 +98,4 @@ distclean: clean clean-sdl
 	-RD /S /Q frameworks\sdl\backups
 	-RD /S /Q ..\Windows\third_party
 
-.PHONY: all sdl test-debug test-release clean clean-sdl distclean
+.PHONY: all sdl run-debug run-release clean clean-sdl distclean
