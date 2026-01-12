@@ -32,7 +32,7 @@ LIBS = user32.lib \
 	   Comdlg32.lib
 
 # Default target
-all: sdl clean build_debug build_release
+all: clean build_debug build_release
 	DEL *.exe *.obj *.res *.pdb
 
 # Build SDL if not present
@@ -41,12 +41,12 @@ sdl: $(SDL_LIB) $(SDL_DLL)
 $(SDL_LIB) $(SDL_DLL):
 	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
 
-build_debug: objects resource
+build_debug: sdl objects resource
 	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
 	MOVE $(APPNAME).exe debug\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll debug\SDL2.dll
 
-build_release: objects resource
+build_release: sdl objects resource
 	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	MOVE $(APPNAME).exe release\$(APPNAME).exe
 	COPY frameworks\sdl\bin\SDL2.dll release\SDL2.dll
