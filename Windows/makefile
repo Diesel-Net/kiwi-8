@@ -1,4 +1,3 @@
-APPNAME = Kiwi8
 ARCH = x64
 
 # SDL dependency files
@@ -23,9 +22,29 @@ LIBS = user32.lib \
 	   Comdlg32.lib \
 	   Shell32.lib
 
+# Source files
+CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
+            ..\Core\imgui_impl_sdl.cc ..\Core\Input.cc ..\Core\main.cc \
+            ..\Core\opcodes.cc ..\Core\open_file_dialog.cc
+IMGUI_SRCS = ..\frameworks\imgui\imgui.cpp ..\frameworks\imgui\imgui_demo.cpp \
+             ..\frameworks\imgui\imgui_draw.cpp
+WINDOWS_SRCS = src\file_dialog.cc
+
+# Object files (all built in current directory)
+OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
+       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
+       imgui_draw.obj file_dialog.obj
+
+RESOURCE = Kiwi8.res
+
+APP_NAME = Kiwi8
+APP_EXE = Kiwi8.exe
+
+APP_DEBUG = debug\$(APP_NAME).exe
+APP_RELEASE = release\$(APP_NAME).exe
+
 # Default target
-all: clean build_debug build_release
-	DEL *.exe *.obj *.res *.pdb
+all: $(APP_DEBUG) $(APP_RELEASE)
 
 # Build SDL if lib doesn't exist (DLL and headers come together)
 $(SDL_LIB):
@@ -34,45 +53,43 @@ $(SDL_LIB):
 $(SDL_DLL): $(SDL_LIB)
 	@REM DLL is created by same script that creates LIB
 
-build_debug: $(SDL_LIB) $(SDL_DLL) objects resource
-	$(CC) $(CFLAGS) /Zi /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
-	IF NOT EXIST debug MKDIR debug
-	MOVE $(APPNAME).exe debug\$(APPNAME).exe
-	COPY frameworks\sdl\bin\SDL2.dll debug\SDL2.dll
+$(OBJS): $(CORE_SRCS) $(IMGUI_SRCS) $(WINDOWS_SRCS)
+	$(CC) $(CFLAGS) /c $(INCS) $(CORE_SRCS) $(IMGUI_SRCS) $(WINDOWS_SRCS)
 
-build_release: $(SDL_LIB) $(SDL_DLL) objects resource
-	$(CC) $(CFLAGS) /Fe$(APPNAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
+$(RESOURCE): src\Kiwi8.rc resources\Kiwi8.ico
+	RC src\Kiwi8.rc
+	MOVE src\Kiwi8.res $@
+
+$(APP_DEBUG): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
+	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(DEBUG)
+	IF NOT EXIST debug MKDIR debug
+	COPY $(SDL_DLL) debug\SDL2.dll
+	MOVE $(APP_NAME).exe $@
+
+$(APP_RELEASE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(RESOURCE)
+	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) *.obj *.res $(LIBS) $(LFLAGS) $(RELEASE)
 	IF NOT EXIST release MKDIR release
-	MOVE $(APPNAME).exe release\$(APPNAME).exe
-	COPY frameworks\sdl\bin\SDL2.dll release\SDL2.dll
+	COPY $(SDL_DLL) release\SDL2.dll
+	MOVE $(APP_NAME).exe $@
 
 test_debug:
-	debug\$(APPNAME).exe
+	debug\$(APP_NAME).exe
 
 test_release:
-	release\$(APPNAME).exe
-
-# Build object files
-objects: src\*.c* ..\Core\*.c* ..\frameworks\imgui\imgui*.cpp
-	$(CC) $(CFLAGS) /c $(INCS) $(CFLAGS) $?
-
-# Build resource file
-resource: src\$(APPNAME).rc resources\$(APPNAME).ico
-	RC src\$(APPNAME).rc
-	MOVE src\$(APPNAME).res $(APPNAME).res
+	release\$(APP_NAME).exe
 
 # Clean any leftover build files (keeps SDL)
 clean:
-	DEL *.exe *.obj *.res *.pdb
-	cd debug & DEL *.exe *.dll
-	cd release & DEL *.exe *.dll
+	-DEL /Q $(APP_DEBUG) $(APP_RELEASE) *.obj *.res *.pdb 2>nul
+	-IF EXIST debug RD /S /Q debug
+	-IF EXIST release RD /S /Q release
 
 # Remove just SDL (for forcing recompile)
 clean-sdl:
-	RD /S /Q frameworks\sdl\lib
-	RD /S /Q frameworks\sdl\include
+	-RD /S /Q frameworks\sdl\lib
+	-RD /S /Q frameworks\sdl\include
 
 # Remove everything including SDL (full reset)
 distclean: clean clean-sdl
-	RD /S /Q frameworks\sdl\backups
-	RD /S /Q ..\Windows\third_party
+	-RD /S /Q frameworks\sdl\backups
+	-RD /S /Q ..\Windows\third_party
