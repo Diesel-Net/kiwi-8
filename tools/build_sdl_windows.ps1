@@ -3,7 +3,7 @@
 
 param(
     [string]$SDL_VERSION = "2.32.10",
-    [string]$ROOT_DIR = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+    [string]$ROOT_DIR = (Split-Path -Parent $PSScriptRoot)
 )
 
 $SDL_URL = "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"
