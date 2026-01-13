@@ -27,8 +27,9 @@ jobs:
 
       - name: Remove ad-hoc signatures to avoid Gatekeeper error -47
         run: |
-          codesign --remove-signature "MacOS/release/Kiwi8.app/Contents/MacOS/Kiwi8"
           codesign --remove-signature "MacOS/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib"
+          codesign --remove-signature "MacOS/release/Kiwi8.app/Contents/MacOS/Kiwi8"
+          codesign --remove-signature "MacOS/release/Kiwi8.app"
 
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
