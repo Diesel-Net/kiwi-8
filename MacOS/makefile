@@ -93,10 +93,6 @@ run-debug: $(APP_BUNDLE)
 run-release: $(APP_BUNDLE)
 	open ./$(APP_BUNDLE)
 
-check-dylibs: $(APP_BUNDLE)
-	otool -L $(APP_EXE) | sed -n '1,120p'
-	otool -L $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib | sed -n '1,120p'
-
 # Remove just SDL
 clean-sdl:
 	$(RM) -r frameworks/sdl/lib
