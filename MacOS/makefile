@@ -92,19 +92,14 @@ run-debug: $(APP_BUNDLE)
 run-release: $(APP_BUNDLE)
 	open ./$(APP_BUNDLE)
 
-# Remove just SDL
-clean-sdl:
-	$(RM) -r frameworks/sdl/lib
-	$(RM) -r frameworks/sdl/include
-
 # Removes build artifacts (objects, app bundle) but keeps SDL
 clean:
 	$(RM) *.o *.d
 	$(RM) -r $(APP_BUNDLE)
 
-# Removes everything including SDL (full reset)
-distclean: clean clean-sdl
-	$(RM) -r frameworks/sdl/backups
+# Removes everything including SDL installation and build artifacts (full reset)
+distclean: clean
+	$(RM) -r frameworks/sdl
 	$(RM) -r ../MacOS/third_party
 
-.PHONY: all sdl clean clean-sdl distclean run-release run-debug
+.PHONY: all sdl clean distclean run-release run-debug

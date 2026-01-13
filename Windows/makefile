@@ -102,20 +102,15 @@ run-debug:
 run-release:
 	release\$(APP_EXE)
 
-# Remove just SDL
-clean-sdl:
-	-RD /S /Q frameworks\sdl\lib
-	-RD /S /Q frameworks\sdl\include
-
 # Clean any leftover build files (keeps SDL)
 clean:
 	-DEL /Q $(OBJS) $(APP_RES) $(APP_PDB) 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 
-# Remove everything including SDL (full reset)
-distclean: clean clean-sdl
-	-RD /S /Q frameworks\sdl\backups
+# Remove everything including SDL installation and build artifacts (full reset)
+distclean: clean
+	-RD /S /Q frameworks\sdl
 	-RD /S /Q ..\Windows\third_party
 
-.PHONY: all sdl run-debug run-release clean clean-sdl distclean
+.PHONY: all sdl run-debug run-release clean distclean
