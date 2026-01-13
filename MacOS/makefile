@@ -14,12 +14,8 @@ APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 CC = clang++
 CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"Kiwi8 $(VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -I$(CURDIR)/frameworks/sdl/include/ \
-	   -I$(CURDIR)/../frameworks/imgui/
-LIBS = -L$(CURDIR)/frameworks/sdl/lib/ \
-		-lSDL2-2.0.0 \
-		-framework Cocoa \
-		-framework OpenGL
+INCS = -Iframeworks/sdl/include/ -I../frameworks/imgui/
+LIBS = -Lframeworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
 SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
