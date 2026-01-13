@@ -6,7 +6,7 @@ on:
 jobs:
 
   build-macos:
-    runs-on: macos-latest
+    runs-on: macos-14  # Apple Silicon (M1/M2) - supports universal binary builds
     steps:
       - uses: actions/checkout@v4
 
