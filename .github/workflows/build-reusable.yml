@@ -25,6 +25,13 @@ jobs:
           cd MacOS
           make
 
+      - name: Ad-hoc sign the app bundle
+        run: |
+          codesign --force --sign - "MacOS/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib"
+          codesign --force --sign - "MacOS/release/Kiwi8.app/Contents/MacOS/Kiwi8"
+          codesign --force --sign - "MacOS/release/Kiwi8.app"
+          codesign --verify --verbose "MacOS/release/Kiwi8.app"
+
       - name: Zip application bundle
         run: zip -r -y "MacOS/release/Kiwi8-${{ github.ref_name }}-macOS.zip" "MacOS/release/Kiwi8.app"
 
