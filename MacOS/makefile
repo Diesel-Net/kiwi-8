@@ -107,4 +107,4 @@ distclean: clean clean-sdl
 	$(RM) -r frameworks/sdl/backups
 	$(RM) -r ../MacOS/third_party
 
-.PHONY: all sdl clean clean-sdl distclean run-release run-debug check-dylibs
+.PHONY: all sdl clean clean-sdl distclean run-release run-debug
