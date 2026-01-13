@@ -16,9 +16,17 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
+      - name: Create release archives
+        run: |
+          cd Kiwi8-${{ github.ref_name }}-macOS
+          zip -r -y ../Kiwi8-${{ github.ref_name }}-macOS.zip Kiwi8.app
+          cd ../Kiwi8-${{ github.ref_name }}-Windows
+          zip -r ../Kiwi8-${{ github.ref_name }}-Windows.zip *
+          cd ..
+
       - name: Upload builds to Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            Kiwi8-${{ github.ref_name }}-macOS/Kiwi8-${{ github.ref_name }}-macOS.zip
-            Kiwi8-${{ github.ref_name }}-Windows/Kiwi8-${{ github.ref_name }}-Windows.zip
+            Kiwi8-${{ github.ref_name }}-macOS.zip
+            Kiwi8-${{ github.ref_name }}-Windows.zip

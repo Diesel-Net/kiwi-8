@@ -25,14 +25,16 @@ jobs:
           cd MacOS
           make
 
-      - name: Zip application bundle
-        run: zip -r -y "MacOS/release/Kiwi8-${{ github.ref_name }}-macOS.zip" "MacOS/release/Kiwi8.app"
+      - name: Remove ad-hoc signatures to avoid Gatekeeper error -47
+        run: |
+          codesign --remove-signature "MacOS/release/Kiwi8.app/Contents/MacOS/Kiwi8"
+          codesign --remove-signature "MacOS/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib"
 
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-macOS
-          path: MacOS/release/Kiwi8-${{ github.ref_name }}-macOS.zip
+          path: MacOS/release/Kiwi8.app
           retention-days: 7
 
   build-windows:
@@ -57,12 +59,9 @@ jobs:
           cd Windows
           nmake
 
-      - name: Create Zip Archive
-        run: Compress-Archive -Path Windows\release\* -DestinationPath Windows\release\Kiwi8-${{ github.ref_name }}-Windows.zip
-
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-Windows
-          path: Windows\release\Kiwi8-${{ github.ref_name }}-Windows.zip
+          path: Windows\release\*
           retention-days: 7
