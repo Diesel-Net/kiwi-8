@@ -78,11 +78,6 @@ $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	cp resources/Kiwi8.icns $(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
 	cp src/Info.plist $(APP_BUNDLE)/Contents/Info.plist
 
-	# Ad-hoc sign the bundle (framework -> executable -> bundle)
-	codesign --force --sign - $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
-	codesign --force --sign - $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
-	codesign --force --sign - $(APP_BUNDLE)
-
 	# Update directory timestamp so Make knows bundle is up-to-date
 	touch $(APP_BUNDLE)
 
