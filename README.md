@@ -68,7 +68,6 @@ Apple's Xcode command line tools must be installed and added to your **PATH**:
 >make<br>
 >clang++<br>
 >install_name_tool<br>
->otool<br>
 
 1. Change current working directory
 
