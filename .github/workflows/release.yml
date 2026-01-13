@@ -20,5 +20,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            Kiwi8-${{ github.ref_name }}-macOS/Kiwi8.zip
-            Kiwi8-${{ github.ref_name }}-Windows/Kiwi8.zip
+            Kiwi8-${{ github.ref_name }}-macOS/Kiwi8-${{ github.ref_name }}-macOS.zip
+            Kiwi8-${{ github.ref_name }}-Windows/Kiwi8-${{ github.ref_name }}-Windows.zip
