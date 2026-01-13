@@ -40,7 +40,6 @@ if (-Not (Test-Path $EXTRACT_DIR)) {
 $BUILD_DIR_PATH = "$TP_DIR/$EXTRACT_DIR/build-x64"
 New-Item -ItemType Directory -Force -Path $BUILD_DIR_PATH | Out-Null
 $BUILD_DIR = (Resolve-Path $BUILD_DIR_PATH).Path
-$EXTRACT_DIR_ABS = (Resolve-Path "$TP_DIR/$EXTRACT_DIR").Path
 
 # Configure & build
 Push-Location $BUILD_DIR
