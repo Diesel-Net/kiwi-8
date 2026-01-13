@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-macOS
-          path: MacOS/release/Kiwi8.app
+          path: MacOS/release/
           retention-days: 7
 
   build-windows:
@@ -63,5 +63,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-Windows
-          path: Windows\release\*
+          path: Windows\release\
           retention-days: 7
