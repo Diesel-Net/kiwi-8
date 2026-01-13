@@ -64,16 +64,15 @@ $(APP_EXE): $(SDL_LIB) $(OBJS)
 	# Compiling main executable
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
-	# Re-linking the dylibs to newly compiled executable (handle previous absolute path and @rpath)
-	install_name_tool -change /usr/local/opt/sdl2/lib/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
-	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $@
-
 $(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
 	# Copying the frameworks into .app bundle
 	cp $(SDL_LIB) $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+
+	# Fix executable's reference to SDL (from @rpath to bundle-relative path)
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_EXE)
 
 	# Moving the configured executable and copying other files into .app bundle
 	cp resources/Kiwi8.icns $(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
