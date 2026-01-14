@@ -18,7 +18,7 @@ Usage: Kiwi8 [filename] [-FMLSV]
 #endif
 
 int main(int argc, char **argv){
-    
+
     /* defaults */
     bool fullscreen = 0;
     bool load_store_quirk = 1;
@@ -32,7 +32,7 @@ int main(int argc, char **argv){
 
         char *pos = argv[i];
         if (*pos == '-') {
-            
+
             pos++;
             int len = strlen(pos);
 
@@ -51,18 +51,18 @@ int main(int argc, char **argv){
 
     /* calling initialize() also loads the bootrom */
     if (chip.Initialize(
-            fullscreen, 
-            load_store_quirk, 
-            shift_quirk, 
-            vwrap, 
+            fullscreen,
+            load_store_quirk,
+            shift_quirk,
+            vwrap,
             muted
         )
     ) return 1;
 
     /* load ROM from argument vector */
     if (argc >= 2 && *argv[1] != '-') {
-        if (chip.Load(argv[1])) return 1;  
-    } 
+        if (chip.Load(argv[1])) return 1;
+    }
 
     chip.Run();
     return 0;

@@ -1,7 +1,3 @@
-/*
-Author: Thomas Daley
-Date: September 18, 2016
-*/
 #include "Chip8.h"
 #include "opcodes.cc"
 #include "open_file_dialog.h"
@@ -15,7 +11,7 @@ Chip8::Chip8() {
     muted = 0;
     vwrap = 1;
     display = Display();
-    input = Input();    
+    input = Input();
     vram = NULL;
     rom = NULL;
 }
@@ -33,14 +29,14 @@ Chip8::~Chip8() {
 }
 
 int Chip8::Initialize(
-    bool fullscreen, 
+    bool fullscreen,
     bool load_store_quirk,
     bool shift_quirk,
     bool vwrap,
     bool muted
 ) {
 
-    if (SDL_Init(  
+    if (SDL_Init(
             SDL_INIT_TIMER |
             SDL_INIT_AUDIO |
             SDL_INIT_VIDEO |
@@ -75,23 +71,23 @@ int Chip8::Initialize(
 
     /* init audio, display, input */
     audio.Initialize();
-    
+
     if (display.Initialize(
-            fullscreen, 
+            fullscreen,
             &this->cycles,
-            &this->paused, 
-            &this->load_store_quirk, 
-            &this->shift_quirk, 
+            &this->paused,
+            &this->load_store_quirk,
+            &this->shift_quirk,
             &this->vwrap,
-            &this->muted 
+            &this->muted
         )
     ) return 1;
 
-    input.Initialize( 
-        &this->display, 
-        &this->cycles, 
-        &this->cpu_halt, 
-        &this->paused, 
+    input.Initialize(
+        &this->display,
+        &this->cycles,
+        &this->cpu_halt,
+        &this->paused,
         &this->muted
     );
 
@@ -145,9 +141,9 @@ int Chip8::Load(const char *rom_name) {
         }
 
         /* get file size */
-        fseek(file, 0, SEEK_END);      
-        rom_size = ftell(file);            
-        rewind(file);                     
+        fseek(file, 0, SEEK_END);
+        rom_size = ftell(file);
+        rewind(file);
         if (rom_size > MEM_SIZE - ENTRY_POINT) {
             fprintf(stderr, "Rom is too large or not formatted properly.\n");
             return 1;
@@ -222,7 +218,7 @@ void Chip8::SoftReset() {
 
     /* flip the GUI bit */
     display.gui.soft_reset_flag = 0;
-    
+
 }
 
 void Chip8::Run(){
@@ -232,8 +228,8 @@ void Chip8::Run(){
     unsigned int elapsed;
     unsigned int remaining;
 
-    /* slows execution speed (60hz) ~= 16.66 ms intervals 
-       This makes it easy to decrement the Chip8 timers 
+    /* slows execution speed (60hz) ~= 16.66 ms intervals
+       This makes it easy to decrement the Chip8 timers
        60 times a second */
     unsigned int interval = 1000 / TICKS;
 
@@ -248,7 +244,7 @@ void Chip8::Run(){
         if (event & USER_QUIT) return;
         if (event & LOAD_ROM) Load(NULL);
         if (event & SOFT_RESET) SoftReset();
-        
+
         if (!paused) {
             /* emulate a number of cycles */
             StepCpu(cycles);
@@ -269,7 +265,7 @@ void Chip8::Run(){
         }
 
         t2 = SDL_GetTicks();
-        
+
         /* calculate how long to sleep thread based on remaining frame time */
         elapsed = t2 - t1;
         remaining = interval - elapsed;
@@ -285,7 +281,7 @@ void Chip8::UpdateTimers(){
     if (!cpu_halt) {
         if(delay_timer > 0) delay_timer--;
         if(sound_timer > 0) sound_timer--;
-    } 
+    }
 }
 
 void Chip8::StepCpu(int cycles){
@@ -310,7 +306,7 @@ void Chip8::FetchOpcode() {
 void Chip8::ExecuteOpcode(){
     switch (OP) {
         case 0x0:
-            switch (OP_NNN) { 
+            switch (OP_NNN) {
                 case 0x0E0: exec00E0(); break;
                 case 0x0EE: exec00EE(); break;
                 default: exec0NNN(); break;
@@ -349,7 +345,7 @@ void Chip8::ExecuteOpcode(){
         case 0xF:
             switch (OP_NN) {
                 case 0x07: execFX07(); break;
-                case 0x0A: execFX0A(); break;              
+                case 0x0A: execFX0A(); break;
                 case 0x15: execFX15(); break;
                 case 0x18: execFX18(); break;
                 case 0x1E: execFX1E(); break;

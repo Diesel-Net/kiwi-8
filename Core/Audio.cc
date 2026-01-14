@@ -9,7 +9,7 @@ Audio::Audio() {
 Audio::~Audio() {
     /* pause & close the audio */
     SDL_PauseAudioDevice(device, 1);
-    if (device) SDL_CloseAudioDevice(device); 
+    if (device) SDL_CloseAudioDevice(device);
     free(audio_buffer);
 }
 
@@ -30,11 +30,11 @@ int Audio::Initialize() {
     }
 
     /* ~.5 seconds worth of audio (probably overkill) */
-    audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30); 
+    audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30);
     if (!audio_buffer) {
         fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
         return 1;
-    } 
+    }
 
     /* start playing audio */
     SDL_PauseAudioDevice(device, 0);
@@ -53,7 +53,6 @@ void Audio::SineWave(int length) {
 void Audio::Beep(int length) {
     if (SDL_GetQueuedAudioSize(device) < (SAMPLES_PER_FRAME * 2)) {
         SineWave(length);
-        SDL_QueueAudio(device, audio_buffer, length); 
+        SDL_QueueAudio(device, audio_buffer, length);
     }
 }
-

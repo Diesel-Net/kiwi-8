@@ -16,7 +16,7 @@ class Audio {
         unsigned char *audio_buffer;
 
         double wave_position;
-        double wave_increment; 
+        double wave_increment;
 
         void SineWave(int length);
 

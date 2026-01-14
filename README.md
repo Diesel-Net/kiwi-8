@@ -4,6 +4,7 @@
 
 [![Release](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml)
 [![Build](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml)
+[![Lint](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml)
 <br>
 
 ![boot](/images/screenshots/boot.png)

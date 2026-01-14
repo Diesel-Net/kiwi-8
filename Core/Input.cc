@@ -11,9 +11,9 @@ Input::~Input() {
 }
 
 void Input::Initialize(
-    Display *display, 
-    int *cycles, 
-    bool *cpu_halt, 
+    Display *display,
+    int *cycles,
+    bool *cpu_halt,
     bool *paused,
     bool *muted
 ) {
@@ -32,7 +32,7 @@ void Input::Reset() {
 
 int Input::Poll() {
     int response = CONTINUE;
-    
+
     /* purge any queued events */
     while (SDL_PollEvent(&event)) {
 
@@ -48,8 +48,8 @@ int Input::Poll() {
         response |= ProcessEvents();
 
         /* check chip-8 input */
-        ProcessKeys(); 
-    } 
+        ProcessKeys();
+    }
     return response;
 }
 
@@ -68,20 +68,20 @@ int Input::ProcessEvents() {
         if (state[SDL_SCANCODE_M]) *muted = !(*muted);
         if (state[SDL_SCANCODE_LALT]) display->gui.show_menu_flag = !display->gui.show_menu_flag;
         if (state[SDL_SCANCODE_RALT]) display->gui.show_fps_flag = !display->gui.show_fps_flag;
-        
+
         /* slow/raise emulation speed */
         if (state[SDL_SCANCODE_PAGEDOWN]) (*cycles -1 < MIN_CYCLES_PER_STEP ) ? *cycles = MIN_CYCLES_PER_STEP : *cycles -= 1;
-        if (state[SDL_SCANCODE_PAGEUP]) (*cycles +1 > MAX_CYCLES_PER_STEP ) ? *cycles = MAX_CYCLES_PER_STEP : *cycles += 1;	
+        if (state[SDL_SCANCODE_PAGEUP]) (*cycles +1 > MAX_CYCLES_PER_STEP ) ? *cycles = MAX_CYCLES_PER_STEP : *cycles += 1;
     }
 
     /* window events */
     if (event.window.type == SDL_WINDOWEVENT){
         /* update the current rendering screen space */
         if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) display->Resize(event.window.data1, event.window.data2);
-        
+
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
             /* TODO: resume the emulator, if paused_on_focus_loss */
-        } 
+        }
         if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
             /* focus is lost when a user tries to laod a rom */
             if (display->lost_window_focus) display->RaiseWindow();
@@ -119,6 +119,6 @@ void Input::ProcessKeys() {
             if (keys[i]) {
                 awaiting_key_press = 0;
             }
-        }     
+        }
     }
 }
