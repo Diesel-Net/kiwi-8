@@ -43,8 +43,10 @@ LIBS = user32.lib \
 SDL_LIB = frameworks\sdl\lib\SDL2.lib
 SDL_DLL = frameworks\sdl\bin\SDL2.dll
 
-# Generated license header
+# Generated headers
 LICENSE_HEADER = ..\Core\license.h
+BOOTROM_HEADER = ..\Core\bootrom.h
+BOOTROM_SOURCE = ..\Roms\Kiwi8_logo_2.ch8
 
 # Source files
 CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
@@ -78,6 +80,10 @@ $(SDL_DLL): $(SDL_LIB)
 $(LICENSE_HEADER): ..\LICENSE
 	python3 ..\tools\generate_license_header.py ..\LICENSE $(LICENSE_HEADER)
 
+# Generate bootrom header from ROM file
+$(BOOTROM_HEADER): $(BOOTROM_SOURCE)
+	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
+
 # Inference rules for incremental compilation
 {..\Core}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
@@ -88,9 +94,12 @@ $(LICENSE_HEADER): ..\LICENSE
 {src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-# Explicit rule for Gui.obj to depend on generated license header
+# Explicit rules for files depending on generated headers
 Gui.obj: ..\Core\Gui.cc $(LICENSE_HEADER)
 	$(CC) $(CFLAGS) /c $(INCS) ..\Core\Gui.cc
+
+Chip8.obj: ..\Core\Chip8.cc $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\Core\Chip8.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc

@@ -20,8 +20,10 @@ LIBS = -Lframeworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 # SDL dependency files
 SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
 
-# Generated license header
+# Generated headers
 LICENSE_HEADER = ../Core/license.h
+BOOTROM_HEADER = ../Core/bootrom.h
+BOOTROM_SOURCE = ../Roms/Kiwi8_logo_2.ch8
 
 # Source files
 CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
@@ -54,8 +56,12 @@ $(SDL_LIB):
 $(LICENSE_HEADER): ../LICENSE
 	python3 ../tools/generate_license_header.py ../LICENSE $(LICENSE_HEADER)
 
+# Generate bootrom header from ROM file
+$(BOOTROM_HEADER): $(BOOTROM_SOURCE)
+	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
+
 # Pattern rules for incremental compilation
-%.o: ../Core/%.cc $(LICENSE_HEADER)
+%.o: ../Core/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../frameworks/imgui/%.cpp

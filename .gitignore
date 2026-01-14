@@ -5,6 +5,7 @@
 
 # Generated files
 Core/license.h
+Core/bootrom.h
 
 MacOS/frameworks/sdl/
 MacOS/third_party/
