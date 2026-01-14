@@ -105,4 +105,4 @@ of modern day applications such as input handling,
 user-interface design, 2D graphics rendering,
 audio generation, code profiling and more!"
 
-_Enjoy!_
+_- Tom_
