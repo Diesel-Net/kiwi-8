@@ -104,6 +104,7 @@ run-release: $(APP_BUNDLE)
 clean:
 	$(RM) *.o *.d
 	$(RM) -r $(APP_BUNDLE)
+	$(RM) $(LICENSE_HEADER) $(BOOTROM_HEADER)
 
 # Removes everything including SDL installation and build artifacts (full reset)
 distclean: clean

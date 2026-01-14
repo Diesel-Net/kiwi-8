@@ -126,6 +126,7 @@ run-release:
 # Clean any leftover build files (keeps SDL)
 clean:
 	-DEL /Q $(OBJS) $(APP_RES) $(APP_PDB) 2>nul
+	-DEL /Q $(LICENSE_HEADER) $(BOOTROM_HEADER) 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 
