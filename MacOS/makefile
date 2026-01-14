@@ -12,7 +12,7 @@ APP_BUNDLE = release/$(APP_NAME).app
 APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 
 CC = clang++
-CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"Kiwi8 $(VERSION)"'
+CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -Iframeworks/sdl/include/ -I../frameworks/imgui/ -I../Core/
 LIBS = -Lframeworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
