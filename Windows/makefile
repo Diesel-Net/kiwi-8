@@ -76,10 +76,10 @@ $(SDL_DLL): $(SDL_LIB)
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ..\LICENSE
-	python ..\tools\generate_license_header.py ..\LICENSE $(LICENSE_HEADER)
+	python3 ..\tools\generate_license_header.py ..\LICENSE $(LICENSE_HEADER)
 
 # Inference rules for incremental compilation
-{..\Core}.cc{}.obj: $(LICENSE_HEADER)
+{..\Core}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {..\frameworks\imgui}.cpp{}.obj:
@@ -87,6 +87,10 @@ $(LICENSE_HEADER): ..\LICENSE
 
 {src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
+
+# Explicit rule for Gui.obj to depend on generated license header
+Gui.obj: ..\Core\Gui.cc $(LICENSE_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\Core\Gui.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
