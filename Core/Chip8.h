@@ -1,7 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include "bootrom.h"
+#include "bootrom.h" // Generated at build time from Roms/Kiwi8_logo_2.ch8
 #include "Display.h"
 #include "Input.h"
 #include "Audio.h"
