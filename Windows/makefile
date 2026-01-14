@@ -30,7 +30,8 @@ LFLAGS = /link \
 		 /ENTRY:mainCRTStartup
 
 INCS = /Iframeworks\sdl\include \
-	   /I..\frameworks\imgui
+	   /I..\frameworks\imgui \
+	   /I..\Core
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
@@ -41,6 +42,9 @@ LIBS = user32.lib \
 # SDL dependency files
 SDL_LIB = frameworks\sdl\lib\SDL2.lib
 SDL_DLL = frameworks\sdl\bin\SDL2.dll
+
+# Generated license header
+LICENSE_HEADER = ..\Core\license.h
 
 # Source files
 CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
@@ -70,8 +74,12 @@ $(SDL_LIB):
 $(SDL_DLL): $(SDL_LIB)
 	@REM DLL is created by same script that creates LIB
 
+# Generate license header from LICENSE file
+$(LICENSE_HEADER): ..\LICENSE
+	python ..\tools\generate_license_header.py ..\LICENSE $(LICENSE_HEADER)
+
 # Inference rules for incremental compilation
-{..\Core}.cc{}.obj:
+{..\Core}.cc{}.obj: $(LICENSE_HEADER)
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {..\frameworks\imgui}.cpp{}.obj:

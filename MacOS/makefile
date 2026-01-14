@@ -14,11 +14,14 @@ APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 CC = clang++
 CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"Kiwi8 $(VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -Iframeworks/sdl/include/ -I../frameworks/imgui/
+INCS = -Iframeworks/sdl/include/ -I../frameworks/imgui/ -I../Core/
 LIBS = -Lframeworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
 SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
+
+# Generated license header
+LICENSE_HEADER = ../Core/license.h
 
 # Source files
 CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
@@ -47,8 +50,12 @@ sdl:
 $(SDL_LIB):
 	bash ../tools/build_sdl_macos.sh
 
+# Generate license header from LICENSE file
+$(LICENSE_HEADER): ../LICENSE
+	python3 ../tools/generate_license_header.py ../LICENSE $(LICENSE_HEADER)
+
 # Pattern rules for incremental compilation
-%.o: ../Core/%.cc
+%.o: ../Core/%.cc $(LICENSE_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../frameworks/imgui/%.cpp

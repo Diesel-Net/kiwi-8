@@ -1,6 +1,7 @@
 #include "Chip8.h"
 #include "Display.h"
 #include "Gui.h"
+#include "license.h"
 
 Gui::Gui() {
     soft_reset_flag = 0;
@@ -210,23 +211,7 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("License", &show_license);
 
-        ImGui::TextWrapped(
-            "Kiwi8 - \"A cross-platform Chip-8 interpreter\"\n"
-            "Copyright (C) 2016  Thomas Daley\n"
-            "\n"
-            "This program is free software: you can redistribute it and/or modify\n"
-            "it under the terms of the GNU General Public License as published by\n"
-            "the Free Software Foundation, either version 3 of the License, or\n"
-            "(at your option) any later version.\n"
-            "\n"
-            "This program is distributed in the hope that it will be useful,\n"
-            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-            "GNU General Public License for more details.\n"
-            "\n"
-            "You should have received a copy of the GNU General Public License\n"
-            "along with this program.  If not, see <http://www.gnu.org/licenses/>."
-        );
+        ImGui::TextWrapped("%s", LICENSE_TEXT);
 
         ImGui::End();
     }
@@ -239,9 +224,9 @@ void Gui::HelpWindows() {
             APPNAME_VERSION "\n"
             "\n"
             "A cross-platform Chip-8 interpreter written\n"
-            "in C++ using SDL2, ImGui, and OpenGL.\n"
+            "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
             "\n"
-            "<https://github.com/tomdaley92/Kiwi8>\n"
+            "<https://github.com/Diesel-Net/Kiwi8>\n"
         );
 
         ImGui::End();

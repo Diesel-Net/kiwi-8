@@ -38,11 +38,12 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Building on Windows
 
-Microsoft's Visual C++ Build Tools must be installed and added to your **PATH**:
+The following must be installed and added to your **PATH**:
 
 >vcvarsall<br>
->nmake<br>
 >cl<br>
+>python3<br>
+>nmake<br>
 
 1. Change current working directory
 
@@ -64,11 +65,12 @@ Microsoft's Visual C++ Build Tools must be installed and added to your **PATH**:
 
 ## Building on MacOS
 
-Apple's Xcode command line tools must be installed and added to your **PATH**:
+The following must be installed and added to your **PATH**:
 
->make<br>
->clang++<br>
 >install_name_tool<br>
+>clang<br>
+>python3<br>
+>make<br>
 
 1. Change current working directory
 

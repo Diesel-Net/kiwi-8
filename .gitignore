@@ -3,6 +3,9 @@
 *.o
 *.d
 
+# Generated files
+Core/license.h
+
 MacOS/frameworks/sdl/
 MacOS/third_party/
 MacOS/release/
