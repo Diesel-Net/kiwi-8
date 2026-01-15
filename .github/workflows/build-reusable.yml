@@ -23,6 +23,7 @@ jobs:
       - name: Build macOS (x86_64 + arm64)
         run: |
           cd MacOS
+          make clean
           make
 
       - name: Upload macOS build artifact
@@ -52,6 +53,7 @@ jobs:
         shell: cmd
         run: |
           cd Windows
+          nmake clean
           nmake
 
       - name: Upload Windows build artifact
