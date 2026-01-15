@@ -19,13 +19,13 @@ VERSION = $(GITHUB_REF_NAME)
 !ENDIF
 
 # Git commit hash (unique identifier for build)
-!IF [git rev-parse --short HEAD > .build.tmp 2>nul] == 0
-!INCLUDE .build.tmp
+!IF [for /f "delims=" %i in ('git rev-parse --short HEAD 2^>nul') do @echo COMMIT_HASH = %i > .hash.tmp 2^>nul] == 0
+!INCLUDE .hash.tmp
 !ELSE
 COMMIT_HASH = unknown
 !ENDIF
 # Clean up temp file
-!IF [del .build.tmp 2>nul]
+!IF [del .hash.tmp 2>nul]
 !ENDIF
 
 APP_NAME_VERSION = $(APP_NAME) $(VERSION)
