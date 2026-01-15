@@ -2,15 +2,17 @@
 
 *.o
 *.d
+*.s
 
-MacOS/frameworks/sdl/
-MacOS/third_party/
-MacOS/release/
-MacOS/debug/
-MacOS/build/
+# Generated files
+shared/license.h
+shared/bootrom.h
 
-Windows/frameworks/sdl/
-Windows/third_party/
-Windows/release/
-Windows/debug/
-Windows/build/
+# External dependencies (downloaded at build time)
+external/sdl/
+
+macos/release/
+macos/debug/
+
+windows/release/
+windows/debug/

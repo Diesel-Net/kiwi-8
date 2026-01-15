@@ -1,6 +1,7 @@
 #include "Chip8.h"
 #include "Display.h"
 #include "Gui.h"
+#include "license.h" // Generated at build time from LICENSE
 
 Gui::Gui() {
     soft_reset_flag = 0;
@@ -12,7 +13,7 @@ Gui::Gui() {
     show_controls = 0;
     show_license = 0;
     show_about = 0;
-    show_usage = 0; 
+    show_usage = 0;
 }
 
 Gui::~Gui() {
@@ -20,11 +21,11 @@ Gui::~Gui() {
 }
 
 void Gui::Initialize(
-    Display *display, 
+    Display *display,
     int *cycles,
-    bool *paused, 
-    bool *load_store_quirk, 
-    bool *shift_quirk, 
+    bool *paused,
+    bool *load_store_quirk,
+    bool *shift_quirk,
     bool *vwrap,
     bool *mute
 ) {
@@ -81,7 +82,7 @@ void Gui::MainMenu() {
             if (ImGui::BeginMenu("Emulation")) {
                 ImGui::MenuItem("Reset", "F5", &soft_reset_flag);
                 ImGui::MenuItem("Pause", "P", paused);
-                
+
                 /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
                     ImGui::MenuItem("", "PageDown/PageUp", !!0);
@@ -104,33 +105,33 @@ void Gui::MainMenu() {
                 ImGui::MenuItem("Mute Audio", "M", mute);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
 
-                /* 
-                toggle Vsync is disabled for now because it doesn't really 
-                make sense with the current design. It ends up slowing down 
-                emulation to whatever cpu speed puts out 60 frames a second 
-                which more often than not ends up being unbearably slow. A 
-                workaround I've found is to have both 60_fps_limit toggled on 
-                and vsync toggled on at the same time, but of course this 
-                will only work properly on 60hz monitors 
+                /*
+                toggle Vsync is disabled for now because it doesn't really
+                make sense with the current design. It ends up slowing down
+                emulation to whatever cpu speed puts out 60 frames a second
+                which more often than not ends up being unbearably slow. A
+                workaround I've found is to have both 60_fps_limit toggled on
+                and vsync toggled on at the same time, but of course this
+                will only work properly on 60hz monitors
                 */
 
-                /* 
+                /*
                 before = display->vsync_flag;
                 ImGui::MenuItem("Vsync", NULL, &(display->vsync_flag));
-                if (before != display->vsync_flag) display->ToggleVsync(); 
+                if (before != display->vsync_flag) display->ToggleVsync();
                 */
 
                 /* color chooser */
                 if (ImGui::BeginMenu("Colors")) {
                     ImGui::ColorEdit3("Background", display->background_color);
                     ImGui::ColorEdit3("Foreground", display->foreground_color);
-                    before = ( 
+                    before = (
                         display->background_color[0] == ((float) DEFAULT_BACKGROUND_R / (float) 0xFF) &&
                         display->background_color[1] == ((float) DEFAULT_BACKGROUND_G / (float) 0xFF) &&
                         display->background_color[2] == ((float) DEFAULT_BACKGROUND_B / (float) 0xFF) &&
                         display->foreground_color[0] == ((float) DEFAULT_FOREGROUND_R / (float) 0xFF) &&
                         display->foreground_color[1] == ((float) DEFAULT_FOREGROUND_G / (float) 0xFF) &&
-                        display->foreground_color[2] == ((float) DEFAULT_FOREGROUND_B / (float) 0xFF) 
+                        display->foreground_color[2] == ((float) DEFAULT_FOREGROUND_B / (float) 0xFF)
                     );
                     ImGui::MenuItem("Default", NULL, &before);
                     if (before) {
@@ -164,8 +165,8 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowSize(ImVec2(270, 150), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &show_usage);
-        
-        ImGui::TextWrapped( 
+
+        ImGui::TextWrapped(
             "Alternatively, you may launch Kiwi8\n"
             "from the command line.\n"
             "\n"
@@ -183,11 +184,11 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowSize(ImVec2(345, 245), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Controls", &show_controls);
-        
-        ImGui::TextWrapped( 
+
+        ImGui::TextWrapped(
             "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
             "\n"
-            "controls:       --->        keybindings:\n"
+            "controls:       <-->        keybindings:\n"
             "1 2 3 C                     1 2 3 4\n"
             "4 5 6 D                     q w e r\n"
             "7 8 9 E                     a s d f\n"
@@ -209,24 +210,8 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowSize(ImVec2(500, 230), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("License", &show_license);
-        
-        ImGui::TextWrapped( 
-            "Kiwi8 - \"A cross-platform Chip-8 interpreter\"\n"
-            "Copyright (C) 2016  Thomas Daley\n"
-            "\n"
-            "This program is free software: you can redistribute it and/or modify\n"
-            "it under the terms of the GNU General Public License as published by\n"
-            "the Free Software Foundation, either version 3 of the License, or\n"
-            "(at your option) any later version.\n"
-            "\n"
-            "This program is distributed in the hope that it will be useful,\n"
-            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-            "GNU General Public License for more details.\n"
-            "\n"
-            "You should have received a copy of the GNU General Public License\n"
-            "along with this program.  If not, see <http://www.gnu.org/licenses/>."
-        );
+
+        ImGui::TextWrapped("%s", LICENSE_TEXT);
 
         ImGui::End();
     }
@@ -234,14 +219,14 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowSize(ImVec2(330, 120), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("About", &show_about);
-        
-        ImGui::TextWrapped( 
+
+        ImGui::TextWrapped(
             APPNAME_VERSION "\n"
             "\n"
             "A cross-platform Chip-8 interpreter written\n"
-            "in C++ using SDL2, ImGui, and OpenGL.\n"
+            "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
             "\n"
-            "<https://github.com/tomdaley92/Kiwi8>\n"
+            "<https://github.com/Diesel-Net/kiwi-8>\n"
         );
 
         ImGui::End();
@@ -253,10 +238,10 @@ void Gui::HelpWindows() {
             ImGui::SetNextWindowPos(ImVec2(1, 2));
         }
         if (!ImGui::Begin(
-                "FPS", 
-                &show_fps_flag, 
-                ImVec2(0, 0), 
-                0.3f, 
+                "FPS",
+                &show_fps_flag,
+                ImVec2(0, 0),
+                0.3f,
                 ImGuiWindowFlags_NoTitleBar |
                 ImGuiWindowFlags_NoResize |
                 ImGuiWindowFlags_NoMove |
@@ -268,9 +253,9 @@ void Gui::HelpWindows() {
         }
 
         ImGui::Text(
-            "%.1f FPS (%.3f ms/frame)", 
+            "%.1f FPS (%.3f ms/frame)",
             ImGui::GetIO().Framerate,
-            1000.0f / ImGui::GetIO().Framerate 
+            1000.0f / ImGui::GetIO().Framerate
         );
 
         ImGui::End();

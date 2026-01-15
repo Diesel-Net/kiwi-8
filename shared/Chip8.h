@@ -1,7 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
-#include "bootrom.h"
+#include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
 #include "Display.h"
 #include "Input.h"
 #include "Audio.h"
@@ -30,23 +30,23 @@ class Chip8 {
         int cycles;
 
         /* whether or not cpu is currently halted by opcode FX0A */
-        bool cpu_halt; 
+        bool cpu_halt;
 
         /* whether ot not emulation is currently paused.
            This is different from CPU's HALT state. */
         bool paused;
 
-        /* Two quirks of the Chip8 CPU. 
+        /* Two quirks of the Chip8 CPU.
            Some games assume these are enabled to run correctly.
 
-           Load/store quirks - Instructions OxFX55 and 0xFX65 increments 
-           value of I register but some CHIP-8 programs assumes that 
-           they don't. Enabling this quirk causes I register to become 
+           Load/store quirks - Instructions OxFX55 and 0xFX65 increments
+           value of I register but some CHIP-8 programs assumes that
+           they don't. Enabling this quirk causes I register to become
            unchanged after the instruction.
 
-           Shift quirks - Shift instructions originally shift register 
-           VY and store results in register VX. Some CHIP-8 programs 
-           incorrectly assumes that the VX register is shifted by this 
+           Shift quirks - Shift instructions originally shift register
+           VY and store results in register VX. Some CHIP-8 programs
+           incorrectly assumes that the VX register is shifted by this
            instruction, and VY remains unmodified. Enabling this quirk
            causes VX to become shifted and VY remain untouched. */
         bool load_store_quirk;
@@ -68,7 +68,7 @@ class Chip8 {
         unsigned int rom_size;
 
         /* 15 general prupose regsiters, and a carry flag register */
-        unsigned char V[NUM_REGISTERS]; 
+        unsigned char V[NUM_REGISTERS];
 
         /* index register and program counter */
         unsigned short I;
@@ -94,7 +94,7 @@ class Chip8 {
         /* 1-bit encoded screen pixels (64x32) */
         unsigned char **vram;
 
-        const unsigned char chip8_fontset[FONTS_SIZE] = { 
+        const unsigned char chip8_fontset[FONTS_SIZE] = {
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
             0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -164,7 +164,7 @@ class Chip8 {
         ~Chip8();
 
         int Initialize(
-            bool fullscreen, 
+            bool fullscreen,
             bool load_store_quirk,
             bool shift_quirk,
             bool vwrap,

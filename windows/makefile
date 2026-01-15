@@ -24,13 +24,14 @@ APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /MD /nologo /W3 /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
 LFLAGS = /link \
-		 /LIBPATH:frameworks\sdl\lib \
+		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup
 
-INCS = /Iframeworks\sdl\include \
-	   /I..\frameworks\imgui
+INCS = /I..\external\sdl\build\include \
+	   /I..\external\imgui \
+	   /I..\shared
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
@@ -39,15 +40,20 @@ LIBS = user32.lib \
 	   Shell32.lib
 
 # SDL dependency files
-SDL_LIB = frameworks\sdl\lib\SDL2.lib
-SDL_DLL = frameworks\sdl\bin\SDL2.dll
+SDL_LIB = ..\external\sdl\build\lib\SDL2.lib
+SDL_DLL = ..\external\sdl\build\bin\SDL2.dll
+
+# Generated headers
+LICENSE_HEADER = ..\shared\license.h
+BOOTROM_HEADER = ..\shared\bootrom.h
+BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
-            ..\Core\imgui_impl_sdl.cc ..\Core\Input.cc ..\Core\main.cc \
-            ..\Core\opcodes.cc ..\Core\open_file_dialog.cc
-IMGUI_SRCS = ..\frameworks\imgui\imgui.cpp ..\frameworks\imgui\imgui_demo.cpp \
-             ..\frameworks\imgui\imgui_draw.cpp
+CORE_SRCS = ..\shared\Audio.cc ..\shared\Chip8.cc ..\shared\Display.cc ..\shared\Gui.cc \
+            ..\shared\imgui_impl_sdl.cc ..\shared\Input.cc ..\shared\main.cc \
+            ..\shared\opcodes.cc ..\shared\open_file_dialog.cc
+IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_demo.cpp \
+             ..\external\imgui\imgui_draw.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
@@ -70,15 +76,30 @@ $(SDL_LIB):
 $(SDL_DLL): $(SDL_LIB)
 	@REM DLL is created by same script that creates LIB
 
+# Generate license header from LICENSE file
+$(LICENSE_HEADER): ..\LICENSE
+	python3 ..\tools\generate_license_header.py ..\LICENSE $(LICENSE_HEADER)
+
+# Generate bootrom header from ROM file
+$(BOOTROM_HEADER): $(BOOTROM_SOURCE)
+	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
+
 # Inference rules for incremental compilation
-{..\Core}.cc{}.obj:
+{..\shared}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-{..\frameworks\imgui}.cpp{}.obj:
+{..\external\imgui}.cpp{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
+
+# Explicit rules for files depending on generated headers
+Gui.obj: ..\shared\Gui.cc $(LICENSE_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Gui.cc
+
+Chip8.obj: ..\shared\Chip8.cc $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Chip8.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
@@ -102,20 +123,15 @@ run-debug:
 run-release:
 	release\$(APP_EXE)
 
-# Remove just SDL
-clean-sdl:
-	-RD /S /Q frameworks\sdl\lib
-	-RD /S /Q frameworks\sdl\include
-
 # Clean any leftover build files (keeps SDL)
 clean:
 	-DEL /Q $(OBJS) $(APP_RES) $(APP_PDB) 2>nul
+	-DEL /Q $(LICENSE_HEADER) $(BOOTROM_HEADER) 2>nul
 	-IF EXIST debug RD /S /Q debug
 	-IF EXIST release RD /S /Q release
 
-# Remove everything including SDL (full reset)
-distclean: clean clean-sdl
-	-RD /S /Q frameworks\sdl\backups
-	-RD /S /Q ..\Windows\third_party
+# Remove everything including SDL installation and build artifacts (full reset)
+distclean: clean
+	-RD /S /Q ..\external\sdl
 
-.PHONY: all sdl run-debug run-release clean clean-sdl distclean
+.PHONY: all sdl run-debug run-release clean distclean

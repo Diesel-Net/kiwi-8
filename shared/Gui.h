@@ -46,10 +46,10 @@ class Gui {
 
         void Initialize(
             Display *display,
-            int *cycles, 
-            bool *paused, 
-            bool *load_store_quirk, 
-            bool *shift_quirk, 
+            int *cycles,
+            bool *paused,
+            bool *load_store_quirk,
+            bool *shift_quirk,
             bool *vwrap,
             bool *mute
         );
@@ -58,7 +58,7 @@ class Gui {
         void NewFrame();
         void Render();
 
-        
+
 };
 
 #endif

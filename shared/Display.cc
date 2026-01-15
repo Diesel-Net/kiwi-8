@@ -35,14 +35,14 @@ Display::~Display(){
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
 }
-    
 
-int Display::Initialize( 
+
+int Display::Initialize(
     bool fullscreen,
     int *steps,
     bool *paused,
     bool *load_store_quirk,
-    bool *shift_quirk, 
+    bool *shift_quirk,
     bool *vwrap,
     bool *muted
 ) {
@@ -76,11 +76,11 @@ int Display::Initialize(
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
     window = SDL_CreateWindow(
-        "Kiwi8", 
-        SDL_WINDOWPOS_CENTERED, 
-        SDL_WINDOWPOS_CENTERED, 
-        WINDOW_WIDTH, 
-        WINDOW_HEIGHT, 
+        "Kiwi8",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        WINDOW_WIDTH,
+        WINDOW_HEIGHT,
         window_mode
     );
 
@@ -96,14 +96,14 @@ int Display::Initialize(
 
     /* specify the texture */
     glTexImage2D(
-        GL_TEXTURE_2D, 
-        0, 
-        GL_RGB, 
-        WIDTH, 
-        HEIGHT, 
+        GL_TEXTURE_2D,
         0,
-        GL_RGB, 
-        GL_UNSIGNED_BYTE, 
+        GL_RGB,
+        WIDTH,
+        HEIGHT,
+        0,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
         (GLvoid *) texture
     );
 
@@ -116,13 +116,13 @@ int Display::Initialize(
 
     /* setup ImGui binding */
     gui.Initialize(
-        this, 
+        this,
         steps,
-        paused, 
-        load_store_quirk, 
-        shift_quirk, 
-        vwrap, 
-        muted 
+        paused,
+        load_store_quirk,
+        shift_quirk,
+        vwrap,
+        muted
     );
 
     /* set to fullscreen mode if flag present */
@@ -148,11 +148,11 @@ void Display::ToggleFullscreen() {
     } else {
         /* set fullscreen */
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-        /* currently, a new ImGui Frame will draw the mouse cursor 
+        /* currently, a new ImGui Frame will draw the mouse cursor
            regardless of SDL2's cursor visibility function */
         SDL_ShowCursor(SDL_DISABLE);
         fullscreen_flag = 1;
-        
+
     }
 }
 
@@ -202,43 +202,43 @@ void Display::RenderFrame(unsigned char **frame){
             }
         }
     }
-    
+
     /* send texture to GPU */
     glTexSubImage2D(
-        GL_TEXTURE_2D, 
-        0, 
-        0, 
-        0, 
-        WIDTH, 
+        GL_TEXTURE_2D,
+        0,
+        0,
+        0,
+        WIDTH,
         HEIGHT,
-        GL_RGB, 
-        GL_UNSIGNED_BYTE, 
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
         (GLvoid *) texture
     );
 
     /* create room at the top for menu bar */
-    float top_edge = gui.show_menu_flag ? 
+    float top_edge = gui.show_menu_flag ?
         (float)(WINDOW_HEIGHT - MENU_HEIGHT) / WINDOW_HEIGHT : (float) 1.0;
 
     /* render the texture */
     glBegin(GL_QUADS);
 
         /* bottom left */
-        glTexCoord2f(0.0, 0.0); 
-        glVertex2f(-1.0, -1.0); 
+        glTexCoord2f(0.0, 0.0);
+        glVertex2f(-1.0, -1.0);
 
         /* bottom right */
         glTexCoord2f(1.0, 0.0);
-        glVertex2f(1.0, -1.0); 
+        glVertex2f(1.0, -1.0);
 
         /* top right */
-        glTexCoord2f(1.0, 1.0); 
-        glVertex2f(1.0, top_edge); 
+        glTexCoord2f(1.0, 1.0);
+        glVertex2f(1.0, top_edge);
 
         /* top left */
-        glTexCoord2f(0.0, 1.0); 
-        glVertex2f(-1.0, top_edge); 
-        
+        glTexCoord2f(0.0, 1.0);
+        glVertex2f(-1.0, top_edge);
+
     glEnd();
 
     gui.Render();

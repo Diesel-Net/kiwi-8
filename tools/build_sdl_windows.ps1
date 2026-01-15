@@ -1,5 +1,6 @@
 # build_sdl_windows.ps1
-# Builds SDL 2.32.10 for Windows x64 and installs it into Windows/frameworks/sdl
+# Downloads SDL source to external/sdl and builds it for Windows x64
+# Installs into Windows/frameworks/sdl
 
 param(
     [string]$SDL_VERSION = "2.32.10",
@@ -7,12 +8,12 @@ param(
 )
 
 $SDL_URL = "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"
-$TP_DIR = "$ROOT_DIR/Windows/third_party"
-$INSTALL_DIR = "$ROOT_DIR/Windows/frameworks/sdl"
+$SDL_SRC_DIR = "$ROOT_DIR/external/sdl"
+$INSTALL_DIR = "$SDL_SRC_DIR/build"
 
-# Create third_party directory
-New-Item -ItemType Directory -Force -Path $TP_DIR | Out-Null
-Push-Location $TP_DIR
+# Create external/sdl directory
+New-Item -ItemType Directory -Force -Path $SDL_SRC_DIR | Out-Null
+Push-Location $SDL_SRC_DIR
 
 # Download if needed
 $ARCHIVE = "SDL2-${SDL_VERSION}.tar.gz"
@@ -25,22 +26,18 @@ if (-Not (Test-Path $ARCHIVE)) {
 $EXTRACT_DIR = "SDL2-${SDL_VERSION}"
 if (-Not (Test-Path $EXTRACT_DIR)) {
     Write-Host "Extracting SDL..."
-    # Use tar directly (simpler for .tar.gz)
-    if (Get-Command tar -ErrorAction SilentlyContinue) {
-        tar -xzf $ARCHIVE
-    } else {
-        # Fallback: 7z requires two-step extraction for .tar.gz
-        7z x $ARCHIVE
-        7z x "SDL2-${SDL_VERSION}.tar"
+    if (-Not (Get-Command tar -ErrorAction SilentlyContinue)) {
+        Write-Error "tar is required to extract SDL. Please install Windows 10+ or enable tar support."
+        exit 1
     }
+    tar -xzf $ARCHIVE
 }
 
 # Convert to absolute path before changing directory
 # First ensure the build directory exists
-$BUILD_DIR_PATH = "$TP_DIR/$EXTRACT_DIR/build-x64"
+$BUILD_DIR_PATH = "$SDL_SRC_DIR/$EXTRACT_DIR/build-x64"
 New-Item -ItemType Directory -Force -Path $BUILD_DIR_PATH | Out-Null
 $BUILD_DIR = (Resolve-Path $BUILD_DIR_PATH).Path
-$EXTRACT_DIR_ABS = (Resolve-Path "$TP_DIR/$EXTRACT_DIR").Path
 
 # Configure & build
 Push-Location $BUILD_DIR

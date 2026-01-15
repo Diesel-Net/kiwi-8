@@ -1,11 +1,11 @@
 #include "open_file_dialog.h"
 
 #ifdef __APPLE__
-#include "../MacOS/src/file_dialog.h"
+#include "../macos/src/file_dialog.h"
 #endif
 
 #ifdef _WIN32
-#include "../Windows/src/file_dialog.h"
+#include "../windows/src/file_dialog.h"
 #endif
 
 /* Returns 0 on success, 1 on error (or user hit cancel) */

@@ -28,10 +28,10 @@ class Display {
 
         /* most recent copy of the chip8 vram */
         unsigned char **back_buffer;
-        
+
         int WINDOW_WIDTH;
         int WINDOW_HEIGHT;
-        
+
 
     public:
 
@@ -51,14 +51,14 @@ class Display {
         Display();
         ~Display();
 
-        int Initialize( 
+        int Initialize(
             bool fullscreen,
             int *cycles,
             bool *paused,
             bool *load_store_quirk,
-            bool *shift_quirk, 
+            bool *shift_quirk,
             bool *vwrap,
-            bool *muted 
+            bool *muted
         );
 
         void Resize(int x, int y);

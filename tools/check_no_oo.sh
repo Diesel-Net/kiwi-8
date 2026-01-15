@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Simple linter to detect forbidden C++/OO tokens in the Core/ folder.
+# Simple linter to detect forbidden C++/OO tokens in the shared/ folder.
 # Usage: tools/check_no_oo.sh [TARGET_DIR]
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-TARGET_DIR="${1:-Core}"
+TARGET_DIR="${1:-shared}"
 
 EXCLUDE_PATTERNS=(
-  "Core/imgui_impl_sdl"
-  "Core/open_file_dialog.cc"
+  "shared/imgui_impl_sdl"
+  "shared/open_file_dialog.cc"
 )
 
 PATTERNS=(

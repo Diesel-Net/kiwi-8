@@ -1,9 +1,10 @@
 
 
-# Kiwi8
+# Kiwi-8
 
 [![Release](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/release.yml)
 [![Build](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/build.yml)
+[![Lint](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml)
 <br>
 
 ![boot](/images/screenshots/boot.png)
@@ -35,13 +36,34 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
     -S      Disable shift quirk
     -V      Disable vertical wrapping
 
+## Controls
+```
+controls        <-->        keybindings
+
+1 2 3 C                     1 2 3 4
+4 5 6 D                     q w e r
+7 8 9 E                     a s d f
+A 0 B F                     z x c v
+increase speed              page up
+decrease speed              page down
+quit                        esc
+toggle fullscreen           enter
+toggle menu                 left alt
+show fps                    right alt
+soft reset                  f5
+pause                       p
+mute                        m
+
+```
+
 ## Building on Windows
 
-Microsoft's Visual C++ Build Tools must be installed and added to your **PATH**:
+The following must be installed and added to your **PATH**:
 
 >vcvarsall<br>
->nmake<br>
 >cl<br>
+>python3<br>
+>nmake<br>
 
 1. Change current working directory
 
@@ -63,12 +85,12 @@ Microsoft's Visual C++ Build Tools must be installed and added to your **PATH**:
 
 ## Building on MacOS
 
-Apple's Xcode command line tools must be installed and added to your **PATH**:
+The following must be installed and added to your **PATH**:
 
->make<br>
->clang++<br>
 >install_name_tool<br>
->otool<br>
+>clang<br>
+>python3<br>
+>make<br>
 
 1. Change current working directory
 
@@ -103,4 +125,4 @@ of modern day applications such as input handling,
 user-interface design, 2D graphics rendering,
 audio generation, code profiling and more!"
 
-_Enjoy!_
+_- Tom_
