@@ -1,15 +1,3 @@
-/*
-Author: Thomas Daley
-Date: September 8, 2016
-
-Usage: Kiwi8 [filename] [-FMLSV]
-    -F      Launch in fullscreen
-    -M      Launch with audio muted
-    -L      Disable load/store quirk
-    -S      Disable shift quirk
-    -V      Disable vertical wrapping
-*/
-
 #include "Chip8.h"
 #include <string.h>
 
