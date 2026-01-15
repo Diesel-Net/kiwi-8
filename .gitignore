@@ -16,3 +16,6 @@ macos/debug/
 
 windows/release/
 windows/debug/
+
+cmake_build/
+build/
