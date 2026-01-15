@@ -7,9 +7,15 @@ else
 VERSION := $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 endif
 
+# Extract semantic version for Info.plist (e.g., "1.0.3" from tag "v1.0.3")
+SHORT_VERSION := $(shell echo $(VERSION) | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0")
+
 APP_NAME_VERSION = $(APP_NAME) $(VERSION)
-APP_EXE = $(APP_NAME)
+APP_MANIFEST = src/Info.plist
 APP_BUNDLE = $(APP_NAME).app
+APP_EXE = $(APP_NAME)
+
+
 
 CC = clang++
 CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
@@ -60,6 +66,10 @@ $(LICENSE_HEADER): ../LICENSE
 $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
+# Generate Info.plist from template with version substitution
+$(APP_MANIFEST): $(APP_MANIFEST).in
+	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@SHORT_VERSION@/$(SHORT_VERSION)/g' $< > $@
+
 # Pattern rules for incremental compilation
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
@@ -88,7 +98,7 @@ release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 # .app bundle
-release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
+release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns $(APP_MANIFEST)
 	mkdir -p release/$(APP_BUNDLE)/Contents/{Resources,Frameworks}
 
 	# Copying the frameworks into .app bundle
@@ -96,7 +106,7 @@ release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB
 
 	# Moving other files into .app bundle
 	cp resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
-	cp src/Info.plist release/$(APP_BUNDLE)/Contents/Info.plist
+	cp $(APP_MANIFEST) release/$(APP_BUNDLE)/Contents/Info.plist
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
@@ -119,6 +129,7 @@ clean:
 	$(RM) -r debug
 	$(RM) -r release
 	$(RM) $(LICENSE_HEADER) $(BOOTROM_HEADER)
+	$(RM) $(APP_MANIFEST)
 
 # Removes everything including SDL installation and build artifacts (full reset)
 distclean: clean
