@@ -19,7 +19,7 @@ VERSION = $(GITHUB_REF_NAME)
 !ENDIF
 
 # Git commit hash (unique identifier for build)
-!IF [powershell -NoProfile -Command "$hash = git rev-parse --short HEAD 2>$null; if ($hash) { Set-Content -Path .hash.tmp -Value \"COMMIT_HASH = $hash\" -NoNewline; exit 0 } else { exit 1 }"] == 0
+!IF [powershell -NoProfile -Command "$$hash = git rev-parse --short HEAD 2>$$null; if ($$hash) { Set-Content -Path .hash.tmp -Value ""COMMIT_HASH = $$hash"" -NoNewline; exit 0 } else { exit 1 }"] == 0
 !INCLUDE .hash.tmp
 !ELSE
 COMMIT_HASH = unknown
@@ -34,7 +34,7 @@ APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME_VERSION=\"$(APP_NAME_VERSION)\" /DCOMMIT_HASH=\"$(COMMIT_HASH)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME_VERSION=\"$(APP_NAME_VERSION)\"" "/DCOMMIT_HASH=\"$(COMMIT_HASH)\""
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup
