@@ -13,7 +13,7 @@ jobs:
       - name: Cache SDL
         uses: actions/cache@v4
         with:
-          path: MacOS/frameworks/sdl
+          path: external/sdl/build
           key: sdl-2.32.10-macos-14-${{ runner.arch }}
 
       - name: Install build dependencies
@@ -40,7 +40,7 @@ jobs:
       - name: Cache SDL
         uses: actions/cache@v4
         with:
-          path: Windows/frameworks/sdl
+          path: external/sdl/build
           key: sdl-2.32.10-windows-2022-${{ runner.arch }}
 
       - name: Configures build environment for AMD64
