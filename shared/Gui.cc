@@ -188,7 +188,7 @@ void Gui::HelpWindows() {
         ImGui::TextWrapped(
             "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
             "\n"
-            "controls:       --->        keybindings:\n"
+            "controls:       <-->        keybindings:\n"
             "1 2 3 C                     1 2 3 4\n"
             "4 5 6 D                     q w e r\n"
             "7 8 9 E                     a s d f\n"
@@ -226,7 +226,7 @@ void Gui::HelpWindows() {
             "A cross-platform Chip-8 interpreter written\n"
             "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
             "\n"
-            "<https://github.com/Diesel-Net/Kiwi8>\n"
+            "<https://github.com/Diesel-Net/kiwi-8>\n"
         );
 
         ImGui::End();

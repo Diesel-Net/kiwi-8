@@ -36,6 +36,26 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
     -S      Disable shift quirk
     -V      Disable vertical wrapping
 
+## Controls
+```
+controls        <-->        keybindings
+
+1 2 3 C                     1 2 3 4
+4 5 6 D                     q w e r
+7 8 9 E                     a s d f
+A 0 B F                     z x c v
+increase speed              page up
+decrease speed              page down
+quit                        esc
+toggle fullscreen           enter
+toggle menu                 left alt
+show fps                    right alt
+soft reset                  f5
+pause                       p
+mute                        m
+
+```
+
 ## Building on Windows
 
 The following must be installed and added to your **PATH**:
