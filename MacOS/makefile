@@ -8,11 +8,11 @@ VERSION := $(shell git describe --tags --exact-match 2>/dev/null || git rev-pars
 endif
 
 APP_NAME_VERSION = $(APP_NAME) $(VERSION)
-APP_BUNDLE = release/$(APP_NAME).app
-APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
+APP_EXE = $(APP_NAME)
+APP_BUNDLE = $(APP_NAME).app
 
 CC = clang++
-CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../Core/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
@@ -42,7 +42,7 @@ DEPS = $(OBJS:.o=.d)
 
 .DEFAULT_GOAL := all
 
-all: $(APP_BUNDLE)
+all: debug/$(APP_EXE) release/$(APP_BUNDLE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
@@ -70,39 +70,53 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 %.o: src/%.mm
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-$(APP_EXE): $(SDL_LIB) $(OBJS)
-	# Create app bundle directory structure
-	mkdir -p $(APP_BUNDLE)/Contents/{MacOS,Resources,Frameworks}
-
-	# Compiling main executable
-	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
-
-$(APP_BUNDLE): $(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
-	# Copying the frameworks into .app bundle
-	cp $(SDL_LIB) $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+# debug executable
+debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
+	mkdir -p debug
+	cp $(SDL_LIB) debug/libSDL2-2.0.0.dylib
+	$(CC) $(CFLAGS) -g $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 	# Set the dylib's install name to be relative to the bundle
-	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+	install_name_tool -id @executable_path/libSDL2-2.0.0.dylib debug/libSDL2-2.0.0.dylib
+
+	# Fix executable's reference to SDL
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/libSDL2-2.0.0.dylib debug/$(APP_EXE)
+
+# release executable (inside .app bundle)
+release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
+	mkdir -p release/$(APP_BUNDLE)/Contents/MacOS
+	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
+
+# .app bundle
+release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns src/Info.plist
+	mkdir -p release/$(APP_BUNDLE)/Contents/{Resources,Frameworks}
+
+	# Copying the frameworks into .app bundle
+	cp $(SDL_LIB) release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+
+	# Moving other files into .app bundle
+	cp resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
+	cp src/Info.plist release/$(APP_BUNDLE)/Contents/Info.plist
+
+	# Set the dylib's install name to be relative to the bundle
+	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 	# Fix executable's reference to SDL (from @rpath to bundle-relative path)
-	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib $(APP_EXE)
-
-	# Moving the configured executable and copying other files into .app bundle
-	cp resources/Kiwi8.icns $(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
-	cp src/Info.plist $(APP_BUNDLE)/Contents/Info.plist
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
 
 	# Update directory timestamp so Make knows bundle is up-to-date
-	touch $(APP_BUNDLE)
+	touch release/$(APP_BUNDLE)
 
-run-debug: $(APP_BUNDLE)
-	./$(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
+run-debug: debug/$(APP_EXE)
+	./debug/$(APP_EXE)
 
-run-release: $(APP_BUNDLE)
-	open ./$(APP_BUNDLE)
+run-release: release/$(APP_BUNDLE)
+	open release/$(APP_BUNDLE)
 
 # Removes build artifacts (objects, app bundle) but keeps SDL
 clean:
 	$(RM) *.o *.d
+	$(RM) -r debug
 	$(RM) -r release
 	$(RM) $(LICENSE_HEADER) $(BOOTROM_HEADER)
 
