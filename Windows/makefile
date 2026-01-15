@@ -26,11 +26,11 @@ APP_RES = $(APP_NAME).res
 CC = CL
 CFLAGS = /MD /nologo /W3 /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
 LFLAGS = /link \
-		 /LIBPATH:frameworks\sdl\lib \
+		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup
 
-INCS = /Iframeworks\sdl\include \
-	   /I..\frameworks\imgui \
+INCS = /I..\external\sdl\build\include \
+	   /I..\external\imgui \
 	   /I..\Core
 LIBS = user32.lib \
 	   SDL2.lib \
@@ -40,8 +40,8 @@ LIBS = user32.lib \
 	   Shell32.lib
 
 # SDL dependency files
-SDL_LIB = frameworks\sdl\lib\SDL2.lib
-SDL_DLL = frameworks\sdl\bin\SDL2.dll
+SDL_LIB = ..\external\sdl\build\lib\SDL2.lib
+SDL_DLL = ..\external\sdl\build\bin\SDL2.dll
 
 # Generated headers
 LICENSE_HEADER = ..\Core\license.h
@@ -52,8 +52,8 @@ BOOTROM_SOURCE = ..\Roms\Kiwi8_logo_2.ch8
 CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
             ..\Core\imgui_impl_sdl.cc ..\Core\Input.cc ..\Core\main.cc \
             ..\Core\opcodes.cc ..\Core\open_file_dialog.cc
-IMGUI_SRCS = ..\frameworks\imgui\imgui.cpp ..\frameworks\imgui\imgui_demo.cpp \
-             ..\frameworks\imgui\imgui_draw.cpp
+IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_demo.cpp \
+             ..\external\imgui\imgui_draw.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
@@ -88,7 +88,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 {..\Core}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-{..\frameworks\imgui}.cpp{}.obj:
+{..\external\imgui}.cpp{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {src}.cc{}.obj:
@@ -132,7 +132,6 @@ clean:
 
 # Remove everything including SDL installation and build artifacts (full reset)
 distclean: clean
-	-RD /S /Q frameworks\sdl
-	-RD /S /Q ..\Windows\third_party
+	-RD /S /Q ..\external\sdl
 
 .PHONY: all sdl run-debug run-release clean distclean

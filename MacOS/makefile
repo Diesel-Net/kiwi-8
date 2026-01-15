@@ -14,11 +14,11 @@ APP_EXE = $(APP_BUNDLE)/Contents/MacOS/$(APP_NAME)
 CC = clang++
 CFLAGS = -std=c++17 -g -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -Iframeworks/sdl/include/ -I../frameworks/imgui/ -I../Core/
-LIBS = -Lframeworks/sdl/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
+INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../Core/
+LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
-SDL_LIB = frameworks/sdl/lib/libSDL2-2.0.0.dylib
+SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
 
 # Generated headers
 LICENSE_HEADER = ../Core/license.h
@@ -29,8 +29,8 @@ BOOTROM_SOURCE = ../Roms/Kiwi8_logo_2.ch8
 CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
             ../Core/imgui_impl_sdl.cc ../Core/Input.cc ../Core/main.cc \
             ../Core/opcodes.cc ../Core/open_file_dialog.cc
-IMGUI_SRCS = ../frameworks/imgui/imgui.cpp ../frameworks/imgui/imgui_demo.cpp \
-             ../frameworks/imgui/imgui_draw.cpp
+IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_demo.cpp \
+             ../external/imgui/imgui_draw.cpp
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)
@@ -64,7 +64,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 %.o: ../Core/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../frameworks/imgui/%.cpp
+%.o: ../external/imgui/%.cpp
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: src/%.mm
@@ -103,12 +103,11 @@ run-release: $(APP_BUNDLE)
 # Removes build artifacts (objects, app bundle) but keeps SDL
 clean:
 	$(RM) *.o *.d
-	$(RM) -r $(APP_BUNDLE)
+	$(RM) -r release
 	$(RM) $(LICENSE_HEADER) $(BOOTROM_HEADER)
 
 # Removes everything including SDL installation and build artifacts (full reset)
 distclean: clean
-	$(RM) -r frameworks/sdl
-	$(RM) -r ../MacOS/third_party
+	$(RM) -r ../external/sdl
 
 .PHONY: all sdl clean distclean run-release run-debug

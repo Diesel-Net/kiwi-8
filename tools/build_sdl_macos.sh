@@ -2,17 +2,18 @@
 set -euo pipefail
 
 # build_sdl_macos.sh
-# Builds SDL 2.32.10 as a universal macOS binary and installs it into MacOS/frameworks/sdl
+# Downloads SDL source to external/sdl and builds it as a universal macOS binary
+# Installs into MacOS/frameworks/sdl
 
 SDL_VERSION="2.32.10"
 SDL_URL="https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-TP_DIR="$ROOT_DIR/MacOS/third_party"
-BUILD_DIR="$TP_DIR/SDL2-${SDL_VERSION}/build-universal"
-INSTALL_DIR="$ROOT_DIR/MacOS/frameworks/sdl"
+SDL_SRC_DIR="$ROOT_DIR/external/sdl"
+BUILD_DIR="$SDL_SRC_DIR/SDL2-${SDL_VERSION}/build-universal"
+INSTALL_DIR="$SDL_SRC_DIR/build"
 
-mkdir -p "$TP_DIR"
-cd "$TP_DIR"
+mkdir -p "$SDL_SRC_DIR"
+cd "$SDL_SRC_DIR"
 
 # download if needed
 if [ ! -f "SDL2-${SDL_VERSION}.tar.gz" ]; then
