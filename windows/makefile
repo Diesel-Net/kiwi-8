@@ -18,13 +18,23 @@ VERSION = unknown
 VERSION = $(GITHUB_REF_NAME)
 !ENDIF
 
+# Git commit hash (unique identifier for build)
+!IF [git rev-parse --short HEAD > .build.tmp 2>nul] == 0
+!INCLUDE .build.tmp
+!ELSE
+COMMIT_HASH = unknown
+!ENDIF
+# Clean up temp file
+!IF [del .build.tmp 2>nul]
+!ENDIF
+
 APP_NAME_VERSION = $(APP_NAME) $(VERSION)
 APP_EXE = $(APP_NAME).exe
 APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME_VERSION=\"$(APP_NAME_VERSION)\" /DCOMMIT_HASH=\"$(COMMIT_HASH)\""
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup

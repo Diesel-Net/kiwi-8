@@ -7,18 +7,16 @@ else
 VERSION := $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 endif
 
-# Extract semantic version for Info.plist (e.g., "1.0.3" from tag "v1.0.3")
-SHORT_VERSION := $(shell echo $(VERSION) | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' || echo "0.0.0")
+# CFBundleVersion: Use git commit hash (unique identifier)
+COMMIT_HASH := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 APP_NAME_VERSION = $(APP_NAME) $(VERSION)
 APP_MANIFEST = src/Info.plist
 APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
-
-
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPP_NAME_VERSION='"$(APP_NAME_VERSION)"' -DCOMMIT_HASH='"$(COMMIT_HASH)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
@@ -68,7 +66,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 
 # Generate Info.plist from template with version substitution
 $(APP_MANIFEST): $(APP_MANIFEST).in
-	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@SHORT_VERSION@/$(SHORT_VERSION)/g' $< > $@
+	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@COMMIT_HASH@/$(COMMIT_HASH)/g' $< > $@
 
 # Pattern rules for incremental compilation
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
