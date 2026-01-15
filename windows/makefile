@@ -19,13 +19,13 @@ VERSION = $(GITHUB_REF_NAME)
 !ENDIF
 
 # Git commit hash (unique identifier for build)
-!IF [cmd /c "git rev-parse --short HEAD > .hash.tmp 2>nul && (echo COMMIT_HASH = & type .hash.tmp) > .commit.tmp 2>nul"] == 0
-!INCLUDE .commit.tmp
+!IF [powershell -NoProfile -Command "$hash = git rev-parse --short HEAD 2>$null; if ($hash) { Set-Content -Path .hash.tmp -Value \"COMMIT_HASH = $hash\" -NoNewline; exit 0 } else { exit 1 }"] == 0
+!INCLUDE .hash.tmp
 !ELSE
 COMMIT_HASH = unknown
 !ENDIF
-# Clean up temp files
-!IF [del .hash.tmp .commit.tmp 2>nul]
+# Clean up temp file
+!IF [del .hash.tmp 2>nul]
 !ENDIF
 
 APP_NAME_VERSION = $(APP_NAME) $(VERSION)
