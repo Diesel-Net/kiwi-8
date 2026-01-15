@@ -4,16 +4,14 @@
 *.d
 
 # Generated files
-Core/license.h
-Core/bootrom.h
+shared/license.h
+shared/bootrom.h
 
 # External dependencies (downloaded at build time)
 external/sdl/
 
-MacOS/release/
-MacOS/debug/
-MacOS/build/
+macos/release/
+macos/debug/
 
-Windows/release/
-Windows/debug/
-Windows/build/
+windows/release/
+windows/debug/
