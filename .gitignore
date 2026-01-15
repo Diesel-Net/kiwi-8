@@ -2,6 +2,7 @@
 
 *.o
 *.d
+*.s
 
 # Generated files
 shared/license.h
