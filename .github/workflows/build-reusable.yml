@@ -44,7 +44,7 @@ jobs:
           path: external/sdl/build
           key: sdl-2.32.10-windows-2022-${{ runner.arch }}
 
-      - name: Configures build environment for AMD64
+      - name: Configures build environment for x86-64
         uses: ilammy/msvc-dev-cmd@v1
         with:
             arch: amd64
