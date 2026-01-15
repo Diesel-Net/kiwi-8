@@ -31,7 +31,7 @@ LFLAGS = /link \
 
 INCS = /I..\external\sdl\build\include \
 	   /I..\external\imgui \
-	   /I..\Core
+	   /I..\shared
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
@@ -44,14 +44,14 @@ SDL_LIB = ..\external\sdl\build\lib\SDL2.lib
 SDL_DLL = ..\external\sdl\build\bin\SDL2.dll
 
 # Generated headers
-LICENSE_HEADER = ..\Core\license.h
-BOOTROM_HEADER = ..\Core\bootrom.h
-BOOTROM_SOURCE = ..\Roms\Kiwi8_logo_2.ch8
+LICENSE_HEADER = ..\shared\license.h
+BOOTROM_HEADER = ..\shared\bootrom.h
+BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ..\Core\Audio.cc ..\Core\Chip8.cc ..\Core\Display.cc ..\Core\Gui.cc \
-            ..\Core\imgui_impl_sdl.cc ..\Core\Input.cc ..\Core\main.cc \
-            ..\Core\opcodes.cc ..\Core\open_file_dialog.cc
+CORE_SRCS = ..\shared\Audio.cc ..\shared\Chip8.cc ..\shared\Display.cc ..\shared\Gui.cc \
+            ..\shared\imgui_impl_sdl.cc ..\shared\Input.cc ..\shared\main.cc \
+            ..\shared\opcodes.cc ..\shared\open_file_dialog.cc
 IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_demo.cpp \
              ..\external\imgui\imgui_draw.cpp
 WINDOWS_SRCS = src\file_dialog.cc
@@ -85,7 +85,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Inference rules for incremental compilation
-{..\Core}.cc{}.obj:
+{..\shared}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {..\external\imgui}.cpp{}.obj:
@@ -95,11 +95,11 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 # Explicit rules for files depending on generated headers
-Gui.obj: ..\Core\Gui.cc $(LICENSE_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\Core\Gui.cc
+Gui.obj: ..\shared\Gui.cc $(LICENSE_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Gui.cc
 
-Chip8.obj: ..\Core\Chip8.cc $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\Core\Chip8.cc
+Chip8.obj: ..\shared\Chip8.cc $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Chip8.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc

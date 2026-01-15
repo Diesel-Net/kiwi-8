@@ -14,21 +14,21 @@ APP_BUNDLE = $(APP_NAME).app
 CC = clang++
 CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPPNAME_VERSION='"$(APP_NAME_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../Core/
+INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
 
 # Generated headers
-LICENSE_HEADER = ../Core/license.h
-BOOTROM_HEADER = ../Core/bootrom.h
-BOOTROM_SOURCE = ../Roms/Kiwi8_logo_2.ch8
+LICENSE_HEADER = ../shared/license.h
+BOOTROM_HEADER = ../shared/bootrom.h
+BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../Core/Audio.cc ../Core/Chip8.cc ../Core/Display.cc ../Core/Gui.cc \
-            ../Core/imgui_impl_sdl.cc ../Core/Input.cc ../Core/main.cc \
-            ../Core/opcodes.cc ../Core/open_file_dialog.cc
+CORE_SRCS = ../shared/Audio.cc ../shared/Chip8.cc ../shared/Display.cc ../shared/Gui.cc \
+            ../shared/imgui_impl_sdl.cc ../shared/Input.cc ../shared/main.cc \
+            ../shared/opcodes.cc ../shared/open_file_dialog.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_demo.cpp \
              ../external/imgui/imgui_draw.cpp
 MACOS_SRCS = src/file_dialog.mm
@@ -61,7 +61,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Pattern rules for incremental compilation
-%.o: ../Core/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
+%.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../external/imgui/%.cpp

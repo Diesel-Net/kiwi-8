@@ -14,7 +14,7 @@ Usage: Kiwi8 [filename] [-FMLSV]
 #include <string.h>
 
 #ifdef _WIN32
-#include "../Windows/src/resource.h" /* window icon */
+#include "../windows/src/resource.h" /* window icon */
 #endif
 
 int main(int argc, char **argv){
