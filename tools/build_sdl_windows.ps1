@@ -26,14 +26,11 @@ if (-Not (Test-Path $ARCHIVE)) {
 $EXTRACT_DIR = "SDL2-${SDL_VERSION}"
 if (-Not (Test-Path $EXTRACT_DIR)) {
     Write-Host "Extracting SDL..."
-    # Use tar directly (simpler for .tar.gz)
-    if (Get-Command tar -ErrorAction SilentlyContinue) {
-        tar -xzf $ARCHIVE
-    } else {
-        # Fallback: 7z requires two-step extraction for .tar.gz
-        7z x $ARCHIVE
-        7z x "SDL2-${SDL_VERSION}.tar"
+    if (-Not (Get-Command tar -ErrorAction SilentlyContinue)) {
+        Write-Error "tar is required to extract SDL. Please install Windows 10+ or enable tar support."
+        exit 1
     }
+    tar -xzf $ARCHIVE
 }
 
 # Convert to absolute path before changing directory
