@@ -50,14 +50,13 @@ BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\display.cc ..\shared\gui.cc \
             ..\shared\imgui_impl_sdl.cc ..\shared\input.cc ..\shared\main.cc \
             ..\shared\opcodes.cc ..\shared\open_file_dialog.cc
-IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_demo.cpp \
-             ..\external\imgui\imgui_draw.cpp
+IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
 OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
-       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
-       imgui_draw.obj file_dialog.obj
+       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
+       file_dialog.obj
 
 
 # Default target
