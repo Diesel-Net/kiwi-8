@@ -7,19 +7,16 @@
 #include "audio.h"
 
 // APP_NAME is defined by the compiler via -DAPP_NAME="..."
-// Falls back to generic name if not defined (shouldn't happen in normal builds)
 #ifndef APP_NAME
 #define APP_NAME "Kiwi8"
 #endif
 
 // VERSION is defined by the compiler via -DVERSION="..."
-// Falls back to unknown if not defined (shouldn't happen in normal builds)
 #ifndef VERSION
 #define VERSION "develop"
 #endif
 
 // COMMIT_HASH is defined by the compiler via -DCOMMIT_HASH="..."
-// Falls back to generic name if not defined (shouldn't happen in normal builds)
 #ifndef COMMIT_HASH
 #define COMMIT_HASH "unknown"
 #endif
