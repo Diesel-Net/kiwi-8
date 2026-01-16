@@ -1,5 +1,5 @@
-#include "Chip8.h"
-#include "opcodes.cc"
+#include "chip8.h"
+#include "opcodes.c"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>

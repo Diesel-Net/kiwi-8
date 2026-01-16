@@ -1,7 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include "Gui.h"
+#include "gui.h"
 #include <SDL2/SDL.h>
 
 #define WIDTH 64

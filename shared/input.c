@@ -1,6 +1,6 @@
-#include "Chip8.h"
-#include "Input.h"
-#include "Display.h"
+#include "chip8.h"
+#include "input.h"
+#include "display.h"
 /* Forward declarations for static helpers */
 static int input_process_events(void);
 static void input_process_keys(void);

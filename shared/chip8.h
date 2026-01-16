@@ -2,9 +2,9 @@
 #define CHIP8_H
 
 #include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
-#include "Display.h"
-#include "Input.h"
-#include "Audio.h"
+#include "display.h"
+#include "input.h"
+#include "audio.h"
 
 // APP_NAME is defined by the compiler via -DAPP_NAME="..."
 // Falls back to generic name if not defined (shouldn't happen in normal builds)

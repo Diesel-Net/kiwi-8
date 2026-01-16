@@ -1,4 +1,4 @@
-#include "Audio.h"
+#include "audio.h"
 #include <stdio.h>
 
 /* Global audio instance */

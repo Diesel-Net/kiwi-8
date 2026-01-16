@@ -47,15 +47,15 @@ BOOTROM_HEADER = ..\shared\bootrom.h
 BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ..\shared\Audio.cc ..\shared\Chip8.cc ..\shared\Display.cc ..\shared\Gui.cc \
-            ..\shared\imgui_impl_sdl.cc ..\shared\Input.cc ..\shared\main.cc \
-            ..\shared\opcodes.cc ..\shared\open_file_dialog.cc
+CORE_SRCS = ..\shared\Audio.c ..\shared\Chip8.c ..\shared\Display.c ..\shared\Gui.c \
+            ..\shared\imgui_impl_sdl.c ..\shared\Input.c ..\shared\main.c \
+            ..\shared\opcodes.c ..\shared\open_file_dialog.c
 IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_demo.cpp \
              ..\external\imgui\imgui_draw.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
-OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
+OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
        main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
        imgui_draw.obj file_dialog.obj
 
@@ -83,7 +83,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Inference rules for incremental compilation
-{..\shared}.cc{}.obj:
+{..\shared}.c{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {..\external\imgui}.cpp{}.obj:
@@ -93,11 +93,11 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 # Explicit rules for files depending on generated headers
-Gui.obj: ..\shared\Gui.cc $(LICENSE_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Gui.cc
+gui.obj: ..\shared\gui.c $(LICENSE_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\gui.c
 
-Chip8.obj: ..\shared\Chip8.cc $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Chip8.cc
+chip8.obj: ..\shared\chip8.c $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\chip8.c
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc

@@ -1,5 +1,5 @@
-#include "Display.h"
-#include "Gui.h"
+#include "display.h"
+#include "gui.h"
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
 

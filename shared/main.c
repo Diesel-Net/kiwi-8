@@ -1,4 +1,4 @@
-#include "Chip8.h"
+#include "chip8.h"
 #include <string.h>
 
 #ifdef _WIN32
