@@ -21,7 +21,7 @@ jobs:
 
       - name: Create macOS release archive
         run: |
-          zip -r -y Kiwi8-${{ github.ref_name }}-macOS.zip Kiwi8.app
+          ditto -c -k --sequesterRsrc --keepParent Kiwi8.app Kiwi8-${{ github.ref_name }}-macOS.zip
 
       - name: Upload macOS build to Release
         uses: softprops/action-gh-release@v2
