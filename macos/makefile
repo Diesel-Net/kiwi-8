@@ -1,12 +1,15 @@
 APP_NAME = Kiwi8
 
-# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
 VERSION ?= $(GITHUB_REF_NAME)
 ifeq ($(VERSION),)
 VERSION = unknown
 endif
 
-COMMIT_HASH := $(if $(GITHUB_SHA),$(GITHUB_SHA),unknown)
+COMMIT_HASH ?= $(GITHUB_SHA)
+ifeq ($(COMMIT_HASH),)
+COMMIT_HASH = unknown
+endif
 
 APP_MANIFEST = src/Info.plist
 APP_BUNDLE = $(APP_NAME).app

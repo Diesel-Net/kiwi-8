@@ -27,6 +27,7 @@ jobs:
       - name: Build macOS (x86_64 + arm64)
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
+          COMMIT_HASH: ${{ github.sha }}
         run: |
           cd MacOS
           make clean
@@ -63,6 +64,7 @@ jobs:
       - name: Build Windows (x64)
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
+          COMMIT_HASH: ${{ github.sha }}
         shell: cmd
         run: |
           cd Windows
