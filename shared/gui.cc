@@ -1,28 +1,35 @@
-#include "Chip8.h"
-#include "Display.h"
-#include "Gui.h"
+#include "chip8.h"
+#include "display.h"
+#include "gui.h"
 #include "license.h" // Generated at build time from LICENSE
 #include <stdio.h>
 
-Gui::Gui() {
-    soft_reset_flag = 0;
-    load_rom_flag = 0;
-    quit_flag = 0;
-    show_menu_flag = 1;
-    show_fps_flag = 0;
+/* Forward declarations for static helpers */
+static void gui_main_menu(void);
+static void gui_help_windows(void);
 
-    show_controls = 0;
-    show_license = 0;
-    show_about = 0;
-    show_usage = 0;
+/* Global gui instance */
+struct gui gui;
+
+void gui_create(void) {
+    gui.soft_reset_flag = 0;
+    gui.load_rom_flag = 0;
+    gui.quit_flag = 0;
+    gui.show_menu_flag = 1;
+    gui.show_fps_flag = 0;
+
+    gui.show_controls = 0;
+    gui.show_license = 0;
+    gui.show_about = 0;
+    gui.show_usage = 0;
 }
 
-Gui::~Gui() {
+void gui_cleanup(void) {
     ImGui_ImplSdl_Shutdown();
 }
 
-void Gui::Initialize(
-    Display *display,
+void gui_initialize(
+    struct display *display,
     int *cycles,
     bool *paused,
     bool *load_store_quirk,
@@ -31,15 +38,15 @@ void Gui::Initialize(
     bool *mute
 ) {
 
-    this->display = display;
+    gui.display = display;
 
     /* connect pointers to chip8 toggles */
-    this->cycles = cycles;
-    this->paused = paused;
-    this->load_store_quirk = load_store_quirk;
-    this->shift_quirk = shift_quirk;
-    this->vwrap = vwrap;
-    this->mute = mute;
+    gui.cycles = cycles;
+    gui.paused = paused;
+    gui.load_store_quirk = load_store_quirk;
+    gui.shift_quirk = shift_quirk;
+    gui.vwrap = vwrap;
+    gui.mute = mute;
 
     ImGui_ImplSdl_Init(display->window);
 
@@ -47,64 +54,64 @@ void Gui::Initialize(
     ImGui::GetIO().IniFilename = NULL;
 }
 
-void Gui::ProcessEvents(SDL_Event *event) {
+void gui_process_events(SDL_Event *event) {
     ImGui_ImplSdl_ProcessEvent(event);
 }
 
-void Gui::NewFrame() {
-    ImGui_ImplSdl_NewFrame(display->window);
-    MainMenu();
+void gui_new_frame(void) {
+    ImGui_ImplSdl_NewFrame(display.window);
+    gui_main_menu();
 }
 
-void Gui::MainMenu() {
+static void gui_main_menu(void) {
     bool before;
 
-    if (show_menu_flag) {
+    if (gui.show_menu_flag) {
         if (ImGui::BeginMainMenuBar()) {
 
             if (ImGui::BeginMenu("File")) {
-                ImGui::MenuItem("Load ROM...", NULL, &load_rom_flag);
-                ImGui::MenuItem("Exit", "Esc", &quit_flag);
+                ImGui::MenuItem("Load ROM...", NULL, &gui.load_rom_flag);
+                ImGui::MenuItem("Exit", "Esc", &gui.quit_flag);
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("View")) {
-                ImGui::MenuItem("Show Menu", "Left-Alt", &show_menu_flag);
-                ImGui::MenuItem("Show FPS", "Right-Alt", &show_fps_flag);
+                ImGui::MenuItem("Show Menu", "Left-Alt", &gui.show_menu_flag);
+                ImGui::MenuItem("Show FPS", "Right-Alt", &gui.show_fps_flag);
 
                 /* fullscreen toggle */
-                before = display->fullscreen_flag;
-                ImGui::MenuItem("Fullscreen", "Enter", &(display->fullscreen_flag));
-                if (before != display->fullscreen_flag) display->ToggleFullscreen();
+                before = display.fullscreen_flag;
+                ImGui::MenuItem("Fullscreen", "Enter", &(display.fullscreen_flag));
+                if (before != display.fullscreen_flag) display_toggle_fullscreen();
 
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Emulation")) {
-                ImGui::MenuItem("Reset", "F5", &soft_reset_flag);
-                ImGui::MenuItem("Pause", "P", paused);
+                ImGui::MenuItem("Reset", "F5", &gui.soft_reset_flag);
+                ImGui::MenuItem("Pause", "P", gui.paused);
 
                 /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
                     ImGui::MenuItem("", "PageDown/PageUp", !!0);
-                    int cpu_frequency = *cycles * TICKS;
+                    int cpu_frequency = *(gui.cycles) * TICKS;
                     ImGui::SliderInt("Hz", &cpu_frequency, TICKS, TICKS * MAX_CYCLES_PER_STEP, "%.f");
-                    *cycles = cpu_frequency / TICKS;
-                    before = (*cycles == CYCLES_PER_STEP);
+                    *(gui.cycles) = cpu_frequency / TICKS;
+                    before = (*(gui.cycles) == CYCLES_PER_STEP);
                     ImGui::MenuItem("Default", "720 Hz", &before);
-                    if (before) *cycles = CYCLES_PER_STEP;
+                    if (before) *(gui.cycles) = CYCLES_PER_STEP;
                     ImGui::EndMenu();
                 }
 
-                ImGui::MenuItem("Load/Store Quirk", NULL, load_store_quirk);
-                ImGui::MenuItem("Shift Quirk", NULL, shift_quirk);
-                ImGui::MenuItem("Vertical Wrapping", NULL, vwrap);
+                ImGui::MenuItem("Load/Store Quirk", NULL, gui.load_store_quirk);
+                ImGui::MenuItem("Shift Quirk", NULL, gui.shift_quirk);
+                ImGui::MenuItem("Vertical Wrapping", NULL, gui.vwrap);
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Settings")) {
-                ImGui::MenuItem("Mute Audio", "M", mute);
-                ImGui::MenuItem("60 FPS Limit", NULL, &(display->limit_fps_flag));
+                ImGui::MenuItem("Mute Audio", "M", gui.mute);
+                ImGui::MenuItem("60 FPS Limit", NULL, &(display.limit_fps_flag));
 
                 /*
                 toggle Vsync is disabled for now because it doesn't really
@@ -124,24 +131,24 @@ void Gui::MainMenu() {
 
                 /* color chooser */
                 if (ImGui::BeginMenu("Colors")) {
-                    ImGui::ColorEdit3("Background", display->background_color);
-                    ImGui::ColorEdit3("Foreground", display->foreground_color);
+                    ImGui::ColorEdit3("Background", display.background_color);
+                    ImGui::ColorEdit3("Foreground", display.foreground_color);
                     before = (
-                        display->background_color[0] == ((float) DEFAULT_BACKGROUND_R / (float) 0xFF) &&
-                        display->background_color[1] == ((float) DEFAULT_BACKGROUND_G / (float) 0xFF) &&
-                        display->background_color[2] == ((float) DEFAULT_BACKGROUND_B / (float) 0xFF) &&
-                        display->foreground_color[0] == ((float) DEFAULT_FOREGROUND_R / (float) 0xFF) &&
-                        display->foreground_color[1] == ((float) DEFAULT_FOREGROUND_G / (float) 0xFF) &&
-                        display->foreground_color[2] == ((float) DEFAULT_FOREGROUND_B / (float) 0xFF)
+                        display.background_color[0] == ((float) DEFAULT_BACKGROUND_R / (float) 0xFF) &&
+                        display.background_color[1] == ((float) DEFAULT_BACKGROUND_G / (float) 0xFF) &&
+                        display.background_color[2] == ((float) DEFAULT_BACKGROUND_B / (float) 0xFF) &&
+                        display.foreground_color[0] == ((float) DEFAULT_FOREGROUND_R / (float) 0xFF) &&
+                        display.foreground_color[1] == ((float) DEFAULT_FOREGROUND_G / (float) 0xFF) &&
+                        display.foreground_color[2] == ((float) DEFAULT_FOREGROUND_B / (float) 0xFF)
                     );
                     ImGui::MenuItem("Default", NULL, &before);
                     if (before) {
-                        display->background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
-                        display->background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
-                        display->background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
-                        display->foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
-                        display->foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
-                        display->foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
+                        display.background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
+                        display.background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
+                        display.background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
+                        display.foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
+                        display.foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
+                        display.foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
                     }
                     ImGui::EndMenu();
                 }
@@ -149,23 +156,23 @@ void Gui::MainMenu() {
             }
 
             if (ImGui::BeginMenu("Help")) {
-                ImGui::MenuItem("Usage", NULL, &show_usage);
-                ImGui::MenuItem("Controls", NULL, &show_controls);
-                ImGui::MenuItem("License", NULL, &show_license);
-                ImGui::MenuItem("About", NULL, &show_about);
+                ImGui::MenuItem("Usage", NULL, &gui.show_usage);
+                ImGui::MenuItem("Controls", NULL, &gui.show_controls);
+                ImGui::MenuItem("License", NULL, &gui.show_license);
+                ImGui::MenuItem("About", NULL, &gui.show_about);
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
         }
     }
-    HelpWindows();
+    gui_help_windows();
 }
 
-void Gui::HelpWindows() {
-    if (show_usage) {
+static void gui_help_windows(void) {
+    if (gui.show_usage) {
         ImGui::SetNextWindowSize(ImVec2(270, 150), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("Usage", &show_usage);
+        ImGui::Begin("Usage", &gui.show_usage);
 
         ImGui::TextWrapped(
             "Alternatively, you may launch Kiwi8\n"
@@ -181,10 +188,10 @@ void Gui::HelpWindows() {
 
         ImGui::End();
     }
-    if (show_controls) {
+    if (gui.show_controls) {
         ImGui::SetNextWindowSize(ImVec2(345, 245), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("Controls", &show_controls);
+        ImGui::Begin("Controls", &gui.show_controls);
 
         ImGui::TextWrapped(
             "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
@@ -207,19 +214,19 @@ void Gui::HelpWindows() {
 
         ImGui::End();
     }
-    if (show_license) {
+    if (gui.show_license) {
         ImGui::SetNextWindowSize(ImVec2(500, 230), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("License", &show_license);
+        ImGui::Begin("License", &gui.show_license);
 
         ImGui::TextWrapped("%s", LICENSE_TEXT);
 
         ImGui::End();
     }
-    if (show_about) {
+    if (gui.show_about) {
         ImGui::SetNextWindowSize(ImVec2(330, 120), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("About", &show_about);
+        ImGui::Begin("About", &gui.show_about);
 
         // Truncate COMMIT_HASH to first 7 characters for display
         char short_hash[8];
@@ -237,15 +244,15 @@ void Gui::HelpWindows() {
 
         ImGui::End();
     }
-    if (show_fps_flag) {
-        if (show_menu_flag) {
+    if (gui.show_fps_flag) {
+        if (gui.show_menu_flag) {
             ImGui::SetNextWindowPos(ImVec2(1, 21));
         } else {
             ImGui::SetNextWindowPos(ImVec2(1, 2));
         }
         if (!ImGui::Begin(
                 "FPS",
-                &show_fps_flag,
+                &gui.show_fps_flag,
                 ImVec2(0, 0),
                 0.3f,
                 ImGuiWindowFlags_NoTitleBar |
@@ -268,6 +275,6 @@ void Gui::HelpWindows() {
     }
 }
 
-void Gui::Render() {
+void gui_render(void) {
     ImGui::Render();
 }
