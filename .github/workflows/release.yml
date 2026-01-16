@@ -19,6 +19,10 @@ jobs:
           name: Kiwi8-${{ github.ref_name }}-macOS
           path: .
 
+      - name: Restore executable permissions
+        run: |
+          chmod -R 755 Kiwi8.app
+
       - name: Create macOS release archive
         run: |
           ditto -c -k --sequesterRsrc --keepParent Kiwi8.app Kiwi8-${{ github.ref_name }}-macOS.zip
