@@ -3,7 +3,7 @@ APP_NAME = Kiwi8
 # Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
 VERSION ?= $(GITHUB_REF_NAME)
 ifeq ($(VERSION),)
-VERSION = unknown
+VERSION = develop
 endif
 
 COMMIT_HASH ?= $(GITHUB_SHA)

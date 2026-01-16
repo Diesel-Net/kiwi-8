@@ -15,7 +15,7 @@
 // VERSION is defined by the compiler via -DVERSION="..."
 // Falls back to unknown if not defined (shouldn't happen in normal builds)
 #ifndef VERSION
-#define VERSION "unknown"
+#define VERSION "develop"
 #endif
 
 // COMMIT_HASH is defined by the compiler via -DCOMMIT_HASH="..."
