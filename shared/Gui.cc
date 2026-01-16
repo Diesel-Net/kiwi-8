@@ -2,6 +2,7 @@
 #include "Display.h"
 #include "Gui.h"
 #include "license.h" // Generated at build time from LICENSE
+#include <stdio.h>
 
 Gui::Gui() {
     soft_reset_flag = 0;
