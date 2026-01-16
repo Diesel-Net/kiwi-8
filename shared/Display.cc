@@ -3,41 +3,47 @@
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
 
-Display::Display(){
-    WINDOW_WIDTH = WIDTH * (int)SCALE;
-    WINDOW_HEIGHT = HEIGHT * (int)SCALE;
-    back_buffer = NULL;
-    window = NULL;
-    fullscreen_flag = 0;
-    vsync_flag = 0;
-    limit_fps_flag = 1;
-    lost_window_focus = 0;
+/* Global display instance */
+struct display display;
+
+void display_create(void){
+    display.WINDOW_WIDTH = WIDTH * (int)SCALE;
+    display.WINDOW_HEIGHT = HEIGHT * (int)SCALE;
+    display.back_buffer = NULL;
+    display.window = NULL;
+    display.fullscreen_flag = 0;
+    display.vsync_flag = 0;
+    display.limit_fps_flag = 1;
+    display.lost_window_focus = 0;
 
     /* set rendering colors */
-    background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
-    background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
-    background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
+    display.background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
+    display.background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
+    display.background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
 
-    foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
-    foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
-    foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
+    display.foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
+    display.foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
+    display.foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
+
+    /* initialize gui state */
+    gui_create();
 }
 
-Display::~Display(){
+void display_destroy(void){
     /* clean-up */
-    if (back_buffer) {
+    if (display.back_buffer) {
         for (int i = 0; i < WIDTH; i++) {
-            free(back_buffer[i]);
+            free(display.back_buffer[i]);
         }
-        free(back_buffer);
+        free(display.back_buffer);
     }
-    gui.~Gui();
-    SDL_GL_DeleteContext(glcontext);
-    SDL_DestroyWindow(window);
+    gui_cleanup();
+    SDL_GL_DeleteContext(display.glcontext);
+    SDL_DestroyWindow(display.window);
 }
 
 
-int Display::Initialize(
+int display_initialize(
     bool fullscreen,
     int *steps,
     bool *paused,
@@ -50,22 +56,22 @@ int Display::Initialize(
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
     /* init the backbuffer */
-    back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+    display.back_buffer = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     const char *err_str = "Unable to allocate memory on the heap.\n";
 
-    if(!back_buffer) {
+    if(!display.back_buffer) {
         fprintf(stderr, "%s", err_str);
         return 1;
     }
-    memset(back_buffer, 0, WIDTH * sizeof(unsigned char *));
+    memset(display.back_buffer, 0, WIDTH * sizeof(unsigned char *));
 
     for (int i = 0; i < WIDTH; i++) {
-        back_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
-        if(!back_buffer[i]) {
+        display.back_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+        if(!display.back_buffer[i]) {
             fprintf(stderr, "%s", err_str);
             return 1;
         }
-        memset(back_buffer[i], 0, HEIGHT * sizeof(unsigned char));
+        memset(display.back_buffer[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
     /* setup window with openGL context */
@@ -75,21 +81,21 @@ int Display::Initialize(
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-    window = SDL_CreateWindow(
+    display.window = SDL_CreateWindow(
         "Kiwi8",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
+        display.WINDOW_WIDTH,
+        display.WINDOW_HEIGHT,
         window_mode
     );
 
-    if (window == NULL) {
+    if (display.window == NULL) {
         fprintf(stderr, "Error: %s\n", SDL_GetError());
         return 1;
     }
 
-    glcontext = SDL_GL_CreateContext(window);
+    display.glcontext = SDL_GL_CreateContext(display.window);
 
     /* disable V-Sync */
     SDL_GL_SetSwapInterval(0);
@@ -104,7 +110,7 @@ int Display::Initialize(
         0,
         GL_RGB,
         GL_UNSIGNED_BYTE,
-        (GLvoid *) texture
+        (GLvoid *) display.texture
     );
 
     /* configure the texture */
@@ -115,8 +121,8 @@ int Display::Initialize(
     glEnable(GL_TEXTURE_2D);
 
     /* setup ImGui binding */
-    gui.Initialize(
-        this,
+    gui_initialize(
+        &display,
         steps,
         paused,
         load_store_quirk,
@@ -126,79 +132,79 @@ int Display::Initialize(
     );
 
     /* set to fullscreen mode if flag present */
-    if (fullscreen) ToggleFullscreen();
+    if (fullscreen) display_toggle_fullscreen();
 
     return 0;
 }
 
-void Display::Resize(int x, int y) {
+void display_resize(int x, int y) {
     /* get the current window size */
-    WINDOW_WIDTH = x;
-    WINDOW_HEIGHT = y;
+    display.WINDOW_WIDTH = x;
+    display.WINDOW_HEIGHT = y;
 }
 
-void Display::ToggleFullscreen() {
+void display_toggle_fullscreen(void) {
     /* check if already fullscreen */
-    if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
+    if (SDL_GetWindowFlags(display.window) & SDL_WINDOW_FULLSCREEN_DESKTOP) {
         /* set windowed */
-        SDL_SetWindowFullscreen(window, 0);
+        SDL_SetWindowFullscreen(display.window, 0);
         SDL_ShowCursor(SDL_ENABLE);
-        fullscreen_flag = 0;
+        display.fullscreen_flag = 0;
 
     } else {
         /* set fullscreen */
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowFullscreen(display.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
         /* currently, a new ImGui Frame will draw the mouse cursor
            regardless of SDL2's cursor visibility function */
         SDL_ShowCursor(SDL_DISABLE);
-        fullscreen_flag = 1;
+        display.fullscreen_flag = 1;
 
     }
 }
 
-void Display::ToggleVsync() {
+void display_toggle_vsync(void) {
     if (SDL_GL_GetSwapInterval()) {
         SDL_GL_SetSwapInterval(0);
-        vsync_flag = 0;
+        display.vsync_flag = 0;
     } else {
         SDL_GL_SetSwapInterval(1);
-        vsync_flag = 1;
+        display.vsync_flag = 1;
     }
 }
 
-void Display::RaiseWindow() {
-    SDL_RaiseWindow(window);
-    lost_window_focus = 0;
+void display_raise_window(void) {
+    SDL_RaiseWindow(display.window);
+    display.lost_window_focus = 0;
 }
 
-void Display::RenderFrame(unsigned char **frame){
-    gui.NewFrame();
+void display_render_frame(unsigned char **frame){
+    gui_new_frame();
 
     /* copy the frame to back_buffer */
     if (frame != NULL) {
         for (int i = 0; i < WIDTH; i++) {
-            memcpy(back_buffer[i], frame[i], HEIGHT * sizeof(unsigned char));
+            memcpy(display.back_buffer[i], frame[i], HEIGHT * sizeof(unsigned char));
         }
     }
 
     /* set Viewport & Clear the screen (sets the background color) */
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glViewport(0, 0, display.WINDOW_WIDTH, display.WINDOW_HEIGHT);
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     for (int i = 0; i < WIDTH; i++){
         for (int j = 0; j < HEIGHT; j++){
-            if (back_buffer[i][HEIGHT-j-1]) {
+            if (display.back_buffer[i][HEIGHT-j-1]) {
                 /* Fill the foreground pixel */
-                texture[j][i][0] = (unsigned char)(foreground_color[0] * (float) 0xFF); //R
-                texture[j][i][1] = (unsigned char)(foreground_color[1] * (float) 0xFF); //G
-                texture[j][i][2] = (unsigned char)(foreground_color[2] * (float) 0xFF); //B
+                display.texture[j][i][0] = (unsigned char)(display.foreground_color[0] * (float) 0xFF); //R
+                display.texture[j][i][1] = (unsigned char)(display.foreground_color[1] * (float) 0xFF); //G
+                display.texture[j][i][2] = (unsigned char)(display.foreground_color[2] * (float) 0xFF); //B
 
             } else {
                 /* Fill the background pixel */
-                texture[j][i][0] = (unsigned char)(background_color[0] * (float) 0xFF); //R
-                texture[j][i][1] = (unsigned char)(background_color[1] * (float) 0xFF); //G
-                texture[j][i][2] = (unsigned char)(background_color[2] * (float) 0xFF); //B
+                display.texture[j][i][0] = (unsigned char)(display.background_color[0] * (float) 0xFF); //R
+                display.texture[j][i][1] = (unsigned char)(display.background_color[1] * (float) 0xFF); //G
+                display.texture[j][i][2] = (unsigned char)(display.background_color[2] * (float) 0xFF); //B
             }
         }
     }
@@ -213,12 +219,12 @@ void Display::RenderFrame(unsigned char **frame){
         HEIGHT,
         GL_RGB,
         GL_UNSIGNED_BYTE,
-        (GLvoid *) texture
+        (GLvoid *) display.texture
     );
 
     /* create room at the top for menu bar */
     float top_edge = gui.show_menu_flag ?
-        (float)(WINDOW_HEIGHT - MENU_HEIGHT) / WINDOW_HEIGHT : (float) 1.0;
+        (float)(display.WINDOW_HEIGHT - MENU_HEIGHT) / display.WINDOW_HEIGHT : (float) 1.0;
 
     /* render the texture */
     glBegin(GL_QUADS);
@@ -241,6 +247,6 @@ void Display::RenderFrame(unsigned char **frame){
 
     glEnd();
 
-    gui.Render();
-    SDL_GL_SwapWindow(window);
+    gui_render();
+    SDL_GL_SwapWindow(display.window);
 }

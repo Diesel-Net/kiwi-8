@@ -13,45 +13,41 @@ can represent a unique bit position */
 #define LOAD_ROM 4
 
 /* forward declaration */
-class Display;
+struct display;
 
-class Input {
-    private:
-        /* for processing window/keyboard events */
-        SDL_Event event;
-        const unsigned char *state;
+struct input {
+    /* for processing window/keyboard events */
+    SDL_Event event;
+    const unsigned char *state;
 
-        Display *display;
+    struct display *display;
 
-        int *cycles;
-        bool *cpu_halt;
-        bool *paused;
-        bool *muted;
+    int *cycles;
+    bool *cpu_halt;
+    bool *paused;
+    bool *muted;
 
-        int ProcessEvents();
-        void ProcessKeys();
+    /* chip-8 HEX based keypad (0x0-0xF) */
+    unsigned char keys[NUM_KEYS];
 
-    public:
-        Input();
-        ~Input();
-
-        /* chip-8 HEX based keypad (0x0-0xF) */
-        unsigned char keys[NUM_KEYS];
-
-        /* for opcode 0xFX0A */
-        bool awaiting_key_press;
-
-        void Initialize(
-            Display *display,
-            int *cycles,
-            bool *cpu_halt,
-            bool *paused,
-            bool *muted
-        );
-
-        void Reset();
-        int Poll();
-
+    /* for opcode 0xFX0A */
+    bool awaiting_key_press;
 };
+
+/* Global input instance */
+extern struct input input;
+
+/* Input functions */
+void input_create(void);
+void input_destroy(void);
+void input_initialize(
+    struct display *display,
+    int *cycles,
+    bool *cpu_halt,
+    bool *paused,
+    bool *muted
+);
+void input_reset(void);
+int input_poll(void);
 
 #endif

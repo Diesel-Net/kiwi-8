@@ -1,123 +1,130 @@
 #include "Chip8.h"
 #include "Input.h"
 #include "Display.h"
+/* Forward declarations for static helpers */
+static int input_process_events(void);
+static void input_process_keys(void);
 
-Input::Input() {
+
+/* Global input instance */
+struct input input;
+
+void input_create(void) {
     /* empty */
 }
 
-Input::~Input() {
+void input_destroy(void) {
     /* empty */
 }
 
-void Input::Initialize(
-    Display *display,
+void input_initialize(
+    struct display *display,
     int *cycles,
     bool *cpu_halt,
     bool *paused,
     bool *muted
 ) {
-    this->cycles = cycles;
-    this->display = display;
-    this->cpu_halt = cpu_halt;
-    this->paused = paused;
-    this->muted = muted;
-    Reset();
+    input.cycles = cycles;
+    input.display = display;
+    input.cpu_halt = cpu_halt;
+    input.paused = paused;
+    input.muted = muted;
+    input_reset();
 }
 
-void Input::Reset() {
-    awaiting_key_press = 0;
-    memset(keys, 0, NUM_KEYS);
+void input_reset(void) {
+    input.awaiting_key_press = 0;
+    memset(input.keys, 0, NUM_KEYS);
 }
 
-int Input::Poll() {
+int input_poll(void) {
     int response = CONTINUE;
 
     /* purge any queued events */
-    while (SDL_PollEvent(&event)) {
+    while (SDL_PollEvent(&input.event)) {
 
-        state = SDL_GetKeyboardState(NULL);
+        input.state = SDL_GetKeyboardState(NULL);
 
         /* check GUI */
-        display->gui.ProcessEvents(&event);
-        if (display->gui.quit_flag) response |= USER_QUIT;
-        if (display->gui.soft_reset_flag) response |= SOFT_RESET;
-        if (display->gui.load_rom_flag) response |= LOAD_ROM;
+        gui_process_events(&input.event);
+        if (gui.quit_flag) response |= USER_QUIT;
+        if (gui.soft_reset_flag) response |= SOFT_RESET;
+        if (gui.load_rom_flag) response |= LOAD_ROM;
 
         /* check SDL events (window & hotkeys) */
-        response |= ProcessEvents();
+        response |= input_process_events();
 
         /* check chip-8 input */
-        ProcessKeys();
+        input_process_keys();
     }
     return response;
 }
 
-int Input::ProcessEvents() {
+static int input_process_events(void) {
     int response = CONTINUE;
 
     /* cose when the user clicks 'X' */
-    if (event.type == SDL_QUIT) response = USER_QUIT;
+    if (input.event.type == SDL_QUIT) response = USER_QUIT;
 
     /* keystroke events */
-    if (event.type == SDL_KEYDOWN) {
-        if (state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
-        if (state[SDL_SCANCODE_F5]) response = SOFT_RESET;
-        if (state[SDL_SCANCODE_RETURN]) display->ToggleFullscreen();
-        if (state[SDL_SCANCODE_P]) *paused = !(*paused);
-        if (state[SDL_SCANCODE_M]) *muted = !(*muted);
-        if (state[SDL_SCANCODE_LALT]) display->gui.show_menu_flag = !display->gui.show_menu_flag;
-        if (state[SDL_SCANCODE_RALT]) display->gui.show_fps_flag = !display->gui.show_fps_flag;
+    if (input.event.type == SDL_KEYDOWN) {
+        if (input.state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
+        if (input.state[SDL_SCANCODE_F5]) response = SOFT_RESET;
+        if (input.state[SDL_SCANCODE_RETURN]) display_toggle_fullscreen();
+        if (input.state[SDL_SCANCODE_P]) *(input.paused) = !(*(input.paused));
+        if (input.state[SDL_SCANCODE_M]) *(input.muted) = !(*(input.muted));
+        if (input.state[SDL_SCANCODE_LALT]) gui.show_menu_flag = !gui.show_menu_flag;
+        if (input.state[SDL_SCANCODE_RALT]) gui.show_fps_flag = !gui.show_fps_flag;
 
         /* slow/raise emulation speed */
-        if (state[SDL_SCANCODE_PAGEDOWN]) (*cycles -1 < MIN_CYCLES_PER_STEP ) ? *cycles = MIN_CYCLES_PER_STEP : *cycles -= 1;
-        if (state[SDL_SCANCODE_PAGEUP]) (*cycles +1 > MAX_CYCLES_PER_STEP ) ? *cycles = MAX_CYCLES_PER_STEP : *cycles += 1;
+        if (input.state[SDL_SCANCODE_PAGEDOWN]) (*(input.cycles) -1 < MIN_CYCLES_PER_STEP ) ? *(input.cycles) = MIN_CYCLES_PER_STEP : *(input.cycles) -= 1;
+        if (input.state[SDL_SCANCODE_PAGEUP]) (*(input.cycles) +1 > MAX_CYCLES_PER_STEP ) ? *(input.cycles) = MAX_CYCLES_PER_STEP : *(input.cycles) += 1;
     }
 
     /* window events */
-    if (event.window.type == SDL_WINDOWEVENT){
+    if (input.event.window.type == SDL_WINDOWEVENT){
         /* update the current rendering screen space */
-        if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) display->Resize(event.window.data1, event.window.data2);
+        if (input.event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) display_resize(input.event.window.data1, input.event.window.data2);
 
-        if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+        if (input.event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
             /* TODO: resume the emulator, if paused_on_focus_loss */
         }
-        if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+        if (input.event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
             /* focus is lost when a user tries to laod a rom */
-            if (display->lost_window_focus) display->RaiseWindow();
+            if (display.lost_window_focus) display_raise_window();
         }
 
         /* the window manager requests that the window be closed */
-        if (event.window.event == SDL_WINDOWEVENT_CLOSE) response = USER_QUIT;
+        if (input.event.window.event == SDL_WINDOWEVENT_CLOSE) response = USER_QUIT;
     }
 
     return response;
 }
 
-void Input::ProcessKeys() {
+static void input_process_keys(void) {
     /* map the state of the keys */
-    keys[0x1] = state[SDL_SCANCODE_1];
-    keys[0x2] = state[SDL_SCANCODE_2];
-    keys[0x3] = state[SDL_SCANCODE_3];
-    keys[0xC] = state[SDL_SCANCODE_4];
-    keys[0x4] = state[SDL_SCANCODE_Q];
-    keys[0x5] = state[SDL_SCANCODE_W];
-    keys[0x6] = state[SDL_SCANCODE_E];
-    keys[0xD] = state[SDL_SCANCODE_R];
-    keys[0x7] = state[SDL_SCANCODE_A];
-    keys[0x8] = state[SDL_SCANCODE_S];
-    keys[0x9] = state[SDL_SCANCODE_D];
-    keys[0xE] = state[SDL_SCANCODE_F];
-    keys[0xA] = state[SDL_SCANCODE_Z];
-    keys[0x0] = state[SDL_SCANCODE_X];
-    keys[0xB] = state[SDL_SCANCODE_C];
-    keys[0xF] = state[SDL_SCANCODE_V];
+    input.keys[0x1] = input.state[SDL_SCANCODE_1];
+    input.keys[0x2] = input.state[SDL_SCANCODE_2];
+    input.keys[0x3] = input.state[SDL_SCANCODE_3];
+    input.keys[0xC] = input.state[SDL_SCANCODE_4];
+    input.keys[0x4] = input.state[SDL_SCANCODE_Q];
+    input.keys[0x5] = input.state[SDL_SCANCODE_W];
+    input.keys[0x6] = input.state[SDL_SCANCODE_E];
+    input.keys[0xD] = input.state[SDL_SCANCODE_R];
+    input.keys[0x7] = input.state[SDL_SCANCODE_A];
+    input.keys[0x8] = input.state[SDL_SCANCODE_S];
+    input.keys[0x9] = input.state[SDL_SCANCODE_D];
+    input.keys[0xE] = input.state[SDL_SCANCODE_F];
+    input.keys[0xA] = input.state[SDL_SCANCODE_Z];
+    input.keys[0x0] = input.state[SDL_SCANCODE_X];
+    input.keys[0xB] = input.state[SDL_SCANCODE_C];
+    input.keys[0xF] = input.state[SDL_SCANCODE_V];
 
     /* check if cpu is awaiting a keypress for opcode FX0A */
-    if (cpu_halt && awaiting_key_press) {
+    if (input.cpu_halt && input.awaiting_key_press) {
         for (int i = 0; i < NUM_KEYS; i++) {
-            if (keys[i]) {
-                awaiting_key_press = 0;
+            if (input.keys[i]) {
+                input.awaiting_key_press = 0;
             }
         }
     }

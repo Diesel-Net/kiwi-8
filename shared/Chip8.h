@@ -34,157 +34,130 @@
 #define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
 
-class Chip8 {
+struct chip8 {
+    /* number of cycles per step */
+    int cycles;
 
-    private:
+    /* whether or not cpu is currently halted by opcode FX0A */
+    bool cpu_halt;
 
-        /* number of cycles per step */
-        int cycles;
+    /* whether or not emulation is currently paused. */
+    bool paused;
 
-        /* whether or not cpu is currently halted by opcode FX0A */
-        bool cpu_halt;
+    /* CPU quirks */
+    bool load_store_quirk;
+    bool shift_quirk;
 
-        /* whether ot not emulation is currently paused.
-           This is different from CPU's HALT state. */
-        bool paused;
+    /* vertical wrapping toggle */
+    bool vwrap;
 
-        /* Two quirks of the Chip8 CPU.
-           Some games assume these are enabled to run correctly.
+    /* two bytes for each instruction */
+    unsigned short opcode;
 
-           Load/store quirks - Instructions OxFX55 and 0xFX65 increments
-           value of I register but some CHIP-8 programs assumes that
-           they don't. Enabling this quirk causes I register to become
-           unchanged after the instruction.
+    /* memory */
+    unsigned char memory[MEM_SIZE];
 
-           Shift quirks - Shift instructions originally shift register
-           VY and store results in register VX. Some CHIP-8 programs
-           incorrectly assumes that the VX register is shifted by this
-           instruction, and VY remains unmodified. Enabling this quirk
-           causes VX to become shifted and VY remain untouched. */
-        bool load_store_quirk;
-        bool shift_quirk;
+    /* copy of the rom for soft resetting */
+    unsigned char *rom;
+    unsigned int rom_size;
 
-        /* vertical wrapping toggle */
-        bool vwrap;
+    /* registers */
+    unsigned char V[NUM_REGISTERS];
+    unsigned short I;
+    unsigned short PC;
 
-        /* two bytes for each instruction */
-        unsigned short opcode;
+    unsigned char delay_timer;
+    unsigned char sound_timer;
 
-        /* 0x000-0x1FF - Chip 8 interpreter (contains font set in emu)
-           0x050-0x0A0 - Used for the built in 4x5 pixel font set (0-F)
-           0x200-0xFFF - Program ROM and work RAM */
-        unsigned char memory[MEM_SIZE];
+    /* stack */
+    unsigned short stack[STACK_DEPTH];
+    unsigned short sp;
 
-        /* copy of the rom for soft resetting */
-        unsigned char *rom;
-        unsigned int rom_size;
+    /* mute audio toggle */
+    bool muted;
 
-        /* 15 general prupose regsiters, and a carry flag register */
-        unsigned char V[NUM_REGISTERS];
+    /* draw flag */
+    int draw_flag;
 
-        /* index register and program counter */
-        unsigned short I;
-        unsigned short PC;
+    /* 1-bit encoded screen pixels (64x32) */
+    unsigned char **vram;
 
-        unsigned char delay_timer;
-        unsigned char sound_timer;
-
-        /* stack with maximum of 16 levels */
-        unsigned short stack[STACK_DEPTH];
-        unsigned short sp;
-
-        Input input;
-        Display display;
-        Audio audio;
-
-        /* mute audio toggle */
-        bool muted;
-
-        /* if this flag is enabled, draw a frame at the end of the cycle */
-        int draw_flag;
-
-        /* 1-bit encoded screen pixels (64x32) */
-        unsigned char **vram;
-
-        const unsigned char chip8_fontset[FONTS_SIZE] = {
-            0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-            0x20, 0x60, 0x20, 0x20, 0x70, // 1
-            0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-            0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-            0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-            0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-            0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-            0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-            0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-            0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-            0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-            0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-            0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-            0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-            0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-            0xF0, 0x80, 0xF0, 0x80, 0x80  // F
-        };
-
-        int LoadBootRom();
-        void SoftReset();
-        void UpdateTimers();
-        void StepCpu(int cycles);
-        void FetchOpcode();
-        void ExecuteOpcode();
-
-        /* definitions in opcodes.cc */
-        inline void exec00E0();
-        inline void exec00EE();
-        inline void exec0NNN();
-        inline void exec1NNN();
-        inline void exec2NNN();
-        inline void exec3XNN();
-        inline void exec4XNN();
-        inline void exec5XY0();
-        inline void exec6XNN();
-        inline void exec7XNN();
-        inline void exec8XY0();
-        inline void exec8XY1();
-        inline void exec8XY2();
-        inline void exec8XY3();
-        inline void exec8XY4();
-        inline void exec8XY5();
-        inline void exec8XY6();
-        inline void exec8XY7();
-        inline void exec8XYE();
-        inline void exec9XY0();
-        inline void execANNN();
-        inline void execBNNN();
-        inline void execCXNN();
-        inline void execDXYN();
-        inline void execEX9E();
-        inline void execEXA1();
-        inline void execFX07();
-        inline void execFX0A();
-        inline void execFX15();
-        inline void execFX18();
-        inline void execFX1E();
-        inline void execFX29();
-        inline void execFX33();
-        inline void execFX55();
-        inline void execFX65();
-        inline void execUnknown();
-
-    public:
-
-        Chip8();
-        ~Chip8();
-
-        int Initialize(
-            bool fullscreen,
-            bool load_store_quirk,
-            bool shift_quirk,
-            bool vwrap,
-            bool muted
-        );
-
-        int Load(const char *rom_name);
-        void Run();
+    const unsigned char chip8_fontset[FONTS_SIZE] = {
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0x20, 0x60, 0x20, 0x20, 0x70, // B
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // C
+        0xF0, 0x80, 0xF0, 0x80, 0x80, // D
+        0xF0, 0x90, 0x90, 0xF0, 0x90  // F
+    };
 };
 
+/* Global chip8 instance */
+extern struct chip8 chip8;
+
+/* Chip8 functions */
+void chip8_create(void);
+void chip8_destroy(void);
+int chip8_initialize(
+    bool fullscreen,
+    bool load_store_quirk,
+    bool shift_quirk,
+    bool vwrap,
+    bool muted
+);
+int chip8_load(const char *rom_name);
+void chip8_run(void);
+void chip8_update_timers(void);
+void chip8_step_cpu(int cycles);
+void chip8_soft_reset(void);
+int chip8_load_bootrom(void);
+void chip8_fetch_opcode(void);
+void chip8_execute_opcode(void);
+
+/* opcode helpers */
+void exec00E0(void);
+void exec00EE(void);
+void exec0NNN(void);
+void exec1NNN(void);
+void exec2NNN(void);
+void exec3XNN(void);
+void exec4XNN(void);
+void exec5XY0(void);
+void exec6XNN(void);
+void exec7XNN(void);
+void exec8XY0(void);
+void exec8XY1(void);
+void exec8XY2(void);
+void exec8XY3(void);
+void exec8XY4(void);
+void exec8XY5(void);
+void exec8XY6(void);
+void exec8XY7(void);
+void exec8XYE(void);
+void exec9XY0(void);
+void execANNN(void);
+void execBNNN(void);
+void execCXNN(void);
+void execDXYN(void);
+void execEX9E(void);
+void execEXA1(void);
+void execFX07(void);
+void execFX0A(void);
+void execFX15(void);
+void execFX18(void);
+void execFX1E(void);
+void execFX29(void);
+void execFX33(void);
+void execFX55(void);
+void execFX65(void);
+void execUnknown(void);
 #endif

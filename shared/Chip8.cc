@@ -5,30 +5,33 @@
 #include <stdio.h>
 #include <string.h>
 
-Chip8::Chip8() {
-    cycles = CYCLES_PER_STEP;
-    paused = 0;
-    muted = 0;
-    vwrap = 1;
-    display = Display();
-    input = Input();
-    vram = NULL;
-    rom = NULL;
+/* Global chip8 instance */
+struct chip8 chip8;
+
+void chip8_create() {
+    chip8.cycles = CYCLES_PER_STEP;
+    chip8.paused = 0;
+    chip8.muted = 0;
+    chip8.vwrap = 1;
+    display_create();
+    chip8.vram = NULL;
+    chip8.rom = NULL;
 }
 
-Chip8::~Chip8() {
+void chip8_destroy() {
     /* clean-up */
-    if (vram) {
+    if (chip8.vram) {
         for (int i = 0; i < WIDTH; i++) {
-            free(vram[i]);
+            free(chip8.vram[i]);
         }
-        free(vram);
+        free(chip8.vram);
     }
-    free(rom);
+    free(chip8.rom);
+    display_destroy();
     SDL_Quit();
 }
 
-int Chip8::Initialize(
+int chip8_initialize(
     bool fullscreen,
     bool load_store_quirk,
     bool shift_quirk,
@@ -47,90 +50,90 @@ int Chip8::Initialize(
         return 1;
     }
 
-    this->load_store_quirk = load_store_quirk;
-    this->shift_quirk = shift_quirk;
-    this->vwrap = vwrap;
-    this->muted = muted;
+    chip8.load_store_quirk = load_store_quirk;
+    chip8.shift_quirk = shift_quirk;
+    chip8.vwrap = vwrap;
+    chip8.muted = muted;
 
     /* init vram */
-    vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
+    chip8.vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     const char *err_str = "Unable to allocate memory on the heap.\n";
-    if (!vram) {
+    if (!chip8.vram) {
         fprintf(stderr, "%s", err_str);
         return 1;
     }
-    memset(vram, 0, WIDTH * sizeof(unsigned char *));
+    memset(chip8.vram, 0, WIDTH * sizeof(unsigned char *));
     for (int i = 0; i < WIDTH; i++) {
-        vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
-        if (!vram[i]) {
+        chip8.vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
+        if (!chip8.vram[i]) {
             fprintf(stderr, "%s", err_str);
             return 1;
         }
-        memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
+        memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
     /* init audio, display, input */
-    audio.Initialize();
+    audio_initialize();
 
-    if (display.Initialize(
+    if (display_initialize(
             fullscreen,
-            &this->cycles,
-            &this->paused,
-            &this->load_store_quirk,
-            &this->shift_quirk,
-            &this->vwrap,
-            &this->muted
+            &chip8.cycles,
+            &chip8.paused,
+            &chip8.load_store_quirk,
+            &chip8.shift_quirk,
+            &chip8.vwrap,
+            &chip8.muted
         )
     ) return 1;
 
-    input.Initialize(
-        &this->display,
-        &this->cycles,
-        &this->cpu_halt,
-        &this->paused,
-        &this->muted
+    input_initialize(
+        &display,
+        &chip8.cycles,
+        &chip8.cpu_halt,
+        &chip8.paused,
+        &chip8.muted
     );
 
     /* init registers and memory once */
-    memset(V, 0 , NUM_REGISTERS);
-    memset(memory, 0, MEM_SIZE);
-    memset(stack, 0, STACK_DEPTH);
-    I = 0;
-    PC = ENTRY_POINT;
-    sp = 0;
-    delay_timer = 0;
-    sound_timer = 0;
-    cpu_halt = 0;
-    draw_flag = 1;
+    memset(chip8.V, 0 , NUM_REGISTERS);
+    memset(chip8.memory, 0, MEM_SIZE);
+    memset(chip8.stack, 0, STACK_DEPTH);
+    chip8.I = 0;
+    chip8.PC = ENTRY_POINT;
+    chip8.sp = 0;
+    chip8.delay_timer = 0;
+    chip8.sound_timer = 0;
+    chip8.cpu_halt = 0;
+    chip8.draw_flag = 1;
 
     /* load fontset */
     for(int i = 0; i < FONTS_SIZE; ++i) {
-        memory[i] = chip8_fontset[i];
+        chip8.memory[i] = chip8.chip8_fontset[i];
     }
 
-    return LoadBootRom();
+    return chip8_load_bootrom();
 }
 
-int Chip8::LoadBootRom() {
-    free(rom);
-    rom_size = BOOTROM_SIZE;
-    rom = (unsigned char *)malloc(rom_size);
-    if(!rom) {
+int chip8_load_bootrom() {
+    free(chip8.rom);
+    chip8.rom_size = BOOTROM_SIZE;
+    chip8.rom = (unsigned char *)malloc(chip8.rom_size);
+    if(!chip8.rom) {
         fprintf(stderr, "Unable to allocate memory for rom.\n");
         return 1;
     }
-    memset(rom, 0 , rom_size);
+    memset(chip8.rom, 0 , chip8.rom_size);
 
     /* save for later (soft-resets) */
-    memcpy(rom, bootrom, rom_size);
+    memcpy(chip8.rom, bootrom, chip8.rom_size);
 
     /* copy the entire rom to memory starting from 0x200 */
-    memcpy(memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
+    memcpy(chip8.memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
 
     return 0;
 }
 
-int Chip8::Load(const char *rom_name) {
+int chip8_load(const char *rom_name) {
     if (rom_name) {
         /* open the file */
         FILE *file;
@@ -142,29 +145,29 @@ int Chip8::Load(const char *rom_name) {
 
         /* get file size */
         fseek(file, 0, SEEK_END);
-        rom_size = ftell(file);
+        chip8.rom_size = ftell(file);
         rewind(file);
-        if (rom_size > MEM_SIZE - ENTRY_POINT) {
+        if (chip8.rom_size > MEM_SIZE - ENTRY_POINT) {
             fprintf(stderr, "Rom is too large or not formatted properly.\n");
             return 1;
         }
 
         /* allocate or free and reallocate as necessary */
-        free(rom);
-        rom = (unsigned char *)malloc(rom_size);
-        if(!rom) {
+        free(chip8.rom);
+        chip8.rom = (unsigned char *)malloc(chip8.rom_size);
+        if(!chip8.rom) {
             fprintf(stderr, "Unable to allocate memory for rom.\n");
             return 1;
         }
-        memset(rom, 0 , rom_size);
+        memset(chip8.rom, 0 , chip8.rom_size);
 
         /* save the rom for later (soft-resets) */
-        if (!fread(rom, sizeof(unsigned char), rom_size, file)) {
+        if (!fread(chip8.rom, sizeof(unsigned char), chip8.rom_size, file)) {
             fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
             return 1;
         }
 
-        SoftReset();
+        chip8_soft_reset();
         fclose(file);
 
     } else {
@@ -172,56 +175,56 @@ int Chip8::Load(const char *rom_name) {
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name) ?
             fprintf(stderr, "User aborted the open file dialog.\n") :
-            Load(new_rom_name);
+            chip8_load(new_rom_name);
 
         /* flip GUI toggle */
-        display.gui.load_rom_flag = 0;
+        gui.load_rom_flag = 0;
         display.lost_window_focus = 1;
     }
 
     return 0;
 }
 
-void Chip8::SoftReset() {
+void chip8_soft_reset() {
     /* clear the vram */
     for (int i = 0; i < WIDTH; i++) {
-        memset(vram[i], 0, HEIGHT * sizeof(unsigned char));
+        memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
     /* reset the state of the input keys */
-    input.Reset();
+    input_reset();
 
     /* clear registers and the stack */
-    memset(V, 0 , NUM_REGISTERS);
-    memset(stack, 0, STACK_DEPTH);
-    memset(memory, 0, MEM_SIZE);
+    memset(chip8.V, 0 , NUM_REGISTERS);
+    memset(chip8.stack, 0, STACK_DEPTH);
+    memset(chip8.memory, 0, MEM_SIZE);
 
     /* load fontset */
     for(int i = 0; i < FONTS_SIZE; ++i) {
-        memory[i] = chip8_fontset[i];
+        chip8.memory[i] = chip8.chip8_fontset[i];
     }
 
     /* copy the entire rom to memory starting from 0x200 */
-    memcpy(memory + ENTRY_POINT, rom, rom_size);
+    memcpy(chip8.memory + ENTRY_POINT, chip8.rom, chip8.rom_size);
 
     /* re-initialize program counter, stack pointer, timers, etc. */
-    I = 0;
-    PC = ENTRY_POINT;
-    sp = 0;
-    delay_timer = 0;
-    sound_timer = 0;
-    cpu_halt = 0;
-    draw_flag = 1;
+    chip8.I = 0;
+    chip8.PC = ENTRY_POINT;
+    chip8.sp = 0;
+    chip8.delay_timer = 0;
+    chip8.sound_timer = 0;
+    chip8.cpu_halt = 0;
+    chip8.draw_flag = 1;
 
     /* un-pause (if paused) whenever we Soft-Reset */
-    paused = 0;
+    chip8.paused = 0;
 
     /* flip the GUI bit */
-    display.gui.soft_reset_flag = 0;
+    gui.soft_reset_flag = 0;
 
 }
 
-void Chip8::Run(){
+void chip8_run(){
     int event;
     unsigned int t1;
     unsigned int t2;
@@ -238,30 +241,30 @@ void Chip8::Run(){
 
         t1 = SDL_GetTicks();
 
-        event = input.Poll();
+        event = input_poll();
 
         /* do something based on response... */
         if (event & USER_QUIT) return;
-        if (event & LOAD_ROM) Load(NULL);
-        if (event & SOFT_RESET) SoftReset();
+        if (event & LOAD_ROM) chip8_load(NULL);
+        if (event & SOFT_RESET) chip8_soft_reset();
 
-        if (!paused) {
+        if (!chip8.paused) {
             /* emulate a number of cycles */
-            StepCpu(cycles);
+            chip8_step_cpu(chip8.cycles);
 
             /* update Audio */
-            if (sound_timer > 0 && !muted) audio.Beep(SAMPLES_PER_FRAME);
+            if (chip8.sound_timer > 0 && !chip8.muted) audio_beep(SAMPLES_PER_FRAME);
 
             /* check internal timers */
-            UpdateTimers();
+            chip8_update_timers();
         }
 
         /* draw a frame if we need to */
-        if (draw_flag && display.limit_fps_flag) {
-            display.RenderFrame(vram);
-            draw_flag = 0;
+        if (chip8.draw_flag && display.limit_fps_flag) {
+            display_render_frame(chip8.vram);
+            chip8.draw_flag = 0;
         } else {
-            display.RenderFrame(NULL);
+            display_render_frame(NULL);
         }
 
         t2 = SDL_GetTicks();
@@ -276,34 +279,34 @@ void Chip8::Run(){
     }
 }
 
-void Chip8::UpdateTimers(){
+void chip8_update_timers(){
     /* update timers at 60 Hz */
-    if (!cpu_halt) {
-        if(delay_timer > 0) delay_timer--;
-        if(sound_timer > 0) sound_timer--;
+    if (!chip8.cpu_halt) {
+        if(chip8.delay_timer > 0) chip8.delay_timer--;
+        if(chip8.sound_timer > 0) chip8.sound_timer--;
     }
 }
 
-void Chip8::StepCpu(int cycles){
+void chip8_step_cpu(int cycles){
     /* execute a batch of instructions */
     for (int i = 0; i < cycles; i++) {
-        FetchOpcode();
-        ExecuteOpcode();
+        chip8_fetch_opcode();
+        chip8_execute_opcode();
 
         /* draw */
-        if(draw_flag && !display.limit_fps_flag){
-            display.RenderFrame(vram);
-            draw_flag = 0;
+        if(chip8.draw_flag && !display.limit_fps_flag){
+            display_render_frame(chip8.vram);
+            chip8.draw_flag = 0;
         }
     }
 }
 
-void Chip8::FetchOpcode() {
+void chip8_fetch_opcode() {
     /* fetch two bytes while being careful of byte alignment */
-    opcode = memory[PC] << 8 | memory[PC + 1];
+    chip8.opcode = chip8.memory[chip8.PC] << 8 | chip8.memory[chip8.PC + 1];
 }
 
-void Chip8::ExecuteOpcode(){
+void chip8_execute_opcode(){
     switch (OP) {
         case 0x0:
             switch (OP_NNN) {
