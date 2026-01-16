@@ -18,10 +18,10 @@
 #define VERSION "unknown"
 #endif
 
-// SUB_VERSION is defined by the compiler via -DSUB_VERSION="..."
+// COMMIT_HASH is defined by the compiler via -DCOMMIT_HASH="..."
 // Falls back to generic name if not defined (shouldn't happen in normal builds)
-#ifndef SUB_VERSION
-#define SUB_VERSION "unknown"
+#ifndef COMMIT_HASH
+#define COMMIT_HASH "unknown"
 #endif
 
 #define MEM_SIZE 4096

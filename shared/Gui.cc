@@ -220,13 +220,18 @@ void Gui::HelpWindows() {
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("About", &show_about);
 
+        // Truncate COMMIT_HASH to first 7 characters for display
+        char short_hash[8];
+        snprintf(short_hash, sizeof(short_hash), "%.7s", COMMIT_HASH);
+
         ImGui::TextWrapped(
-            APP_NAME " " VERSION " (" SUB_VERSION ")\n"
+            APP_NAME " " VERSION " (%s)\n"
             "\n"
             "A cross-platform Chip-8 interpreter written\n"
             "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
             "\n"
-            "<https://github.com/Diesel-Net/kiwi-8>\n"
+            "<https://github.com/Diesel-Net/kiwi-8>\n",
+            short_hash
         );
 
         ImGui::End();

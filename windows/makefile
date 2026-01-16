@@ -8,10 +8,9 @@ VERSION = unknown
 !ENDIF
 
 !IFDEF GITHUB_SHA
-# Extract first 7 characters of GITHUB_SHA
-SUB_VERSION = $(GITHUB_SHA:~0,7)
+COMMIT_HASH = $(GITHUB_SHA)
 !ELSE
-SUB_VERSION = unknown
+COMMIT_HASH = unknown
 !ENDIF
 
 APP_EXE = $(APP_NAME).exe
@@ -19,7 +18,7 @@ APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DSUB_VERSION=\"$(SUB_VERSION)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DCOMMIT_HASH=\"$(COMMIT_HASH)\""
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup
