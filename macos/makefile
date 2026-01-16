@@ -1,12 +1,15 @@
 APP_NAME = Kiwi8
 
-# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
 VERSION ?= $(GITHUB_REF_NAME)
 ifeq ($(VERSION),)
-VERSION = unknown
+VERSION = develop
 endif
 
-COMMIT_HASH := $(if $(GITHUB_SHA),$(GITHUB_SHA),unknown)
+COMMIT_HASH ?= $(GITHUB_SHA)
+ifeq ($(COMMIT_HASH),)
+COMMIT_HASH = unknown
+endif
 
 APP_MANIFEST = src/Info.plist
 APP_BUNDLE = $(APP_NAME).app
@@ -27,11 +30,10 @@ BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../shared/Audio.cc ../shared/Chip8.cc ../shared/Display.cc ../shared/Gui.cc \
-            ../shared/imgui_impl_sdl.cc ../shared/Input.cc ../shared/main.cc \
+CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared/gui.cc \
+            ../shared/imgui_impl_sdl.cc ../shared/input.cc ../shared/main.cc \
             ../shared/opcodes.cc ../shared/open_file_dialog.cc
-IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_demo.cpp \
-             ../external/imgui/imgui_draw.cpp
+IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)

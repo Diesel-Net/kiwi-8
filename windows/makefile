@@ -1,16 +1,20 @@
 APP_NAME = Kiwi8
 
-# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
+!IFNDEF VERSION
 !IFDEF GITHUB_REF_NAME
 VERSION = $(GITHUB_REF_NAME)
 !ELSE
-VERSION = unknown
+VERSION = develop
+!ENDIF
 !ENDIF
 
+!IFNDEF COMMIT_HASH
 !IFDEF GITHUB_SHA
 COMMIT_HASH = $(GITHUB_SHA)
 !ELSE
 COMMIT_HASH = unknown
+!ENDIF
 !ENDIF
 
 APP_EXE = $(APP_NAME).exe
@@ -43,17 +47,16 @@ BOOTROM_HEADER = ..\shared\bootrom.h
 BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ..\shared\Audio.cc ..\shared\Chip8.cc ..\shared\Display.cc ..\shared\Gui.cc \
-            ..\shared\imgui_impl_sdl.cc ..\shared\Input.cc ..\shared\main.cc \
+CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\display.cc ..\shared\gui.cc \
+            ..\shared\imgui_impl_sdl.cc ..\shared\input.cc ..\shared\main.cc \
             ..\shared\opcodes.cc ..\shared\open_file_dialog.cc
-IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_demo.cpp \
-             ..\external\imgui\imgui_draw.cpp
+IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
-OBJS = Audio.obj Chip8.obj Display.obj Gui.obj imgui_impl_sdl.obj Input.obj \
-       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_demo.obj \
-       imgui_draw.obj file_dialog.obj
+OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
+       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
+       file_dialog.obj
 
 
 # Default target
@@ -89,11 +92,11 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 # Explicit rules for files depending on generated headers
-Gui.obj: ..\shared\Gui.cc $(LICENSE_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Gui.cc
+gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\gui.cc
 
-Chip8.obj: ..\shared\Chip8.cc $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\shared\Chip8.cc
+chip8.obj: ..\shared\chip8.cc $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\chip8.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
