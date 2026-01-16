@@ -177,6 +177,7 @@ inline void execDXYN() {
 
     for (unsigned char yline = 0; yline < height; yline++) {
         pixel = chip8.memory[chip8.I + yline];
+
         for(unsigned char xline = 0; xline < 8; xline++) {
             if((pixel & (0x80 >> xline)) != 0) {
 
@@ -185,6 +186,7 @@ inline void execDXYN() {
                    wrapping to the top of the screen if you (y % HEIGHT) */
                 unsigned char true_x = (x + xline) % WIDTH;
                 unsigned char true_y = (y + yline);
+
                 if(chip8.vwrap) true_y = true_y % HEIGHT;
 
                 /* OOB check is needed when vwrap is turned off
@@ -255,8 +257,12 @@ inline void execFX1E() {
        and 0 when there isn't. */
     unsigned short sum;
     sum = chip8.I + chip8.V[OP_X];
-    if (sum > 0xFFF) chip8.V[0xF] = 1;
-    else chip8.V[0xF] = 0;
+
+    // TODO: Add quirk toggle for this behavior
+    // Commented out to fix compatibility issues with: AnimalRace
+    //if (sum > 0xFFF) chip8.V[0xF] = 1;
+    //else chip8.V[0xF] = 0;
+
     chip8.I += chip8.V[OP_X];
     chip8.PC += 2;
 }
