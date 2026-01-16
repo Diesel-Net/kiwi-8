@@ -30,15 +30,15 @@ BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../shared/audio.c ../shared/chip8.c ../shared/display.c ../shared/gui.c \
-            ../shared/imgui_impl_sdl.c ../shared/input.c ../shared/main.c \
-            ../shared/opcodes.c ../shared/open_file_dialog.c
+CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared/gui.cc \
+            ../shared/imgui_impl_sdl.cc ../shared/input.cc ../shared/main.cc \
+            ../shared/opcodes.cc ../shared/open_file_dialog.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_demo.cpp \
              ../external/imgui/imgui_draw.cpp
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)
-OBJS = $(notdir $(CORE_SRCS:.c=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
+OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
 
 # Include auto-generated dependency files (must be before targets)
@@ -69,7 +69,7 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 	sed -e 's/@APP_NAME@/$(APP_NAME)/g' -e 's/@VERSION@/$(VERSION)/g' -e 's/@COMMIT_HASH@/$(COMMIT_HASH)/g' $< > $@
 
 # Pattern rules for incremental compilation
-%.o: ../shared/%.c $(LICENSE_HEADER) $(BOOTROM_HEADER)
+%.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../external/imgui/%.cpp
