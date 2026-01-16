@@ -221,7 +221,7 @@ void Gui::HelpWindows() {
         ImGui::Begin("About", &show_about);
 
         ImGui::TextWrapped(
-            APP_NAME_VERSION " (" COMMIT_HASH ")\n"
+            APP_NAME " " VERSION " (" SUB_VERSION ")\n"
             "\n"
             "A cross-platform Chip-8 interpreter written\n"
             "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"

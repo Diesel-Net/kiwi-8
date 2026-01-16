@@ -1,40 +1,25 @@
 APP_NAME = Kiwi8
 
-# Auto-detect version: use GITHUB_REF_NAME if set (CI), else git describe, else git branch
-!IFNDEF GITHUB_REF_NAME
-# Try git describe for exact tag match
-!IF [git describe --tags --exact-match > .version.tmp 2>nul] == 0
-!INCLUDE .version.tmp
-# Try git branch name
-!ELSE IF [git rev-parse --abbrev-ref HEAD > .version.tmp 2>nul] == 0
-!INCLUDE .version.tmp
+# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+!IFDEF GITHUB_REF_NAME
+VERSION = $(GITHUB_REF_NAME)
 !ELSE
 VERSION = unknown
 !ENDIF
-# Clean up temp file
-!IF [del .version.tmp 2>nul]
-!ENDIF
+
+!IFDEF GITHUB_SHA
+# Extract first 7 characters of GITHUB_SHA
+SUB_VERSION = $(GITHUB_SHA:~0,7)
 !ELSE
-VERSION = $(GITHUB_REF_NAME)
+SUB_VERSION = unknown
 !ENDIF
 
-# Git commit hash (unique identifier for build)
-!IF [git rev-parse --short HEAD > .hash.tmp 2>nul && echo COMMIT_HASH = > .commit.tmp && type .hash.tmp >> .commit.tmp] == 0
-!INCLUDE .commit.tmp
-!ELSE
-COMMIT_HASH = unknown
-!ENDIF
-# Clean up temp files
-!IF [del .hash.tmp .commit.tmp 2>nul]
-!ENDIF
-
-APP_NAME_VERSION = $(APP_NAME) $(VERSION)
 APP_EXE = $(APP_NAME).exe
 APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME_VERSION=\"$(APP_NAME_VERSION)\"" "/DCOMMIT_HASH=\"$(COMMIT_HASH)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DSUB_VERSION=\"$(SUB_VERSION)\""
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup

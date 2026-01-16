@@ -3,7 +3,7 @@
     <plist version="1.0">
     <dict>
         <key>CFBundleExecutable</key>
-        <string>Kiwi8</string>
+        <string>@APP_NAME@</string>
         <key>CFBundleIdentifier</key>
         <string>net.kiwi-labs.kiwi8</string>
         <key>CFBundleIconFile</key>
@@ -15,7 +15,7 @@
         <key>CFBundleShortVersionString</key>
         <string>@VERSION@</string>
         <key>CFBundleVersion</key>
-        <string>@COMMIT_HASH@</string>
+        <string>@SUB_VERSION@</string>
         <key>LSMinimumSystemVersion</key>
         <string>11.0</string>
         <key>NSHighResolutionCapable</key>

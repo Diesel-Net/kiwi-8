@@ -1,22 +1,19 @@
 APP_NAME = Kiwi8
 
-# Auto-detect version: use GITHUB_REF_NAME if set (CI), else git describe, else git branch
-ifeq ($(origin GITHUB_REF_NAME), environment)
-VERSION := $(GITHUB_REF_NAME)
-else
-VERSION := $(shell git describe --tags --exact-match 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+VERSION ?= $(GITHUB_REF_NAME)
+ifeq ($(VERSION),)
+VERSION = unknown
 endif
 
-# CFBundleVersion: Use git commit hash (unique identifier)
-COMMIT_HASH := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+SUB_VERSION := $(if $(GITHUB_SHA),$(shell echo $(GITHUB_SHA) | cut -c1-7),unknown)
 
-APP_NAME_VERSION = $(APP_NAME) $(VERSION)
 APP_MANIFEST = src/Info.plist
 APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPP_NAME_VERSION='"$(APP_NAME_VERSION)"' -DCOMMIT_HASH='"$(COMMIT_HASH)"'
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
@@ -66,7 +63,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 
 # Generate Info.plist from template with version substitution
 $(APP_MANIFEST): $(APP_MANIFEST).in
-	sed -e 's/@VERSION@/$(VERSION)/g' -e 's/@COMMIT_HASH@/$(COMMIT_HASH)/g' $< > $@
+	sed -e 's/@APP_NAME@/$(APP_NAME)/g' -e 's/@VERSION@/$(VERSION)/g' -e 's/@SUB_VERSION@/$(SUB_VERSION)/g' $< > $@
 
 # Pattern rules for incremental compilation
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
