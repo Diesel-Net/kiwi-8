@@ -32,7 +32,6 @@ int main(int argc, char **argv){
                 if (*pos == 'S') shift_quirk = 0;
                 if (*pos == 'V') vwrap = 0;
                 pos++;
-
             }
         }
     }
