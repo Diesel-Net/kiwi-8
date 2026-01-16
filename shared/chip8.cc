@@ -73,6 +73,8 @@ int chip8_initialize(
     }
 
     /* init audio, display, input */
+    /* set up audio wave parameters before starting device */
+    audio_create();
     audio_initialize();
 
     if (display_initialize(
