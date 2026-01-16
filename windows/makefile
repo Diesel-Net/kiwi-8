@@ -1,10 +1,12 @@
 APP_NAME = Kiwi8
 
-# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
+!IFNDEF VERSION
 !IFDEF GITHUB_REF_NAME
 VERSION = $(GITHUB_REF_NAME)
 !ELSE
 VERSION = unknown
+!ENDIF
 !ENDIF
 
 !IFDEF GITHUB_SHA
