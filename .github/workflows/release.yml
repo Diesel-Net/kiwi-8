@@ -17,12 +17,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-macOS
+          path: .
 
       - name: Create macOS release archive
         run: |
-          cd Kiwi8-${{ github.ref_name }}-macOS
-          zip -r -y ../Kiwi8-${{ github.ref_name }}-macOS.zip Kiwi8.app
-          cd ..
+          zip -r -y Kiwi8-${{ github.ref_name }}-macOS.zip Kiwi8.app
 
       - name: Upload macOS build to Release
         uses: softprops/action-gh-release@v2
@@ -37,13 +36,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-Windows
+          path: .
 
       - name: Create Windows release archive
         shell: powershell
         run: |
-          cd Kiwi8-${{ github.ref_name }}-Windows
-          Compress-Archive -Path * -DestinationPath ../Kiwi8-${{ github.ref_name }}-Windows.zip
-          cd ..
+          Compress-Archive -Path * -DestinationPath Kiwi8-${{ github.ref_name }}-Windows.zip
 
       - name: Upload Windows build to Release
         uses: softprops/action-gh-release@v2
