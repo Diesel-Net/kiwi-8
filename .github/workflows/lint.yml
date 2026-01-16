@@ -4,10 +4,10 @@ on:
   pull_request: {}
 
 jobs:
-  core-lint:
+  shared-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Core no-OO linter
+      - name: Run no-OO linter
         run: |
-          bash tools/check_no_oo.sh Core
+          bash tools/check_no_oo.sh shared

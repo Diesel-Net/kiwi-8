@@ -7,6 +7,7 @@
 # Generated files
 shared/license.h
 shared/bootrom.h
+macos/src/Info.plist
 
 # External dependencies (downloaded at build time)
 external/sdl/

@@ -1,30 +1,24 @@
 APP_NAME = Kiwi8
 
-# Auto-detect version: use GITHUB_REF_NAME if set (CI), else git describe, else git branch
-!IFNDEF GITHUB_REF_NAME
-# Try git describe for exact tag match
-!IF [git describe --tags --exact-match > .version.tmp 2>nul] == 0
-!INCLUDE .version.tmp
-# Try git branch name
-!ELSE IF [git rev-parse --abbrev-ref HEAD > .version.tmp 2>nul] == 0
-!INCLUDE .version.tmp
+# Use GITHUB_REF_NAME from GitHub Actions, or default values for local builds
+!IFDEF GITHUB_REF_NAME
+VERSION = $(GITHUB_REF_NAME)
 !ELSE
 VERSION = unknown
 !ENDIF
-# Clean up temp file
-!IF [del .version.tmp 2>nul]
-!ENDIF
+
+!IFDEF GITHUB_SHA
+COMMIT_HASH = $(GITHUB_SHA)
 !ELSE
-VERSION = $(GITHUB_REF_NAME)
+COMMIT_HASH = unknown
 !ENDIF
 
-APP_NAME_VERSION = $(APP_NAME) $(VERSION)
 APP_EXE = $(APP_NAME).exe
 APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPPNAME_VERSION=\"$(APP_NAME_VERSION)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DCOMMIT_HASH=\"$(COMMIT_HASH)\""
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup

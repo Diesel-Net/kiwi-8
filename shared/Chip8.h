@@ -6,10 +6,22 @@
 #include "Input.h"
 #include "Audio.h"
 
-// APPNAME_VERSION is defined by the compiler via -DAPPNAME_VERSION="..."
+// APP_NAME is defined by the compiler via -DAPP_NAME="..."
 // Falls back to generic name if not defined (shouldn't happen in normal builds)
-#ifndef APPNAME_VERSION
-#define APPNAME_VERSION "Kiwi8"
+#ifndef APP_NAME
+#define APP_NAME "Kiwi8"
+#endif
+
+// VERSION is defined by the compiler via -DVERSION="..."
+// Falls back to unknown if not defined (shouldn't happen in normal builds)
+#ifndef VERSION
+#define VERSION "unknown"
+#endif
+
+// COMMIT_HASH is defined by the compiler via -DCOMMIT_HASH="..."
+// Falls back to generic name if not defined (shouldn't happen in normal builds)
+#ifndef COMMIT_HASH
+#define COMMIT_HASH "unknown"
 #endif
 
 #define MEM_SIZE 4096
