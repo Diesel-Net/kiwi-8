@@ -9,24 +9,45 @@ jobs:
   build:
     uses: ./.github/workflows/build-reusable.yml
 
-  upload-to-release:
+  upload-macos:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
-      - name: Download all artifacts
+      - name: Download macOS artifact
         uses: actions/download-artifact@v4
+        with:
+          name: Kiwi8-${{ github.ref_name }}-macOS
+          path: .
 
-      - name: Create release archives
+      - name: Restore executable permissions
         run: |
-          cd Kiwi8-${{ github.ref_name }}-macOS
-          zip -r -y ../Kiwi8-${{ github.ref_name }}-macOS.zip Kiwi8.app
-          cd ../Kiwi8-${{ github.ref_name }}-Windows
-          zip -r ../Kiwi8-${{ github.ref_name }}-Windows.zip *
-          cd ..
+          chmod -R u=rwx,go=rx Kiwi8.app
 
-      - name: Upload builds to Release
+      - name: Create macOS release archive
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent Kiwi8.app Kiwi8-${{ github.ref_name }}-macOS.zip
+
+      - name: Upload macOS build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            Kiwi8-${{ github.ref_name }}-macOS.zip
-            Kiwi8-${{ github.ref_name }}-Windows.zip
+          files: Kiwi8-${{ github.ref_name }}-macOS.zip
+
+  upload-windows:
+    needs: build
+    runs-on: windows-2022
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Kiwi8-${{ github.ref_name }}-Windows
+          path: .
+
+      - name: Create Windows release archive
+        shell: powershell
+        run: |
+          Compress-Archive -Path * -DestinationPath Kiwi8-${{ github.ref_name }}-Windows.zip
+
+      - name: Upload Windows build to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Kiwi8-${{ github.ref_name }}-Windows.zip
