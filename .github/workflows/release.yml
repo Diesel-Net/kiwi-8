@@ -23,7 +23,7 @@ jobs:
 
       - name: Restore executable permissions
         run: |
-          chmod -R 755 Kiwi8.app
+          chmod -R u=rwx,go=rx Kiwi8.app
 
       - name: Install create-dmg
         run: |
