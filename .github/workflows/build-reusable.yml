@@ -77,3 +77,43 @@ jobs:
           name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows
           path: Windows\release\
           retention-days: 7
+
+  build-linux:
+    runs-on: ubuntu-22.04  # Ubuntu 22.04 LTS (x64)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanitize branch name for artifact naming
+        id: sanitize
+        run: echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake pkg-config python3 libgtk-3-dev
+
+      - name: Cache SDL
+        uses: actions/cache@v4
+        with:
+          path: external/sdl/build
+          key: sdl-2.32.10-linux-ubuntu-22.04-x64
+
+      - name: Build Linux (x86_64)
+        env:
+          VERSION: ${{ steps.sanitize.outputs.ref_name }}
+          COMMIT_HASH: ${{ github.sha }}
+        run: |
+          cd linux
+          make clean
+          make
+
+      - name: Verify binary dependencies
+        run: |
+          ldd ./linux/release/Kiwi8
+
+      - name: Upload Linux build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Linux
+          path: linux/release/
+          retention-days: 7

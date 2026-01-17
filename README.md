@@ -63,6 +63,7 @@ The following must be installed and added to your **PATH**:
 >vcvarsall<br>
 >cl<br>
 >python3<br>
+>cmake<br>
 >nmake<br>
 
 1. Change current working directory
@@ -90,12 +91,41 @@ The following must be installed and added to your **PATH**:
 >install_name_tool<br>
 >clang<br>
 >python3<br>
+>cmake<br>
 >make<br>
 
 1. Change current working directory
 
    ```bash
    cd MacOS
+   ```
+
+1. Compile with GNU's `make` utility
+
+   ```bash
+   make
+   ```
+
+## Building on Linux (Debian)
+
+The following must be added to your **PATH**:
+
+>g++<br>
+>make<br>
+>cmake<br>
+>python3<br>
+>pkg-config<br>
+
+You'll also need the GTK3 headers:
+
+```bash
+sudo apt install libgtk-3-dev
+```
+
+1. Change current working directory
+
+   ```bash
+   cd linux
    ```
 
 1. Compile with GNU's `make` utility

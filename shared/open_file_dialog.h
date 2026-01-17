@@ -10,6 +10,10 @@
 #define PATH_MAX MAX_PATH
 #endif
 
+#ifdef __linux__
+#include <limits.h> /* PATH_MAX */
+#endif
+
 int openFileDialog(char *rom_name);
 
 #endif
