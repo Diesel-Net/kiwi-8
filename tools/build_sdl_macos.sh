@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# build_sdl_macos.sh
 # Downloads SDL source to external/sdl and builds it as a universal macOS binary
-# Installs into MacOS/frameworks/sdl
+# Installs into external/sdl/build
 
 SDL_VERSION="2.32.10"
 SDL_URL="https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"

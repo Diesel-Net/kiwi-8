@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# build_sdl_linux.sh
 # Downloads SDL source to external/sdl and builds it as a 64-bit Linux binary
 # Installs into external/sdl/build
 

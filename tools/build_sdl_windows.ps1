@@ -1,6 +1,5 @@
-# build_sdl_windows.ps1
-# Downloads SDL source to external/sdl and builds it for Windows x64
-# Installs into Windows/frameworks/sdl
+# Downloads SDL source to external/sdl and builds it as a 64-bit Windows binary
+# Installs into external/sdl/build
 
 param(
     [string]$SDL_VERSION = "2.32.10",
