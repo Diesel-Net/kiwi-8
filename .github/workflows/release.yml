@@ -13,11 +13,36 @@ jobs:
     needs: build
     runs-on: macos-14
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-macOS
           path: .
+
+      - name: Restore executable permissions
+        run: |
+          chmod -R u=rwx,go=rx Kiwi8.app
+
+      - name: Install create-dmg
+        run: |
+          brew install create-dmg
+
+      - name: Create macOS DMG
+        run: |
+          create-dmg \
+            --volname "Kiwi8" \
+            --volicon "macos/resources/Kiwi8.icns" \
+            --background "macos/resources/dmg_background.png" \
+            --window-pos 200 120 \
+            --window-size 660 400 \
+            --icon-size 96 \
+            --icon "Kiwi8.app" 100 200 \
+            --hide-extension "Kiwi8.app" \
+            --app-drop-link 530 200 \
+            "Kiwi8-${{ github.ref_name }}-macOS.dmg" \
+            "Kiwi8.app"
 
       - name: Upload macOS build to Release
         uses: softprops/action-gh-release@v2
