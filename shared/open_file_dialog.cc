@@ -27,9 +27,11 @@ int openFileDialog(char *rom_name) {
     if (files.empty()) return 1;
     strcpy(rom_name, files[0].c_str());
     return 0;
+
     #elif defined(_WIN32)
     // Windows API variant writes directly into buffer and returns int
     return openFileDialog(rom_name, "Chip8\0*.ch8\0All\0*.*\0");
+
     #else
     return 1;
     #endif
