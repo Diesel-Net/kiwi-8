@@ -19,26 +19,18 @@
 /* Returns 0 on success, 1 on error (or user hit cancel) */
 int openFileDialog(char *rom_name) {
 
-    #ifdef __APPLE__
-    /* Call MacOS's native open file dialog */
-    std::vector<std::string> fileTypes = {"ch8", "CH8", "chip-8", "CHIP-8", "Chip-8", "", "\0"};
-    std::vector<std::string> files = openFileDialog("Chip8", "~", fileTypes);
-    if (files.empty()) return 1;
-    strcpy(rom_name, files[0].c_str());
-    return 0;
-    #endif
-
-    #ifdef _WIN32
-    /* Call Window's native open file dialog */
-    return openFileDialog(rom_name, "Chip8\0*.ch8\0All\0*.*\0");
-    #endif
-
-    #ifdef __linux__
-    /* Call Linux's native open file dialog (GTK3) */
+    #if defined(__APPLE__) || defined(__linux__)
+    // Common flow for Apple and Linux: both return a vector<string>
     std::vector<std::string> fileTypes = {"ch8", "CH8", "chip-8", "CHIP-8", "Chip-8"};
-    std::vector<std::string> files = openFileDialog("Chip8", "", fileTypes);
+    const char* defaultDir = ""; // unify behavior: let OS choose last-used/home
+    std::vector<std::string> files = openFileDialog("Chip8", defaultDir, fileTypes);
     if (files.empty()) return 1;
     strcpy(rom_name, files[0].c_str());
     return 0;
+    #elif defined(_WIN32)
+    // Windows API variant writes directly into buffer and returns int
+    return openFileDialog(rom_name, "Chip8\0*.ch8\0All\0*.*\0");
+    #else
+    return 1;
     #endif
 }
