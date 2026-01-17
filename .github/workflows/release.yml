@@ -19,18 +19,10 @@ jobs:
           name: Kiwi8-${{ github.ref_name }}-macOS
           path: .
 
-      - name: Restore executable permissions
-        run: |
-          chmod -R u=rwx,go=rx Kiwi8.app
-
-      - name: Create macOS release archive
-        run: |
-          ditto -c -k --sequesterRsrc --keepParent Kiwi8.app Kiwi8-${{ github.ref_name }}-macOS.zip
-
       - name: Upload macOS build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Kiwi8-${{ github.ref_name }}-macOS.zip
+          files: Kiwi8-${{ github.ref_name }}-macOS.dmg
 
   upload-windows:
     needs: build

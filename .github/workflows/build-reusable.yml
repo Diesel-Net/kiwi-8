@@ -22,7 +22,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          brew install cmake pkg-config nasm
+          brew install cmake pkg-config nasm create-dmg
 
       - name: Build macOS (x86_64 + arm64)
         env:
@@ -33,11 +33,26 @@ jobs:
           make clean
           make
 
+      - name: Create macOS DMG
+        run: |
+          create-dmg \
+            --volname "Kiwi8" \
+            --volicon "macos/resources/Kiwi8.icns" \
+            --background "macos/resources/dmg_background.png" \
+            --window-pos 200 120 \
+            --window-size 660 400 \
+            --icon-size 96 \
+            --icon "Kiwi8.app" 100 200 \
+            --hide-extension "Kiwi8.app" \
+            --app-drop-link 530 200 \
+            "Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS.dmg" \
+            "macos/release/Kiwi8.app"
+
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS
-          path: MacOS/release/
+          path: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS.dmg
           retention-days: 7
 
   build-windows:
