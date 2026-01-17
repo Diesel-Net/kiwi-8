@@ -22,7 +22,7 @@ GTK3_CFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 GTK3_LIBS = $(shell pkg-config --libs gtk+-3.0)
 
 CFLAGS += $(GTK3_CFLAGS)
-LIBS = -L../external/sdl/build/lib -lSDL2-2.0 $(GTK3_LIBS) -lm -ldl -lpthread
+LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) -lm -ldl -lpthread
 
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
 
