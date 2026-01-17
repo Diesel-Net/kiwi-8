@@ -1,5 +1,9 @@
 #include "open_file_dialog.h"
 
+#include <cstring>
+#include <string>
+#include <vector>
+
 #ifdef __APPLE__
 #include "../macos/src/file_dialog.h"
 #endif
