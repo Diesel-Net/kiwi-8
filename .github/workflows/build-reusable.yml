@@ -34,15 +34,22 @@ jobs:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           COMMIT_HASH: ${{ github.sha }}
         run: |
-          cd MacOS
+          cd macos
           make clean
           make
+
+      - name: Strip ad-hoc signatures (ARM64 strict Gatekeeper workaround)
+        if: matrix.runner.arch == 'arm64'
+        run: |
+          codesign --remove-signature macos/release/Kiwi8.app/Contents/MacOS/Kiwi8 || true
+          codesign --remove-signature macos/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib || true
+          codesign --remove-signature macos/release/Kiwi8.app || true
 
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
-          path: MacOS/release/
+          path: macos/release/
           retention-days: 7
 
   build-windows:
