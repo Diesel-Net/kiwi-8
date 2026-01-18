@@ -6,10 +6,12 @@ on:
 jobs:
 
   build-macos:
-    runs-on: macos-14
     strategy:
       matrix:
-        arch: [x86_64, ARM64]
+        runner:
+          - { image: macos-14, arch: arm64 }
+          - { image: macos-14-intel, arch: x64 }
+    runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,13 +23,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-macos-${{ matrix.arch }}
+          key: sdl-2.32.10-macos-${{ matrix.runner.arch }}
 
       - name: Install build dependencies
         run: |
           brew install cmake pkg-config nasm
 
-      - name: Build macOS (${{ matrix.arch }})
+      - name: Build macOS (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           COMMIT_HASH: ${{ github.sha }}
@@ -39,7 +41,7 @@ jobs:
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.arch }}
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.runner.arch }}
           path: macos/release/
           retention-days: 7
 
@@ -47,8 +49,8 @@ jobs:
     strategy:
       matrix:
         runner:
-          - { image: windows-2022, arch: x64, vcarch: amd64 }
-          - { image: windows-11-arm, arch: arm64, vcarch: amd64_arm64 }
+          - { image: windows-2022, arch: x64 }
+          - { image: windows-11-arm, arch: arm64 }
     runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
@@ -62,12 +64,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-${{ matrix.runner.image }}-${{ matrix.runner.arch }}
+          key: sdl-2.32.10-windows-${{ matrix.runner.arch }}
 
       - name: Setup MSVC for ${{ matrix.runner.arch }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: ${{ matrix.runner.vcarch }}
+          arch: ${{ matrix.runner.arch }}
 
       - name: Build Windows (${{ matrix.runner.arch }})
         env:
@@ -87,7 +89,7 @@ jobs:
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows-${{ matrix.runner.arch }}
           path: Windows\release\
           retention-days: 7
 
@@ -114,7 +116,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-linux-${{ matrix.runner.image }}-${{ matrix.runner.arch }}
+          key: sdl-2.32.10-linux-${{ matrix.runner.arch }}
 
       - name: Build Linux (${{ matrix.runner.arch }})
         env:
@@ -133,6 +135,6 @@ jobs:
       - name: Upload Linux build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Linux-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Linux-${{ matrix.runner.arch }}
           path: linux/release/
           retention-days: 7
