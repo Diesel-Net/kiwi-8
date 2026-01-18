@@ -72,10 +72,10 @@ The following must be installed and added to your **PATH**:
    cd Windows
    ```
 
-1. Configure environment for 64-bit architecture
+1. Configure environment for your architecture (x64 or arm64)
 
    ```cmd
-   vcvarsall.bat x86_amd64
+   vcvarsall.bat x64
    ```
 
 1. Compile with Microsoft's `nmake` utility
