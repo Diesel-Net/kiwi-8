@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Downloads SDL source to external/sdl and builds it as a 64-bit Linux binary
+# Downloads SDL source to external/sdl and builds it for native Linux architecture
 # Installs into external/sdl/build
 
 SDL_VERSION="2.32.10"
 SDL_URL="https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SDL_SRC_DIR="$ROOT_DIR/external/sdl"
-BUILD_DIR="$SDL_SRC_DIR/SDL2-${SDL_VERSION}/build-x64"
+BUILD_DIR="$SDL_SRC_DIR/SDL2-${SDL_VERSION}/build-native"
 INSTALL_DIR="$SDL_SRC_DIR/build"
 
 mkdir -p "$SDL_SRC_DIR"
@@ -28,7 +28,7 @@ fi
 # configure & build
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
-echo "Building SDL with x86_64 target..."
+echo "Building SDL for native architecture..."
 cmake .. -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
 cmake --build . --config Release --parallel
 

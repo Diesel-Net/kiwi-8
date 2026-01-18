@@ -6,7 +6,12 @@ on:
 jobs:
 
   build-macos:
-    runs-on: macos-14  # Apple Silicon (M1/M2) - supports universal binary builds
+    strategy:
+      matrix:
+        runner:
+          - { image: macos-15, arch: arm64 }
+          - { image: macos-15-intel, arch: x64 }
+    runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -18,13 +23,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-macos-14-${{ runner.arch }}
+          key: sdl-2.32.10-macos-${{ matrix.runner.image }}-${{ matrix.runner.arch }}
 
       - name: Install build dependencies
         run: |
           brew install cmake pkg-config nasm
 
-      - name: Build macOS (x86_64 + arm64)
+      - name: Build macOS (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           COMMIT_HASH: ${{ github.sha }}
@@ -36,12 +41,17 @@ jobs:
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
           path: MacOS/release/
           retention-days: 7
 
   build-windows:
-    runs-on: windows-2022  # Windows Server 2022 (x64)
+    strategy:
+      matrix:
+        runner:
+          - { image: windows-2022, arch: x64, vcarch: amd64 }
+          - { image: windows-11-arm, arch: arm64, vcarch: amd64_arm64 }
+    runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -54,14 +64,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-windows-2022-${{ runner.arch }}
+          key: sdl-2.32.10-${{ matrix.runner.image }}-${{ matrix.runner.arch }}
 
-      - name: Configures build environment for x86-64
+      - name: Setup MSVC for ${{ matrix.runner.arch }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
-            arch: amd64
+          arch: ${{ matrix.runner.vcarch }}
 
-      - name: Build Windows (x64)
+      - name: Build Windows (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           COMMIT_HASH: ${{ github.sha }}
@@ -71,15 +81,25 @@ jobs:
           nmake clean
           nmake
 
+      - name: Verify binary architecture
+        shell: powershell
+        run: |
+          dumpbin /headers Windows\release\Kiwi8.exe | Select-String "machine"
+
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
           path: Windows\release\
           retention-days: 7
 
   build-linux:
-    runs-on: ubuntu-22.04  # Ubuntu 22.04 LTS (x64)
+    strategy:
+      matrix:
+        runner:
+          - { image: ubuntu-22.04, arch: x64 }
+          - { image: ubuntu-24.04-arm, arch: arm64 }
+    runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -96,9 +116,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-linux-ubuntu-22.04-x64
+          key: sdl-2.32.10-linux-${{ matrix.runner.image }}-${{ matrix.runner.arch }}
 
-      - name: Build Linux (x86_64)
+      - name: Build Linux (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           COMMIT_HASH: ${{ github.sha }}
@@ -110,10 +130,11 @@ jobs:
       - name: Verify binary dependencies
         run: |
           ldd ./linux/release/Kiwi8
+          file ./linux/release/Kiwi8
 
       - name: Upload Linux build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Linux
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Linux-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
           path: linux/release/
           retention-days: 7

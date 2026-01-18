@@ -1,9 +1,10 @@
-# Downloads SDL source to external/sdl and builds it as a 64-bit Windows binary
+# Downloads SDL source to external/sdl and builds it for Windows (x64 or ARM64)
 # Installs into external/sdl/build
 
 param(
     [string]$SDL_VERSION = "2.32.10",
-    [string]$ROOT_DIR = (Split-Path -Parent $PSScriptRoot)
+    [string]$ROOT_DIR = (Split-Path -Parent $PSScriptRoot),
+    [string]$ARCH = "x64"  # x64 or ARM64
 )
 
 $SDL_URL = "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz"
@@ -34,15 +35,15 @@ if (-Not (Test-Path $EXTRACT_DIR)) {
 
 # Convert to absolute path before changing directory
 # First ensure the build directory exists
-$BUILD_DIR_PATH = "$SDL_SRC_DIR/$EXTRACT_DIR/build-x64"
+$BUILD_DIR_PATH = "$SDL_SRC_DIR/$EXTRACT_DIR/build-$ARCH"
 New-Item -ItemType Directory -Force -Path $BUILD_DIR_PATH | Out-Null
 $BUILD_DIR = (Resolve-Path $BUILD_DIR_PATH).Path
 
 # Configure & build
 Push-Location $BUILD_DIR
 
-Write-Host "Building SDL for x64..."
-cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
+Write-Host "Building SDL for $ARCH..."
+cmake .. -G "Visual Studio 17 2022" -A $ARCH -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
 cmake --build . --config Release --parallel
 
 # Install using CMake (handles all headers including SDL_config.h)

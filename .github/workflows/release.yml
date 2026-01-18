@@ -11,14 +11,17 @@ jobs:
 
   upload-macos:
     needs: build
-    runs-on: macos-14
+    runs-on: macos-15
+    strategy:
+      matrix:
+        arch: [x86_64, ARM64]
     steps:
       - uses: actions/checkout@v4
 
       - name: Download macOS artifact
         uses: actions/download-artifact@v4
         with:
-          name: Kiwi8-${{ github.ref_name }}-macOS
+          name: Kiwi8-${{ github.ref_name }}-macOS-${{ matrix.arch }}
           path: .
 
       - name: Restore executable permissions
@@ -41,49 +44,55 @@ jobs:
             --icon "Kiwi8.app" 100 200 \
             --hide-extension "Kiwi8.app" \
             --app-drop-link 530 200 \
-            "Kiwi8-${{ github.ref_name }}-macOS.dmg" \
+            "Kiwi8-${{ github.ref_name }}-macOS-${{ matrix.arch }}.dmg" \
             "Kiwi8.app"
 
       - name: Upload macOS build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Kiwi8-${{ github.ref_name }}-macOS.dmg
+          files: Kiwi8-${{ github.ref_name }}-macOS-${{ matrix.arch }}.dmg
 
   upload-windows:
     needs: build
     runs-on: windows-2022
+    strategy:
+      matrix:
+        arch: [x86_64, ARM64]
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
-          name: Kiwi8-${{ github.ref_name }}-Windows
+          name: Kiwi8-${{ github.ref_name }}-Windows-${{ matrix.arch }}
           path: .
 
       - name: Create Windows release archive
         shell: powershell
         run: |
-          Compress-Archive -Path * -DestinationPath Kiwi8-${{ github.ref_name }}-Windows.zip
+          Compress-Archive -Path * -DestinationPath Kiwi8-${{ github.ref_name }}-Windows-${{ matrix.arch }}.zip
 
       - name: Upload Windows build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Kiwi8-${{ github.ref_name }}-Windows.zip
+          files: Kiwi8-${{ github.ref_name }}-Windows-${{ matrix.arch }}.zip
 
   upload-linux:
     needs: build
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        arch: [x86_64, ARM64]
     steps:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: Kiwi8-${{ github.ref_name }}-Linux
+          name: Kiwi8-${{ github.ref_name }}-Linux-${{ matrix.arch }}
           path: linux_release
 
       - name: Create Linux release archive
         run: |
-          tar czf Kiwi8-${{ github.ref_name }}-Linux-x86_64.tar.gz -C linux_release .
+          tar czf Kiwi8-${{ github.ref_name }}-Linux-${{ matrix.arch }}.tar.gz -C linux_release .
 
       - name: Upload Linux build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Kiwi8-${{ github.ref_name }}-Linux-x86_64.tar.gz
+          files: Kiwi8-${{ github.ref_name }}-Linux-${{ matrix.arch }}.tar.gz
