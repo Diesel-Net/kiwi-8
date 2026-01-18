@@ -215,7 +215,7 @@ static void gui_help_windows(void) {
         ImGui::End();
     }
     if (gui.show_license) {
-        ImGui::SetNextWindowSize(ImVec2(500, 230), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(550, 245), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("License", &gui.show_license);
 
@@ -224,7 +224,7 @@ static void gui_help_windows(void) {
         ImGui::End();
     }
     if (gui.show_about) {
-        ImGui::SetNextWindowSize(ImVec2(330, 120), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(350, 140), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("About", &gui.show_about);
 
@@ -234,6 +234,7 @@ static void gui_help_windows(void) {
 
         ImGui::TextWrapped(
             APP_NAME " " VERSION " (%s)\n"
+            BUILD_OS " " BUILD_ARCH "\n"
             "\n"
             "A cross-platform Chip-8 interpreter written\n"
             "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
