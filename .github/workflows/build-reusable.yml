@@ -40,6 +40,13 @@ jobs:
           make clean
           make release/Kiwi8.app
 
+      - name: Verify macOS binary and deps
+        run: |
+          file macos/release/Kiwi8.app/Contents/MacOS/Kiwi8
+          otool -L macos/release/Kiwi8.app/Contents/MacOS/Kiwi8
+          file macos/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+          otool -L macos/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+
       - name: Add ad-hoc signing (ARM64 strict Gatekeeper workaround)
         if: matrix.runner.arch == 'arm64'
         run: |
