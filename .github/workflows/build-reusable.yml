@@ -21,13 +21,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-macos-${{ matrix.runner.image }}-${{ matrix.runner.arch }}
+          key: sdl-2.32.10-macos-${{ matrix.arch }}
 
       - name: Install build dependencies
         run: |
           brew install cmake pkg-config nasm
 
-      - name: Build macOS (${{ matrix.runner.arch }})
+      - name: Build macOS (${{ matrix.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           COMMIT_HASH: ${{ github.sha }}
@@ -39,7 +39,7 @@ jobs:
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.runner.arch == 'x64' && 'x86_64' || 'ARM64' }}
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.arch }}
           path: macos/release/
           retention-days: 7
 
