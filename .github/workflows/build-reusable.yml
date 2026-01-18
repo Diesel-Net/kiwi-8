@@ -47,6 +47,13 @@ jobs:
           codesign --force --deep -s - macos/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib
           codesign --force --deep -s - macos/release/Kiwi8.app
 
+      - name: Add ad-hoc signing (ARM64 strict Gatekeeper workaround)
+        if: matrix.runner.arch == 'arm64'
+        run: |
+          codesign --force --deep -s - macos/release/Kiwi8.app/Contents/MacOS/Kiwi8
+          codesign --force --deep -s - macos/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib
+          codesign --force --deep -s - macos/release/Kiwi8.app
+
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
