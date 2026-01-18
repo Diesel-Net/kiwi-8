@@ -10,7 +10,7 @@ jobs:
       matrix:
         runner:
           - { image: macos-14, arch: arm64 }
-          - { image: macos-14-intel, arch: x64 }
+          - { image: macos-14, arch: x64 }
     runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
