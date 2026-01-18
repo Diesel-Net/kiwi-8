@@ -85,14 +85,14 @@ jobs:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
-          name: Kiwi8-${{ github.ref_name }}-Linux-${{ matrix.arch }}
+          name: Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}
           path: linux_release
 
       - name: Create Linux release archive
         run: |
-          tar czf Kiwi8-${{ github.ref_name }}-Linux-${{ matrix.arch }}.tar.gz -C linux_release .
+          tar czf Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}.tar.gz -C linux_release .
 
       - name: Upload Linux build to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Kiwi8-${{ github.ref_name }}-Linux-${{ matrix.arch }}.tar.gz
+          files: Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}.tar.gz
