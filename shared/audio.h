@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 #include <SDL2/SDL.h>
+#include <stdlib.h>
 
 #define FREQUENCY 48000
 #define TONE 440

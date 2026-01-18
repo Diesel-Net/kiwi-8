@@ -3,6 +3,7 @@
 
 #include "gui.h"
 #include <SDL2/SDL.h>
+#include <stdlib.h>
 
 #define WIDTH 64
 #define HEIGHT 32

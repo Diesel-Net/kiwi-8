@@ -6,74 +6,141 @@ on:
 jobs:
 
   build-macos:
-    runs-on: macos-14  # Apple Silicon (M1/M2) - supports universal binary builds
+    strategy:
+      matrix:
+        runner:
+          - { image: macos-15, arch: arm64 }
+          - { image: macos-15-intel, arch: x64 }
+    runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Sanitize branch name for artifact naming
         id: sanitize
-        run: echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+        run: |
+          echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+          echo "short_sha=$(echo '${{ github.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Cache SDL
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-macos-14-${{ runner.arch }}
+          key: sdl-2.32.10-macos-${{ matrix.runner.arch }}
 
       - name: Install build dependencies
         run: |
           brew install cmake pkg-config nasm
 
-      - name: Build macOS (x86_64 + arm64)
+      - name: Build macOS (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
-          COMMIT_HASH: ${{ github.sha }}
+          SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
         run: |
-          cd MacOS
+          cd macos
           make clean
           make
 
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS
-          path: MacOS/release/
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-macOS-${{ matrix.runner.arch }}
+          path: macos/release/
           retention-days: 7
 
   build-windows:
-    runs-on: windows-2022  # Windows Server 2022 (x64)
+    strategy:
+      matrix:
+        runner:
+          - { image: windows-2022, arch: x64 }
+          - { image: windows-11-arm, arch: arm64 }
+    runs-on: ${{ matrix.runner.image }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Sanitize branch name for artifact naming
         id: sanitize
         shell: pwsh
-        run: echo "ref_name=$('${{ github.ref_name }}'.Replace('/', '-'))" >> $env:GITHUB_OUTPUT
+        run: |
+          echo "ref_name=$('${{ github.ref_name }}'.Replace('/', '-'))" >> $env:GITHUB_OUTPUT
+          echo "short_sha=$('${{ github.sha }}'.Substring(0,7))" >> $env:GITHUB_OUTPUT
 
       - name: Cache SDL
         uses: actions/cache@v4
         with:
           path: external/sdl/build
-          key: sdl-2.32.10-windows-2022-${{ runner.arch }}
+          key: sdl-2.32.10-windows-${{ matrix.runner.arch }}
 
-      - name: Configures build environment for x86-64
+      - name: Setup MSVC for ${{ matrix.runner.arch }}
         uses: ilammy/msvc-dev-cmd@v1
         with:
-            arch: amd64
+          arch: ${{ matrix.runner.arch }}
 
-      - name: Build Windows (x64)
+      - name: Build Windows (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
-          COMMIT_HASH: ${{ github.sha }}
+          SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
         shell: cmd
         run: |
-          cd Windows
+          cd windows
           nmake clean
           nmake
+
+      - name: Verify binary architecture
+        shell: powershell
+        run: |
+          dumpbin /headers windows\release\Kiwi8.exe | Select-String "machine"
 
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows
-          path: Windows\release\
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows-${{ matrix.runner.arch }}
+          path: windows\release\
+          retention-days: 7
+
+  build-linux:
+    strategy:
+      matrix:
+        runner:
+          - { image: ubuntu-22.04, arch: x64 }
+          - { image: ubuntu-24.04-arm, arch: arm64 }
+    runs-on: ${{ matrix.runner.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanitize branch name
+        id: sanitize
+        run: |
+          echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+          echo "short_sha=$(echo '${{ github.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake pkg-config python3 libgtk-3-dev
+
+      - name: Cache SDL
+        uses: actions/cache@v4
+        with:
+          path: external/sdl/build
+          key: sdl-2.32.10-debian-${{ matrix.runner.arch }}
+
+      - name: Build Linux (${{ matrix.runner.arch }})
+        env:
+          VERSION: ${{ steps.sanitize.outputs.ref_name }}
+          SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
+        run: |
+          cd linux
+          make clean
+          make
+
+      - name: Verify binary dependencies
+        run: |
+          ldd ./linux/release/Kiwi8
+          file ./linux/release/Kiwi8
+
+      - name: Upload Linux build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Debian-${{ matrix.runner.arch }}
+          path: linux/release/
           retention-days: 7

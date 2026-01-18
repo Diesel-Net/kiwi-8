@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Downloads SDL source to external/sdl and builds it for native macOS architecture
+# Downloads SDL source to external/sdl and builds it for native Linux architecture
 # Installs into external/sdl/build
 
 SDL_VERSION="2.32.10"
@@ -28,10 +28,8 @@ fi
 # configure & build
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
-# Allow overriding the deployment target via SDL_DEPLOYMENT_TARGET env var (defaults to 11.0)
-SDL_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET:-11.0}"
-echo "Building SDL with CMAKE_OSX_DEPLOYMENT_TARGET=${SDL_DEPLOYMENT_TARGET} for native architecture"
-cmake .. -DCMAKE_OSX_DEPLOYMENT_TARGET="${SDL_DEPLOYMENT_TARGET}" -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
+echo "Building SDL for native architecture..."
+cmake .. -DCMAKE_BUILD_TYPE=Release -DSDL_SHARED=ON -DSDL_STATIC=ON -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"
 cmake --build . --config Release --parallel
 
 # install using CMake (handles all files correctly)

@@ -17,3 +17,6 @@ macos/debug/
 
 windows/release/
 windows/debug/
+
+linux/release/
+linux/debug/

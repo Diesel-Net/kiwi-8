@@ -6,9 +6,9 @@ ifeq ($(VERSION),)
 VERSION = develop
 endif
 
-COMMIT_HASH ?= $(GITHUB_SHA)
-ifeq ($(COMMIT_HASH),)
-COMMIT_HASH = unknown
+SUB_VERSION ?= $(GITHUB_SHA)
+ifeq ($(SUB_VERSION),)
+SUB_VERSION = unknown
 endif
 
 APP_MANIFEST = src/Info.plist
@@ -16,7 +16,7 @@ APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DCOMMIT_HASH='"$(COMMIT_HASH)"'
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
@@ -65,7 +65,7 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 
 # Generate Info.plist from template with version substitution
 $(APP_MANIFEST): $(APP_MANIFEST).in
-	sed -e 's/@APP_NAME@/$(APP_NAME)/g' -e 's/@VERSION@/$(VERSION)/g' -e 's/@COMMIT_HASH@/$(COMMIT_HASH)/g' $< > $@
+	sed -e 's/@APP_NAME@/$(APP_NAME)/g' -e 's/@VERSION@/$(VERSION)/g' -e 's/@SUB_VERSION@/$(SUB_VERSION)/g' $< > $@
 
 # Pattern rules for incremental compilation
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
