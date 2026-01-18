@@ -28,8 +28,16 @@ int audio_initialize(void) {
     audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
     if (!audio.device) {
-        fprintf(stderr, "Error: %s\n", SDL_GetError());
-        return 1;
+        fprintf(stderr, "Warning: No audio device available, using dummy driver. %s\n", SDL_GetError());
+
+        /* Try to use dummy audio driver as fallback */
+        SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
+        audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
+
+        if (!audio.device) {
+            fprintf(stderr, "Error: Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
+            return 1;
+        }
     }
 
     /* ~.5 seconds worth of audio (probably overkill) */

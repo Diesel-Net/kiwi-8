@@ -116,10 +116,10 @@ The following must be added to your **PATH**:
 >python3<br>
 >pkg-config<br>
 
-You'll also need the GTK3 headers:
+You'll also need the GTK3, openGL, PulseAudio/Pipewire headers:
 
 ```bash
-sudo apt install libgtk-3-dev
+sudo apt install libgtk-3-dev xorg-dev libgl1-mesa-dev libasound2-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev
 ```
 
 1. Change current working directory
