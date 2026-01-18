@@ -40,7 +40,7 @@ jobs:
           make clean
           make release/Kiwi8.app
 
-      - name: Verify macOS binary and deps
+      - name: Verify binary and dependencies
         run: |
           file macos/release/Kiwi8.app/Contents/MacOS/Kiwi8
           otool -L macos/release/Kiwi8.app/Contents/MacOS/Kiwi8
@@ -99,10 +99,14 @@ jobs:
           nmake clean
           nmake release\Kiwi8.exe
 
-      - name: Verify binary architecture
+      - name: Verify binary and dependencies
         shell: powershell
         run: |
           dumpbin /headers windows\release\Kiwi8.exe | Select-String "machine"
+          dumpbin /dependents windows\release\Kiwi8.exe
+          file windows\release\SDL2.dll
+          dumpbin /headers windows\release\SDL2.dll | Select-String "machine"
+          dumpbin /dependents windows\release\SDL2.dll
 
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
@@ -147,10 +151,12 @@ jobs:
           make clean
           make release/Kiwi8
 
-      - name: Verify binary dependencies
+      - name: Verify binary and dependencies
         run: |
           ldd ./linux/release/Kiwi8
           file ./linux/release/Kiwi8
+          ldd ./linux/release/libSDL2-2.0.so.0
+          file ./linux/release/libSDL2-2.0.so.0
 
       - name: Upload Linux build artifact
         uses: actions/upload-artifact@v4
