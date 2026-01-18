@@ -39,9 +39,9 @@
 #define VERSION "develop"
 #endif
 
-// COMMIT_HASH is defined by the compiler via -DCOMMIT_HASH="..."
-#ifndef COMMIT_HASH
-#define COMMIT_HASH "unknown"
+// SUB_VERSION is defined by the compiler via -DSUB_VERSION="..."
+#ifndef SUB_VERSION
+#define SUB_VERSION "unknown"
 #endif
 
 #define MEM_SIZE 4096

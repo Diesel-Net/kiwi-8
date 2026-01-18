@@ -15,7 +15,7 @@
         <key>CFBundleShortVersionString</key>
         <string>@VERSION@</string>
         <key>CFBundleVersion</key>
-        <string>@COMMIT_HASH@</string>
+        <string>@SUB_VERSION@</string>
         <key>LSMinimumSystemVersion</key>
         <string>11.0</string>
         <key>NSHighResolutionCapable</key>

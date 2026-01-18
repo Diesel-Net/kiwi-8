@@ -17,7 +17,9 @@ jobs:
 
       - name: Sanitize branch name for artifact naming
         id: sanitize
-        run: echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+        run: |
+          echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+          echo "short_sha=$(echo '${{ github.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Cache SDL
         uses: actions/cache@v4
@@ -32,7 +34,7 @@ jobs:
       - name: Build macOS (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
-          COMMIT_HASH: ${{ github.sha }}
+          SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
         run: |
           cd macos
           make clean
@@ -65,7 +67,9 @@ jobs:
       - name: Sanitize branch name for artifact naming
         id: sanitize
         shell: pwsh
-        run: echo "ref_name=$('${{ github.ref_name }}'.Replace('/', '-'))" >> $env:GITHUB_OUTPUT
+        run: |
+          echo "ref_name=$('${{ github.ref_name }}'.Replace('/', '-'))" >> $env:GITHUB_OUTPUT
+          echo "short_sha=$('${{ github.sha }}'.Substring(0,7))" >> $env:GITHUB_OUTPUT
 
       - name: Cache SDL
         uses: actions/cache@v4
@@ -81,7 +85,7 @@ jobs:
       - name: Build Windows (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
-          COMMIT_HASH: ${{ github.sha }}
+          SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
         shell: cmd
         run: |
           cd windows
@@ -110,9 +114,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sanitize branch name for artifact naming
+      - name: Sanitize branch name
         id: sanitize
-        run: echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+        run: |
+          echo "ref_name=$(echo '${{ github.ref_name }}' | sed 's/\//-/g')" >> $GITHUB_OUTPUT
+          echo "short_sha=$(echo '${{ github.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Install build dependencies
         run: |
@@ -128,7 +134,7 @@ jobs:
       - name: Build Linux (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
-          COMMIT_HASH: ${{ github.sha }}
+          SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
         run: |
           cd linux
           make clean

@@ -9,11 +9,11 @@ VERSION = develop
 !ENDIF
 !ENDIF
 
-!IFNDEF COMMIT_HASH
+!IFNDEF SUB_VERSION
 !IFDEF GITHUB_SHA
-COMMIT_HASH = $(GITHUB_SHA)
+SUB_VERSION = $(GITHUB_SHA)
 !ELSE
-COMMIT_HASH = unknown
+SUB_VERSION = unknown
 !ENDIF
 !ENDIF
 
@@ -22,7 +22,7 @@ APP_PDB = $(APP_NAME).pdb
 APP_RES = $(APP_NAME).res
 
 CC = CL
-CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DCOMMIT_HASH=\"$(COMMIT_HASH)\""
+CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DSUB_VERSION=\"$(SUB_VERSION)\""
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
 		 /ENTRY:mainCRTStartup

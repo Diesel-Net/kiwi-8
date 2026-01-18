@@ -6,15 +6,15 @@ ifeq ($(VERSION),)
 VERSION = develop
 endif
 
-COMMIT_HASH ?= $(GITHUB_SHA)
-ifeq ($(COMMIT_HASH),)
-COMMIT_HASH = unknown
+SUB_VERSION ?= $(GITHUB_SHA)
+ifeq ($(SUB_VERSION),)
+SUB_VERSION = unknown
 endif
 
 APP_EXE = $(APP_NAME)
 
 CC = g++
-CFLAGS = -std=c++17 -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DCOMMIT_HASH='"$(COMMIT_HASH)"'
+CFLAGS = -std=c++17 -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -Wl,-rpath,'$$ORIGIN'
 
 # Use pkg-config to get GTK3 flags
