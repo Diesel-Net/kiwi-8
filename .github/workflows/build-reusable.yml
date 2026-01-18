@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  build-macos:
+  macos:
     strategy:
       matrix:
         runner:
@@ -61,7 +61,7 @@ jobs:
           path: macos/release/
           retention-days: 7
 
-  build-windows:
+  windows:
     strategy:
       matrix:
         runner:
@@ -115,7 +115,7 @@ jobs:
           path: windows\release\
           retention-days: 7
 
-  build-linux:
+  linux:
     strategy:
       matrix:
         runner:
