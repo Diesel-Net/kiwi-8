@@ -53,11 +53,11 @@ all: debug/$(APP_EXE) release/$(APP_EXE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
-	bash ../tools/build_sdl_linux.sh
+	bash build_sdl.sh
 
 # Build SDL if lib doesn't exist
 $(SDL_LIB):
-	bash ../tools/build_sdl_linux.sh
+	bash build_sdl.sh
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ../LICENSE
