@@ -38,7 +38,7 @@ jobs:
         run: |
           cd macos
           make clean
-          make
+          make release/Kiwi8.app
 
       - name: Add ad-hoc signing (ARM64 strict Gatekeeper workaround)
         if: matrix.runner.arch == 'arm64'
@@ -90,7 +90,7 @@ jobs:
         run: |
           cd windows
           nmake clean
-          nmake
+          nmake release\Kiwi8.exe
 
       - name: Verify binary architecture
         shell: powershell
@@ -138,7 +138,7 @@ jobs:
         run: |
           cd linux
           make clean
-          make
+          make release/Kiwi8
 
       - name: Verify binary dependencies
         run: |
