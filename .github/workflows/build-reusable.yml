@@ -6,12 +6,10 @@ on:
 jobs:
 
   build-macos:
+    runs-on: macos-14
     strategy:
       matrix:
-        runner:
-          - { image: macos-15, arch: arm64 }
-          - { image: macos-15-intel, arch: x64 }
-    runs-on: ${{ matrix.runner.image }}
+        arch: [x86_64, ARM64]
     steps:
       - uses: actions/checkout@v4
 
@@ -37,13 +35,6 @@ jobs:
           cd macos
           make clean
           make
-
-      - name: Strip ad-hoc signatures (ARM64 strict Gatekeeper workaround)
-        if: matrix.runner.arch == 'arm64'
-        run: |
-          codesign --remove-signature macos/release/Kiwi8.app/Contents/MacOS/Kiwi8 || true
-          codesign --remove-signature macos/release/Kiwi8.app/Contents/Frameworks/libSDL2-2.0.0.dylib || true
-          codesign --remove-signature macos/release/Kiwi8.app || true
 
       - name: Upload macOS build artifact
         uses: actions/upload-artifact@v4

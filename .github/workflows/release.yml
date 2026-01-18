@@ -11,7 +11,7 @@ jobs:
 
   upload-macos:
     needs: build
-    runs-on: macos-15
+    runs-on: macos-14
     strategy:
       matrix:
         arch: [x86_64, ARM64]
