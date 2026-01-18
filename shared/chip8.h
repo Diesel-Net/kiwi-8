@@ -5,6 +5,7 @@
 #include "display.h"
 #include "input.h"
 #include "audio.h"
+#include <stdlib.h>
 
 // APP_NAME is defined by the compiler via -DAPP_NAME="..."
 #ifndef APP_NAME
