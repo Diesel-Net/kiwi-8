@@ -138,14 +138,12 @@ jobs:
           sudo apt-get install xorg-dev \
             libudev-dev libts-dev \
             libgl1-mesa-dev libglu1-mesa-dev \
-            libasound2-dev libpulse-dev libopenal-dev \
+            libasound2-dev libpulse-dev libopenal-dev libpipewire-0.3-dev \
             libogg-dev libvorbis-dev \
             libaudiofile-dev \
             libpng-dev libfreetype6-dev \
             libusb-dev libdbus-1-dev \
             zlib1g-dev libdirectfb-dev
-
-
 
       - name: Cache SDL
         uses: actions/cache@v4
