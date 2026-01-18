@@ -16,7 +16,7 @@ APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -arch x86_64 -arch arm64 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DCOMMIT_HASH='"$(COMMIT_HASH)"'
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DCOMMIT_HASH='"$(COMMIT_HASH)"'
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL

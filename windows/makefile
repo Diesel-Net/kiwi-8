@@ -62,13 +62,23 @@ OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
 # Default target
 all: debug\$(APP_EXE) release\$(APP_EXE)
 
+# Detect architecture from environment (set by MSVC vcvarsall.bat)
+# VSCMD_ARG_TGT_ARCH is set to x64, x86, arm64, or arm
+!IFNDEF SDL_ARCH
+!IFDEF VSCMD_ARG_TGT_ARCH
+SDL_ARCH = $(VSCMD_ARG_TGT_ARCH)
+!ELSE
+SDL_ARCH = x64
+!ENDIF
+!ENDIF
+
 # Build SDL (force rebuild with: nmake sdl)
 sdl:
-	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1 -ARCH $(SDL_ARCH)
 
 # Build SDL if lib doesn't exist (DLL and headers come together)
 $(SDL_LIB):
-	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1
+	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1 -ARCH $(SDL_ARCH)
 
 $(SDL_DLL): $(SDL_LIB)
 	@REM DLL is created by same script that creates LIB
