@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-14
     strategy:
       matrix:
-        arch: [x86_64, ARM64]
+        arch: [x64, arm64]
     steps:
       - uses: actions/checkout@v4
 
@@ -57,7 +57,7 @@ jobs:
     runs-on: windows-2022
     strategy:
       matrix:
-        arch: [x86_64, ARM64]
+        arch: [x64, arm64]
     steps:
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        arch: [x86_64, ARM64]
+        arch: [x64, arm64]
     steps:
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
