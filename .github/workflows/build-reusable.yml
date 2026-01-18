@@ -77,20 +77,20 @@ jobs:
           COMMIT_HASH: ${{ github.sha }}
         shell: cmd
         run: |
-          cd Windows
+          cd windows
           nmake clean
           nmake
 
       - name: Verify binary architecture
         shell: powershell
         run: |
-          dumpbin /headers Windows\release\Kiwi8.exe | Select-String "machine"
+          dumpbin /headers windows\release\Kiwi8.exe | Select-String "machine"
 
       - name: Upload Windows build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Kiwi8-${{ steps.sanitize.outputs.ref_name }}-Windows-${{ matrix.runner.arch }}
-          path: Windows\release\
+          path: windows\release\
           retention-days: 7
 
   build-linux:
