@@ -68,15 +68,7 @@ int chip8_initialize(
 
     audio_initialize();
 
-    if (display_initialize(
-        fullscreen,
-        &chip8.cycles,
-        &chip8.paused,
-        &chip8.load_store_quirk,
-        &chip8.shift_quirk,
-        &chip8.vwrap,
-        &chip8.muted
-    )) return 1;
+    if (display_initialize(fullscreen)) return 1;
 
     input_initialize(
         &display,

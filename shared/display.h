@@ -46,17 +46,8 @@ struct display {
 extern struct display display;
 
 /* Display functions */
-void display_create(void);
 void display_destroy(void);
-int display_initialize(
-    bool fullscreen,
-    int *cycles,
-    bool *paused,
-    bool *load_store_quirk,
-    bool *shift_quirk,
-    bool *vwrap,
-    bool *muted
-);
+int display_initialize(bool fullscreen);
 void display_resize(int x, int y);
 void display_toggle_fullscreen(void);
 void display_toggle_vsync(void);

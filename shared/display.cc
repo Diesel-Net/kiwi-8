@@ -1,3 +1,4 @@
+#include "chip8.h"
 #include "display.h"
 #include "gui.h"
 #include <SDL2/SDL_opengl.h>
@@ -20,15 +21,7 @@ void display_destroy(void){
 }
 
 
-int display_initialize(
-    bool fullscreen,
-    int *steps,
-    bool *paused,
-    bool *load_store_quirk,
-    bool *shift_quirk,
-    bool *vwrap,
-    bool *muted
-) {
+int display_initialize(bool fullscreen) {
 
     display.WINDOW_WIDTH = WIDTH * (int)SCALE;
     display.WINDOW_HEIGHT = HEIGHT * (int)SCALE;
