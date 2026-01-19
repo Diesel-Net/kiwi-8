@@ -1,3 +1,4 @@
+#include "chip8.h"
 #include "display.h"
 #include "gui.h"
 #include <SDL2/SDL_opengl.h>
@@ -6,7 +7,22 @@
 /* Global display instance */
 struct display display;
 
-void display_create(void){
+void display_destroy(void){
+    /* clean-up */
+    if (display.back_buffer) {
+        for (int i = 0; i < WIDTH; i++) {
+            free(display.back_buffer[i]);
+        }
+        free(display.back_buffer);
+    }
+    gui_cleanup();
+    SDL_GL_DeleteContext(display.glcontext);
+    SDL_DestroyWindow(display.window);
+}
+
+
+int display_init(bool fullscreen) {
+
     display.WINDOW_WIDTH = WIDTH * (int)SCALE;
     display.WINDOW_HEIGHT = HEIGHT * (int)SCALE;
     display.back_buffer = NULL;
@@ -24,34 +40,6 @@ void display_create(void){
     display.foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
     display.foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
     display.foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
-
-    /* initialize gui state */
-    gui_create();
-}
-
-void display_destroy(void){
-    /* clean-up */
-    if (display.back_buffer) {
-        for (int i = 0; i < WIDTH; i++) {
-            free(display.back_buffer[i]);
-        }
-        free(display.back_buffer);
-    }
-    gui_cleanup();
-    SDL_GL_DeleteContext(display.glcontext);
-    SDL_DestroyWindow(display.window);
-}
-
-
-int display_initialize(
-    bool fullscreen,
-    int *steps,
-    bool *paused,
-    bool *load_store_quirk,
-    bool *shift_quirk,
-    bool *vwrap,
-    bool *muted
-) {
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
@@ -121,15 +109,7 @@ int display_initialize(
     glEnable(GL_TEXTURE_2D);
 
     /* setup ImGui binding */
-    gui_initialize(
-        &display,
-        steps,
-        paused,
-        load_store_quirk,
-        shift_quirk,
-        vwrap,
-        muted
-    );
+    gui_init();
 
     /* set to fullscreen mode if flag present */
     if (fullscreen) display_toggle_fullscreen();

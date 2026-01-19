@@ -17,14 +17,24 @@ CC = g++
 CFLAGS = -std=c++17 -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -Wl,-rpath,'$$ORIGIN'
 
-# Use pkg-config to get GTK3 flags
+# Use pkg-config to get GTK3 and audio backend flags
 GTK3_CFLAGS = $(shell pkg-config --cflags gtk+-3.0)
 GTK3_LIBS = $(shell pkg-config --libs gtk+-3.0)
 
-CFLAGS += $(GTK3_CFLAGS)
-LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) -lm -ldl -lpthread
+# Audio backend pkg-config flags
+ALSA_CFLAGS = $(shell pkg-config --cflags alsa)
+ALSA_LIBS = $(shell pkg-config --libs alsa)
+PULSE_CFLAGS = $(shell pkg-config --cflags libpulse)
+PULSE_LIBS = $(shell pkg-config --libs libpulse)
+PIPEWIRE_CFLAGS = $(shell pkg-config --cflags libpipewire-0.3)
+PIPEWIRE_LIBS = $(shell pkg-config --libs libpipewire-0.3)
+JACK_CFLAGS = $(shell pkg-config --cflags jack)
+JACK_LIBS = $(shell pkg-config --libs jack)
+
+CFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS)
 
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
+LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS) $(ESD_LIBS) $(SNDIO_LIBS) -lm -ldl -lpthread
 
 # SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.so.0
@@ -54,11 +64,11 @@ all: debug/$(APP_EXE) release/$(APP_EXE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
-	bash ../tools/build_sdl_linux.sh
+	bash build_sdl.sh
 
 # Build SDL if lib doesn't exist
 $(SDL_LIB):
-	bash ../tools/build_sdl_linux.sh
+	bash build_sdl.sh
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ../LICENSE

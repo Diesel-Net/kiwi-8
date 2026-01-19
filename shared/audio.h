@@ -13,19 +13,20 @@
 struct audio {
     SDL_AudioSpec audiospec;
     SDL_AudioDeviceID device;
+
     unsigned char *audio_buffer;
 
     double wave_position;
     double wave_increment;
+
+    int beep_active;
+    int beep_length;
 };
 
-/* Global audio instance */
 extern struct audio audio;
 
-/* Audio functions */
-void audio_create(void);
+void audio_beep(void);
 void audio_destroy(void);
 int audio_initialize(void);
-void audio_beep(int length);
 
 #endif

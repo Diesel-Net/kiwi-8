@@ -11,15 +11,6 @@
 struct display;
 
 struct gui {
-    /* pointers to chip-8 data */
-    struct display *display;
-
-    int *cycles;
-    bool *paused;
-    bool *load_store_quirk;
-    bool *shift_quirk;
-    bool *vwrap;
-    bool *mute;
 
     /* help-window toggles */
     bool show_controls;
@@ -38,17 +29,8 @@ struct gui {
 extern struct gui gui;
 
 /* Gui functions */
-void gui_create(void);
 void gui_cleanup(void);
-void gui_initialize(
-    struct display *display,
-    int *cycles,
-    bool *paused,
-    bool *load_store_quirk,
-    bool *shift_quirk,
-    bool *vwrap,
-    bool *mute
-);
+void gui_init(void);
 void gui_process_events(SDL_Event *event);
 void gui_new_frame(void);
 void gui_render(void);

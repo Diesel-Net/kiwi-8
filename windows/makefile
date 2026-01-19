@@ -74,11 +74,11 @@ SDL_ARCH = x64
 
 # Build SDL (force rebuild with: nmake sdl)
 sdl:
-	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1 -ARCH $(SDL_ARCH)
+	powershell -ExecutionPolicy Bypass -File build_sdl.ps1 -ARCH $(SDL_ARCH)
 
 # Build SDL if lib doesn't exist (DLL and headers come together)
 $(SDL_LIB):
-	powershell -ExecutionPolicy Bypass -File ..\tools\build_sdl_windows.ps1 -ARCH $(SDL_ARCH)
+	powershell -ExecutionPolicy Bypass -File build_sdl.ps1 -ARCH $(SDL_ARCH)
 
 $(SDL_DLL): $(SDL_LIB)
 	@REM DLL is created by same script that creates LIB

@@ -8,16 +8,6 @@
 /* Global chip8 instance */
 struct chip8 chip8;
 
-void chip8_create() {
-    chip8.cycles = CYCLES_PER_STEP;
-    chip8.paused = 0;
-    chip8.muted = 0;
-    chip8.vwrap = 1;
-    display_create();
-    chip8.vram = NULL;
-    chip8.rom = NULL;
-}
-
 void chip8_destroy() {
     /* clean-up */
     if (chip8.vram) {
@@ -38,14 +28,18 @@ int chip8_initialize(
     bool vwrap,
     bool muted
 ) {
+    chip8.cycles = CYCLES_PER_STEP;
+    chip8.paused = 0;
+    chip8.muted = 0;
+    chip8.vwrap = 1;
+    chip8.vram = NULL;
+    chip8.rom = NULL;
 
     if (SDL_Init(
-            SDL_INIT_TIMER |
-            SDL_INIT_AUDIO |
-            SDL_INIT_VIDEO |
-            SDL_INIT_EVENTS
-        )
-    ) {
+        SDL_INIT_TIMER |
+        SDL_INIT_VIDEO |
+        SDL_INIT_EVENTS
+    )) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -72,29 +66,11 @@ int chip8_initialize(
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    /* init audio, display, input */
-    /* set up audio wave parameters before starting device */
-    audio_create();
     audio_initialize();
 
-    if (display_initialize(
-            fullscreen,
-            &chip8.cycles,
-            &chip8.paused,
-            &chip8.load_store_quirk,
-            &chip8.shift_quirk,
-            &chip8.vwrap,
-            &chip8.muted
-        )
-    ) return 1;
+    if (display_init(fullscreen)) return 1;
 
-    input_initialize(
-        &display,
-        &chip8.cycles,
-        &chip8.cpu_halt,
-        &chip8.paused,
-        &chip8.muted
-    );
+    input_reset();
 
     /* init registers and memory once */
     memset(chip8.V, 0 , NUM_REGISTERS);
@@ -255,7 +231,7 @@ void chip8_run(){
             chip8_step_cpu(chip8.cycles);
 
             /* update Audio */
-            if (chip8.sound_timer > 0 && !chip8.muted) audio_beep(SAMPLES_PER_FRAME);
+            if (chip8.sound_timer > 0 && !chip8.muted) audio_beep();
 
             /* check internal timers */
             chip8_update_timers();

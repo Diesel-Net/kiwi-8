@@ -86,11 +86,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}
-          path: linux_release
+          path: .
+
+      - name: Restore executable permissions
+        run: |
+          chmod -R u=rwx,go=rx Kiwi8
 
       - name: Create Linux release archive
         run: |
-          tar czf Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}.tar.gz -C linux_release .
+          tar czf Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}.tar.gz -C .
 
       - name: Upload Linux build to Release
         uses: softprops/action-gh-release@v2

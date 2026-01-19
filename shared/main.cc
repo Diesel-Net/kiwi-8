@@ -14,8 +14,6 @@ int main(int argc, char **argv){
     bool vwrap = 1;
     bool muted = 0;
 
-    chip8_create();
-
     /* parse and set any options present */
     for (int i = 1; i < argc; i++){
 
