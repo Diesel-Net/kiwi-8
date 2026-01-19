@@ -47,6 +47,7 @@ int audio_initialize(void) {
             fprintf(stdout, "Successfully initialized audio with driver: %s\n", drivers[i]);
             driver_found = 1;
             break;
+        }
     }
 
     if (!driver_found) {
