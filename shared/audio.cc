@@ -21,7 +21,7 @@ int audio_initialize(void) {
     audio.audiospec.freq = FREQUENCY;
     audio.audiospec.format = AUDIO_U8;
     audio.audiospec.channels = 1;
-    audio.audiospec.samples = 512;
+    audio.audiospec.samples = 2048;
     audio.audiospec.callback = NULL;
     audio.audiospec.userdata = NULL;
 
