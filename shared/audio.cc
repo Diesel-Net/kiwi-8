@@ -1,46 +1,52 @@
 #include "audio.h"
 #include <stdio.h>
 #include <SDL2/SDL_audio.h>
+#include <math.h>
 
 /* Global audio instance */
 struct audio audio;
 
+static int beep_active = 0;
+static int beep_length = 0;
+
+static void audio_callback(void *userdata, Uint8 *stream, int len) {
+    if (beep_active && beep_length > 0) {
+        for (int i = 0; i < len; i++) {
+            stream[i] = (unsigned char)((AMPLITUDE * sin(audio.wave_position)) + BIAS);
+            audio.wave_position += audio.wave_increment;
+        }
+        beep_length -= len;
+        if (beep_length <= 0) {
+            beep_active = 0;
+        }
+    } else {
+        memset(stream, BIAS, len); // Silence (BIAS value)
+    }
+}
+
 void audio_create(void) {
     audio.wave_position = 0;
     audio.wave_increment = ((double) TONE * (2.0 * M_PI)) / (double) FREQUENCY;
+    beep_active = 0;
+    beep_length = 0;
 }
 
 void audio_destroy(void) {
-    /* pause & close the audio */
     SDL_PauseAudioDevice(audio.device, 1);
     if (audio.device) SDL_CloseAudioDevice(audio.device);
-    free(audio.audio_buffer);
 }
 
 int audio_initialize(void) {
-
     audio.audiospec.freq = FREQUENCY;
-    audio.audiospec.format = AUDIO_U8; /* unsigned 8-bit data stream */
-    audio.audiospec.channels = 1; /* mono */
-    audio.audiospec.samples = 512; /* lower buffer size for less latency */
-    audio.audiospec.callback = NULL;
+    audio.audiospec.format = AUDIO_U8;
+    audio.audiospec.channels = 1;
+    audio.audiospec.samples = 512;
+    audio.audiospec.callback = audio_callback;
     audio.audiospec.userdata = NULL;
 
-    /* try initializing audio using available drivers */
     const char* drivers[] = {
-        "wasapi",
-        "directsound",
-        "winmm",
-        "xaudio2",
-        "coreaudio",
-        "pulseaudio",
-        "pipewire",
-        "jack",
-        "alsa",
-        "dsp",
-        "dummy",
+        "wasapi", "directsound", "winmm", "xaudio2", "coreaudio", "pulseaudio", "pipewire", "jack", "alsa", "dsp", "dummy",
     };
-
     int driver_found = 0;
     for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
         if (SDL_AudioInit(drivers[i]) == 0) {
@@ -49,52 +55,24 @@ int audio_initialize(void) {
             break;
         }
     }
-
     if (!driver_found) {
         fprintf(stderr, "Warning: Could not initialize any audio driver, continuing without sound.\n");
     }
-
-    /* open default audio device (allow audio changes) */
     audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-
     if (!audio.device) {
         fprintf(stderr, "Warning: No audio device available, using dummy driver. %s\n", SDL_GetError());
-
-        /* Try to use dummy audio driver as fallback */
         SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
         audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
-
         if (!audio.device) {
             fprintf(stderr, "Error: Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
             return 1;
         }
     }
-
-    /* ~.06 seconds worth of audio (3 frames) */
-    audio.audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 3);
-    if (!audio.audio_buffer) {
-        fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
-        return 1;
-    }
-
-    /* start playing audio */
     SDL_PauseAudioDevice(audio.device, 0);
-
     return 0;
 }
 
-static void audio_sine_wave(int length) {
-    for (int i = 0; i < length; i++) {
-        /* sine wave varies from 120 - 134 */
-        audio.audio_buffer[i] = (unsigned char) ((AMPLITUDE * sin(audio.wave_position)) + BIAS);
-        audio.wave_position += audio.wave_increment;
-    }
-}
-
 void audio_beep(int length) {
-    /* Only queue audio if less than 1 frame is queued */
-    if (SDL_GetQueuedAudioSize(audio.device) < SAMPLES_PER_FRAME) {
-        audio_sine_wave(length);
-        SDL_QueueAudio(audio.device, audio.audio_buffer, length);
-    }
+    beep_active = 1;
+    beep_length = length;
 }

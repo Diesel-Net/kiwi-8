@@ -13,7 +13,6 @@
 struct audio {
     SDL_AudioSpec audiospec;
     SDL_AudioDeviceID device;
-    unsigned char *audio_buffer;
 
     double wave_position;
     double wave_increment;
