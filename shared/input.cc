@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "input.h"
 #include "display.h"
+
 /* Forward declarations for static helpers */
 static int input_process_events(void);
 static void input_process_keys(void);
@@ -8,29 +9,6 @@ static void input_process_keys(void);
 
 /* Global input instance */
 struct input input;
-
-void input_create(void) {
-    /* empty */
-}
-
-void input_destroy(void) {
-    /* empty */
-}
-
-void input_initialize(
-    struct display *display,
-    int *cycles,
-    bool *cpu_halt,
-    bool *paused,
-    bool *muted
-) {
-    input.cycles = cycles;
-    input.display = display;
-    input.cpu_halt = cpu_halt;
-    input.paused = paused;
-    input.muted = muted;
-    input_reset();
-}
 
 void input_reset(void) {
     input.awaiting_key_press = 0;
@@ -71,14 +49,14 @@ static int input_process_events(void) {
         if (input.state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
         if (input.state[SDL_SCANCODE_F5]) response = SOFT_RESET;
         if (input.state[SDL_SCANCODE_RETURN]) display_toggle_fullscreen();
-        if (input.state[SDL_SCANCODE_P]) *(input.paused) = !(*(input.paused));
-        if (input.state[SDL_SCANCODE_M]) *(input.muted) = !(*(input.muted));
+        if (input.state[SDL_SCANCODE_P]) chip8.paused = !chip8.paused;
+        if (input.state[SDL_SCANCODE_M]) chip8.muted = !chip8.muted;
         if (input.state[SDL_SCANCODE_LALT]) gui.show_menu_flag = !gui.show_menu_flag;
         if (input.state[SDL_SCANCODE_RALT]) gui.show_fps_flag = !gui.show_fps_flag;
 
         /* slow/raise emulation speed */
-        if (input.state[SDL_SCANCODE_PAGEDOWN]) (*(input.cycles) -1 < MIN_CYCLES_PER_STEP ) ? *(input.cycles) = MIN_CYCLES_PER_STEP : *(input.cycles) -= 1;
-        if (input.state[SDL_SCANCODE_PAGEUP]) (*(input.cycles) +1 > MAX_CYCLES_PER_STEP ) ? *(input.cycles) = MAX_CYCLES_PER_STEP : *(input.cycles) += 1;
+        if (input.state[SDL_SCANCODE_PAGEDOWN]) (chip8.cycles -1 < MIN_CYCLES_PER_STEP ) ? chip8.cycles = MIN_CYCLES_PER_STEP : chip8.cycles -= 1;
+        if (input.state[SDL_SCANCODE_PAGEUP]) (chip8.cycles +1 > MAX_CYCLES_PER_STEP ) ? chip8.cycles = MAX_CYCLES_PER_STEP : chip8.cycles += 1;
     }
 
     /* window events */
@@ -121,7 +99,7 @@ static void input_process_keys(void) {
     input.keys[0xF] = input.state[SDL_SCANCODE_V];
 
     /* check if cpu is awaiting a keypress for opcode FX0A */
-    if (input.cpu_halt && input.awaiting_key_press) {
+    if (chip8.cpu_halt && input.awaiting_key_press) {
         for (int i = 0; i < NUM_KEYS; i++) {
             if (input.keys[i]) {
                 input.awaiting_key_press = 0;
