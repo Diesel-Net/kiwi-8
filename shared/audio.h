@@ -21,6 +21,8 @@ struct audio {
     int beep_length;
 };
 
+extern struct audio audio;
+
 /* Audio functions */
 void audio_destroy(void);
 int audio_initialize(void);
