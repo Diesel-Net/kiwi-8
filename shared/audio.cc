@@ -22,7 +22,7 @@ int audio_initialize(void) {
     audio.audiospec.freq = FREQUENCY;
     audio.audiospec.format = AUDIO_U8; /* unsigned 8-bit data stream */
     audio.audiospec.channels = 1; /* mono */
-    audio.audiospec.samples = 2048; /* must be a power of 2 */
+    audio.audiospec.samples = 512; /* lower buffer size for less latency */
     audio.audiospec.callback = NULL;
     audio.audiospec.userdata = NULL;
 
@@ -70,8 +70,8 @@ int audio_initialize(void) {
         }
     }
 
-    /* ~.5 seconds worth of audio (probably overkill) */
-    audio.audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30);
+    /* ~.06 seconds worth of audio (3 frames) */
+    audio.audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 3);
     if (!audio.audio_buffer) {
         fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
         return 1;
@@ -92,7 +92,8 @@ static void audio_sine_wave(int length) {
 }
 
 void audio_beep(int length) {
-    if (SDL_GetQueuedAudioSize(audio.device) < (SAMPLES_PER_FRAME * 2)) {
+    /* Only queue audio if less than 1 frame is queued */
+    if (SDL_GetQueuedAudioSize(audio.device) < SAMPLES_PER_FRAME) {
         audio_sine_wave(length);
         SDL_QueueAudio(audio.device, audio.audio_buffer, length);
     }
