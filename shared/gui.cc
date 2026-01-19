@@ -82,15 +82,15 @@ static void gui_main_menu(void) {
                     ImGui::EndMenu();
                 }
 
-                ImGui::MenuItem("Load/Store Quirk", NULL, chip8.load_store_quirk);
-                ImGui::MenuItem("Shift Quirk", NULL, chip8.shift_quirk);
-                ImGui::MenuItem("Vertical Wrapping", NULL, chip8.vwrap);
+                ImGui::MenuItem("Load/Store Quirk", NULL, &chip8.load_store_quirk);
+                ImGui::MenuItem("Shift Quirk", NULL, &chip8.shift_quirk);
+                ImGui::MenuItem("Vertical Wrapping", NULL, &chip8.vwrap);
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Settings")) {
                 ImGui::MenuItem("Mute Audio", "M", &chip8.muted);
-                ImGui::MenuItem("60 FPS Limit", NULL, &(display.limit_fps_flag));
+                ImGui::MenuItem("60 FPS Limit", NULL, &display.limit_fps_flag);
 
                 /*
                 toggle Vsync is disabled for now because it doesn't really
