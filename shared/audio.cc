@@ -6,31 +6,10 @@
 
 struct audio audio;
 
-void audio_beep() {
-    audio.beep_active = 1;
-    audio.beep_length = SAMPLES_PER_FRAME;
-}
-
-static void audio_callback(void *userdata, Uint8 *stream, int len) {
-    struct audio *a = (struct audio *) userdata;
-
-    if (a->beep_active && a->beep_length > 0) {
-        for (int i = 0; i < len; i++) {
-            stream[i] = (unsigned char)((AMPLITUDE * sin(a->wave_position)) + BIAS);
-            a->wave_position += a->wave_increment;
-        }
-        a->beep_length -= len;
-        if (a->beep_length <= 0) {
-            a->beep_active = 0;
-        }
-    } else {
-        memset(stream, BIAS, len); // Silence (BIAS value)
-    }
-}
-
 void audio_destroy(void) {
     SDL_PauseAudioDevice(audio.device, 1);
     if (audio.device) SDL_CloseAudioDevice(audio.device);
+    free (audio.audio_buffer);
 }
 
 int audio_initialize(void) {
@@ -43,8 +22,8 @@ int audio_initialize(void) {
     audio.audiospec.format = AUDIO_U8;
     audio.audiospec.channels = 1;
     audio.audiospec.samples = 512;
-    audio.audiospec.callback = audio_callback;
-    audio.audiospec.userdata = &audio;
+    audio.audiospec.callback = NULL;
+    audio.audiospec.userdata = NULL;
 
     const char* drivers[] = {
         "wasapi",
@@ -80,6 +59,29 @@ int audio_initialize(void) {
             return 1;
         }
     }
+
+    /* ~.5 seconds worth of audio (probably overkill) */
+    audio.audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30);
+    if (!audio.audio_buffer) {
+        fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
+        return 1;
+    }
+
     SDL_PauseAudioDevice(audio.device, 0);
     return 0;
+}
+
+static void audio_sine_wave(int length) {
+    for (int i = 0; i < length; i++) {
+        /* sine wave varies from 120 - 134 */
+        audio.audio_buffer[i] = (unsigned char) ((AMPLITUDE * sin(audio.wave_position)) + BIAS);
+        audio.wave_position += audio.wave_increment;
+    }
+}
+
+void audio_beep() {
+    if (SDL_GetQueuedAudioSize(audio.device) < (SAMPLES_PER_FRAME * 2)) {
+        audio_sine_wave(SAMPLES_PER_FRAME);
+        SDL_QueueAudio(audio.device, audio.audio_buffer, SAMPLES_PER_FRAME);
+    }
 }
