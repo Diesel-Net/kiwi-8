@@ -29,7 +29,6 @@ struct input {
 extern struct input input;
 
 /* Input functions */
-void input_initialize();
 void input_reset(void);
 int input_poll(void);
 

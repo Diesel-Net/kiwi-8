@@ -70,13 +70,7 @@ int chip8_initialize(
 
     if (display_initialize(fullscreen)) return 1;
 
-    input_initialize(
-        &display,
-        &chip8.cycles,
-        &chip8.cpu_halt,
-        &chip8.paused,
-        &chip8.muted
-    );
+    input_reset();
 
     /* init registers and memory once */
     memset(chip8.V, 0 , NUM_REGISTERS);

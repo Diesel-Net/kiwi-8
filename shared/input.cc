@@ -2,40 +2,36 @@
 #include "input.h"
 #include "display.h"
 
-/* Forward declarations for static helpers */
-static int input_process_events(void);
-static void input_process_keys(void);
-
-
 /* Global input instance */
 struct input input;
 
-void input_reset(void) {
-    input.awaiting_key_press = 0;
-    memset(input.keys, 0, NUM_KEYS);
-}
+static void input_process_keys(void) {
+    /* map the state of the keys */
+    input.keys[0x1] = input.state[SDL_SCANCODE_1];
+    input.keys[0x2] = input.state[SDL_SCANCODE_2];
+    input.keys[0x3] = input.state[SDL_SCANCODE_3];
+    input.keys[0xC] = input.state[SDL_SCANCODE_4];
+    input.keys[0x4] = input.state[SDL_SCANCODE_Q];
+    input.keys[0x5] = input.state[SDL_SCANCODE_W];
+    input.keys[0x6] = input.state[SDL_SCANCODE_E];
+    input.keys[0xD] = input.state[SDL_SCANCODE_R];
+    input.keys[0x7] = input.state[SDL_SCANCODE_A];
+    input.keys[0x8] = input.state[SDL_SCANCODE_S];
+    input.keys[0x9] = input.state[SDL_SCANCODE_D];
+    input.keys[0xE] = input.state[SDL_SCANCODE_F];
+    input.keys[0xA] = input.state[SDL_SCANCODE_Z];
+    input.keys[0x0] = input.state[SDL_SCANCODE_X];
+    input.keys[0xB] = input.state[SDL_SCANCODE_C];
+    input.keys[0xF] = input.state[SDL_SCANCODE_V];
 
-int input_poll(void) {
-    int response = CONTINUE;
-
-    /* purge any queued events */
-    while (SDL_PollEvent(&input.event)) {
-
-        input.state = SDL_GetKeyboardState(NULL);
-
-        /* check GUI */
-        gui_process_events(&input.event);
-        if (gui.quit_flag) response |= USER_QUIT;
-        if (gui.soft_reset_flag) response |= SOFT_RESET;
-        if (gui.load_rom_flag) response |= LOAD_ROM;
-
-        /* check SDL events (window & hotkeys) */
-        response |= input_process_events();
-
-        /* check chip-8 input */
-        input_process_keys();
+    /* check if cpu is awaiting a keypress for opcode FX0A */
+    if (chip8.cpu_halt && input.awaiting_key_press) {
+        for (int i = 0; i < NUM_KEYS; i++) {
+            if (input.keys[i]) {
+                input.awaiting_key_press = 0;
+            }
+        }
     }
-    return response;
 }
 
 static int input_process_events(void) {
@@ -79,31 +75,30 @@ static int input_process_events(void) {
     return response;
 }
 
-static void input_process_keys(void) {
-    /* map the state of the keys */
-    input.keys[0x1] = input.state[SDL_SCANCODE_1];
-    input.keys[0x2] = input.state[SDL_SCANCODE_2];
-    input.keys[0x3] = input.state[SDL_SCANCODE_3];
-    input.keys[0xC] = input.state[SDL_SCANCODE_4];
-    input.keys[0x4] = input.state[SDL_SCANCODE_Q];
-    input.keys[0x5] = input.state[SDL_SCANCODE_W];
-    input.keys[0x6] = input.state[SDL_SCANCODE_E];
-    input.keys[0xD] = input.state[SDL_SCANCODE_R];
-    input.keys[0x7] = input.state[SDL_SCANCODE_A];
-    input.keys[0x8] = input.state[SDL_SCANCODE_S];
-    input.keys[0x9] = input.state[SDL_SCANCODE_D];
-    input.keys[0xE] = input.state[SDL_SCANCODE_F];
-    input.keys[0xA] = input.state[SDL_SCANCODE_Z];
-    input.keys[0x0] = input.state[SDL_SCANCODE_X];
-    input.keys[0xB] = input.state[SDL_SCANCODE_C];
-    input.keys[0xF] = input.state[SDL_SCANCODE_V];
+void input_reset(void) {
+    input.awaiting_key_press = 0;
+    memset(input.keys, 0, NUM_KEYS);
+}
 
-    /* check if cpu is awaiting a keypress for opcode FX0A */
-    if (chip8.cpu_halt && input.awaiting_key_press) {
-        for (int i = 0; i < NUM_KEYS; i++) {
-            if (input.keys[i]) {
-                input.awaiting_key_press = 0;
-            }
-        }
+int input_poll(void) {
+    int response = CONTINUE;
+
+    /* purge any queued events */
+    while (SDL_PollEvent(&input.event)) {
+
+        input.state = SDL_GetKeyboardState(NULL);
+
+        /* check GUI */
+        gui_process_events(&input.event);
+        if (gui.quit_flag) response |= USER_QUIT;
+        if (gui.soft_reset_flag) response |= SOFT_RESET;
+        if (gui.load_rom_flag) response |= LOAD_ROM;
+
+        /* check SDL events (window & hotkeys) */
+        response |= input_process_events();
+
+        /* check chip-8 input */
+        input_process_keys();
     }
+    return response;
 }
