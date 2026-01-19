@@ -48,9 +48,6 @@ int display_initialize(
     display.foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
     display.foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
 
-    /* initialize gui state */
-    gui_create();
-
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
     /* init the backbuffer */
@@ -119,15 +116,7 @@ int display_initialize(
     glEnable(GL_TEXTURE_2D);
 
     /* setup ImGui binding */
-    gui_initialize(
-        &display,
-        steps,
-        paused,
-        load_store_quirk,
-        shift_quirk,
-        vwrap,
-        muted
-    );
+    gui_initialize();
 
     /* set to fullscreen mode if flag present */
     if (fullscreen) display_toggle_fullscreen();

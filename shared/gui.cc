@@ -11,7 +11,11 @@ static void gui_help_windows(void);
 /* Global gui instance */
 struct gui gui;
 
-void gui_create(void) {
+void gui_cleanup(void) {
+    ImGui_ImplSdl_Shutdown();
+}
+
+void gui_initialize(void) {
     gui.soft_reset_flag = 0;
     gui.load_rom_flag = 0;
     gui.quit_flag = 0;
@@ -22,33 +26,8 @@ void gui_create(void) {
     gui.show_license = 0;
     gui.show_about = 0;
     gui.show_usage = 0;
-}
 
-void gui_cleanup(void) {
-    ImGui_ImplSdl_Shutdown();
-}
-
-void gui_initialize(
-    struct display *display,
-    int *cycles,
-    bool *paused,
-    bool *load_store_quirk,
-    bool *shift_quirk,
-    bool *vwrap,
-    bool *mute
-) {
-
-    gui.display = display;
-
-    /* connect pointers to chip8 toggles */
-    gui.cycles = cycles;
-    gui.paused = paused;
-    gui.load_store_quirk = load_store_quirk;
-    gui.shift_quirk = shift_quirk;
-    gui.vwrap = vwrap;
-    gui.mute = mute;
-
-    ImGui_ImplSdl_Init(display->window);
+    ImGui_ImplSdl_Init(display.window);
 
     /* disable imgui.ini file saving */
     ImGui::GetIO().IniFilename = NULL;
@@ -89,28 +68,28 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("Emulation")) {
                 ImGui::MenuItem("Reset", "F5", &gui.soft_reset_flag);
-                ImGui::MenuItem("Pause", "P", gui.paused);
+                ImGui::MenuItem("Pause", "P", chip8.paused);
 
                 /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
                     ImGui::MenuItem("", "PageDown/PageUp", !!0);
-                    int cpu_frequency = *(gui.cycles) * TICKS;
+                    int cpu_frequency = chip8.cycles * TICKS;
                     ImGui::SliderInt("Hz", &cpu_frequency, TICKS, TICKS * MAX_CYCLES_PER_STEP, "%.f");
-                    *(gui.cycles) = cpu_frequency / TICKS;
-                    before = (*(gui.cycles) == CYCLES_PER_STEP);
+                    chip8.cycles = cpu_frequency / TICKS;
+                    before = (chip8.cycles == CYCLES_PER_STEP);
                     ImGui::MenuItem("Default", "720 Hz", &before);
-                    if (before) *(gui.cycles) = CYCLES_PER_STEP;
+                    if (before) chip8.cycles = CYCLES_PER_STEP;
                     ImGui::EndMenu();
                 }
 
-                ImGui::MenuItem("Load/Store Quirk", NULL, gui.load_store_quirk);
-                ImGui::MenuItem("Shift Quirk", NULL, gui.shift_quirk);
-                ImGui::MenuItem("Vertical Wrapping", NULL, gui.vwrap);
+                ImGui::MenuItem("Load/Store Quirk", NULL, chip8.load_store_quirk);
+                ImGui::MenuItem("Shift Quirk", NULL, chip8.shift_quirk);
+                ImGui::MenuItem("Vertical Wrapping", NULL, chip8.vwrap);
                 ImGui::EndMenu();
             }
 
             if (ImGui::BeginMenu("Settings")) {
-                ImGui::MenuItem("Mute Audio", "M", gui.mute);
+                ImGui::MenuItem("Mute Audio", "M", &chip8.muted);
                 ImGui::MenuItem("60 FPS Limit", NULL, &(display.limit_fps_flag));
 
                 /*
