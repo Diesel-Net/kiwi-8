@@ -22,7 +22,7 @@ int audio_initialize(void) {
     audio.audiospec.freq = FREQUENCY;
     audio.audiospec.format = AUDIO_U8; /* unsigned 8-bit data stream */
     audio.audiospec.channels = 1; /* mono */
-    audio.audiospec.samples = 128; /* must be a power of 2 */
+    audio.audiospec.samples = 2048; /* must be a power of 2 */
     audio.audiospec.callback = NULL;
     audio.audiospec.userdata = NULL;
 
@@ -33,8 +33,8 @@ int audio_initialize(void) {
         "winmm",
         "xaudio2",
         "coreaudio",
-        "pipewire",
         "pulseaudio",
+        "pipewire",
         "jack",
         "alsa",
         "dsp",
@@ -44,12 +44,9 @@ int audio_initialize(void) {
     int driver_found = 0;
     for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
         if (SDL_AudioInit(drivers[i]) == 0) {
-            printf("Successfully initialized audio with driver: %s\n", drivers[i]);
+            fprintf(stdout, "Successfully initialized audio with driver: %s\n", drivers[i]);
             driver_found = 1;
             break;
-        } else {
-            fprintf(stderr, "Warning: Failed to initialize audio with driver %s: %s\n", drivers[i], SDL_GetError());
-        }
     }
 
     if (!driver_found) {
