@@ -8,16 +8,6 @@
 /* Global chip8 instance */
 struct chip8 chip8;
 
-void chip8_create() {
-    chip8.cycles = CYCLES_PER_STEP;
-    chip8.paused = 0;
-    chip8.muted = 0;
-    chip8.vwrap = 1;
-    display_create();
-    chip8.vram = NULL;
-    chip8.rom = NULL;
-}
-
 void chip8_destroy() {
     /* clean-up */
     if (chip8.vram) {
@@ -38,6 +28,12 @@ int chip8_initialize(
     bool vwrap,
     bool muted
 ) {
+    chip8.cycles = CYCLES_PER_STEP;
+    chip8.paused = 0;
+    chip8.muted = 0;
+    chip8.vwrap = 1;
+    chip8.vram = NULL;
+    chip8.rom = NULL;
 
     if (SDL_Init(
         SDL_INIT_TIMER |

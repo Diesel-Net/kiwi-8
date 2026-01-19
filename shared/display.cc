@@ -6,29 +6,6 @@
 /* Global display instance */
 struct display display;
 
-void display_create(void){
-    display.WINDOW_WIDTH = WIDTH * (int)SCALE;
-    display.WINDOW_HEIGHT = HEIGHT * (int)SCALE;
-    display.back_buffer = NULL;
-    display.window = NULL;
-    display.fullscreen_flag = 0;
-    display.vsync_flag = 0;
-    display.limit_fps_flag = 1;
-    display.lost_window_focus = 0;
-
-    /* set rendering colors */
-    display.background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
-    display.background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
-    display.background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
-
-    display.foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
-    display.foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
-    display.foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
-
-    /* initialize gui state */
-    gui_create();
-}
-
 void display_destroy(void){
     /* clean-up */
     if (display.back_buffer) {
@@ -52,6 +29,27 @@ int display_initialize(
     bool *vwrap,
     bool *muted
 ) {
+
+    display.WINDOW_WIDTH = WIDTH * (int)SCALE;
+    display.WINDOW_HEIGHT = HEIGHT * (int)SCALE;
+    display.back_buffer = NULL;
+    display.window = NULL;
+    display.fullscreen_flag = 0;
+    display.vsync_flag = 0;
+    display.limit_fps_flag = 1;
+    display.lost_window_focus = 0;
+
+    /* set rendering colors */
+    display.background_color[0] = (float) DEFAULT_BACKGROUND_R / (float) 0xFF;
+    display.background_color[1] = (float) DEFAULT_BACKGROUND_G / (float) 0xFF;
+    display.background_color[2] = (float) DEFAULT_BACKGROUND_B / (float) 0xFF;
+
+    display.foreground_color[0] = (float) DEFAULT_FOREGROUND_R / (float) 0xFF;
+    display.foreground_color[1] = (float) DEFAULT_FOREGROUND_G / (float) 0xFF;
+    display.foreground_color[2] = (float) DEFAULT_FOREGROUND_B / (float) 0xFF;
+
+    /* initialize gui state */
+    gui_create();
 
     int window_mode = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
 
