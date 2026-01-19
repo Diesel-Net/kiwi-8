@@ -22,7 +22,7 @@ int audio_initialize(void) {
     audio.audiospec.freq = FREQUENCY;
     audio.audiospec.format = AUDIO_U8; /* unsigned 8-bit data stream */
     audio.audiospec.channels = 1; /* mono */
-    audio.audiospec.samples = 2048; /* must be a power of 2 */
+    audio.audiospec.samples = 128; /* must be a power of 2 */
     audio.audiospec.callback = NULL;
     audio.audiospec.userdata = NULL;
 
