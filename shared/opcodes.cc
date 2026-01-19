@@ -255,8 +255,8 @@ inline void execFX1E() {
     /* FX1E: adds VX to I
        VF is set to 1 when range overflow (I+VX>0xFFF),
        and 0 when there isn't. */
-    unsigned short sum;
-    sum = chip8.I + chip8.V[OP_X];
+    ///unsigned short sum;
+    //sum = chip8.I + chip8.V[OP_X];
 
     // TODO: Add quirk toggle for this behavior
     // Commented out to fix compatibility issues with: AnimalRace
