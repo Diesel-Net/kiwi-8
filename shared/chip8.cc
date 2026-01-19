@@ -40,11 +40,10 @@ int chip8_initialize(
 ) {
 
     if (SDL_Init(
-            SDL_INIT_TIMER |
-            SDL_INIT_VIDEO |
-            SDL_INIT_EVENTS
-        )
-    ) {
+        SDL_INIT_TIMER |
+        SDL_INIT_VIDEO |
+        SDL_INIT_EVENTS
+    )) {
         printf("Error: %s\n", SDL_GetError());
         return 1;
     }
@@ -71,21 +70,17 @@ int chip8_initialize(
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    /* init audio, display, input */
-    /* set up audio wave parameters before starting device */
-    audio_create();
     audio_initialize();
 
     if (display_initialize(
-            fullscreen,
-            &chip8.cycles,
-            &chip8.paused,
-            &chip8.load_store_quirk,
-            &chip8.shift_quirk,
-            &chip8.vwrap,
-            &chip8.muted
-        )
-    ) return 1;
+        fullscreen,
+        &chip8.cycles,
+        &chip8.paused,
+        &chip8.load_store_quirk,
+        &chip8.shift_quirk,
+        &chip8.vwrap,
+        &chip8.muted
+    )) return 1;
 
     input_initialize(
         &display,

@@ -16,13 +16,12 @@ struct audio {
 
     double wave_position;
     double wave_increment;
+
+    int beep_active;
+    int beep_length;
 };
 
-/* Global audio instance */
-extern struct audio audio;
-
 /* Audio functions */
-void audio_create(void);
 void audio_destroy(void);
 int audio_initialize(void);
 void audio_beep(int length);

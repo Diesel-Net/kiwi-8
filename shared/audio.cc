@@ -3,32 +3,24 @@
 #include <SDL2/SDL_audio.h>
 #include <math.h>
 
-/* Global audio instance */
+/* audio instance */
 struct audio audio;
 
-static int beep_active = 0;
-static int beep_length = 0;
-
 static void audio_callback(void *userdata, Uint8 *stream, int len) {
-    if (beep_active && beep_length > 0) {
+    struct audio *a = (struct audio *) userdata;
+
+    if (a->beep_active && a->beep_length > 0) {
         for (int i = 0; i < len; i++) {
-            stream[i] = (unsigned char)((AMPLITUDE * sin(audio.wave_position)) + BIAS);
-            audio.wave_position += audio.wave_increment;
+            stream[i] = (unsigned char)((AMPLITUDE * sin(a->wave_position)) + BIAS);
+            a->wave_position += a->wave_increment;
         }
-        beep_length -= len;
-        if (beep_length <= 0) {
-            beep_active = 0;
+        a->beep_length -= len;
+        if (a->beep_length <= 0) {
+            a->beep_active = 0;
         }
     } else {
         memset(stream, BIAS, len); // Silence (BIAS value)
     }
-}
-
-void audio_create(void) {
-    audio.wave_position = 0;
-    audio.wave_increment = ((double) TONE * (2.0 * M_PI)) / (double) FREQUENCY;
-    beep_active = 0;
-    beep_length = 0;
 }
 
 void audio_destroy(void) {
@@ -37,12 +29,17 @@ void audio_destroy(void) {
 }
 
 int audio_initialize(void) {
+    audio.wave_position = 0;
+    audio.wave_increment = ((double) TONE * (2.0 * M_PI)) / (double) FREQUENCY;
+    audio.beep_active = 0;
+    audio.beep_length = 0;
+
     audio.audiospec.freq = FREQUENCY;
     audio.audiospec.format = AUDIO_U8;
     audio.audiospec.channels = 1;
     audio.audiospec.samples = 512;
     audio.audiospec.callback = audio_callback;
-    audio.audiospec.userdata = NULL;
+    audio.audiospec.userdata = &audio;
 
     const char* drivers[] = {
         "wasapi", "directsound", "winmm", "xaudio2", "coreaudio", "pulseaudio", "pipewire", "jack", "alsa", "dsp", "dummy",
@@ -73,6 +70,6 @@ int audio_initialize(void) {
 }
 
 void audio_beep(int length) {
-    beep_active = 1;
-    beep_length = length;
+    audio.beep_active = 1;
+    audio.beep_length = length;
 }
