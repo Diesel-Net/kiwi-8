@@ -124,8 +124,6 @@ struct chip8 {
 /* Global chip8 instance */
 extern struct chip8 chip8;
 
-/* Chip8 functions */
-void chip8_create(void);
 void chip8_destroy(void);
 int chip8_initialize(
     bool fullscreen,
@@ -180,4 +178,5 @@ void execFX33(void);
 void execFX55(void);
 void execFX65(void);
 void execUnknown(void);
+
 #endif

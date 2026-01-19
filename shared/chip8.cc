@@ -68,7 +68,7 @@ int chip8_initialize(
 
     audio_initialize();
 
-    if (display_initialize(fullscreen)) return 1;
+    if (display_init(fullscreen)) return 1;
 
     input_reset();
 
@@ -231,7 +231,7 @@ void chip8_run(){
             chip8_step_cpu(chip8.cycles);
 
             /* update Audio */
-            if (chip8.sound_timer > 0 && !chip8.muted) audio_beep(SAMPLES_PER_FRAME);
+            if (chip8.sound_timer > 0 && !chip8.muted) audio_beep();
 
             /* check internal timers */
             chip8_update_timers();

@@ -4,8 +4,12 @@
 #include <SDL2/SDL_audio.h>
 #include <math.h>
 
-/* audio instance */
 struct audio audio;
+
+void audio_beep() {
+    audio.beep_active = 1;
+    audio.beep_length = SAMPLES_PER_FRAME;
+}
 
 static void audio_callback(void *userdata, Uint8 *stream, int len) {
     struct audio *a = (struct audio *) userdata;
@@ -43,7 +47,17 @@ int audio_initialize(void) {
     audio.audiospec.userdata = &audio;
 
     const char* drivers[] = {
-        "wasapi", "directsound", "winmm", "xaudio2", "coreaudio", "pulseaudio", "pipewire", "jack", "alsa", "dsp", "dummy",
+        "wasapi",
+        "directsound",
+        "winmm",
+        "xaudio2",
+        "coreaudio",
+        "pulseaudio",
+        "pipewire",
+        "jack",
+        "alsa",
+        "dsp",
+        "dummy",
     };
     int driver_found = 0;
     for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
@@ -68,9 +82,4 @@ int audio_initialize(void) {
     }
     SDL_PauseAudioDevice(audio.device, 0);
     return 0;
-}
-
-void audio_beep(int length) {
-    audio.beep_active = 1;
-    audio.beep_length = length;
 }

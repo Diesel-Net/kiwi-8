@@ -4,42 +4,107 @@
 #include "license.h" // Generated at build time from LICENSE
 #include <stdio.h>
 
-/* Forward declarations for static helpers */
-static void gui_main_menu(void);
-static void gui_help_windows(void);
+static void gui_help_windows(void) {
+    if (gui.show_usage) {
+        ImGui::SetNextWindowSize(ImVec2(270, 150), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("Usage", &gui.show_usage);
 
-/* Global gui instance */
-struct gui gui;
+        ImGui::TextWrapped(
+            "Alternatively, you may launch Kiwi8\n"
+            "from the command line.\n"
+            "\n"
+            "Usage: Kiwi8 [filename] [-FMLSV]\n"
+            "-F      Launch in fullscreen\n"
+            "-M      Launch with audio muted\n"
+            "-L      Disable load/store quirk\n"
+            "-S      Disable shift quirk\n"
+            "-V      Disable vertical wrapping"
+        );
 
-void gui_cleanup(void) {
-    ImGui_ImplSdl_Shutdown();
-}
+        ImGui::End();
+    }
+    if (gui.show_controls) {
+        ImGui::SetNextWindowSize(ImVec2(345, 245), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("Controls", &gui.show_controls);
 
-void gui_initialize(void) {
-    gui.soft_reset_flag = 0;
-    gui.load_rom_flag = 0;
-    gui.quit_flag = 0;
-    gui.show_menu_flag = 1;
-    gui.show_fps_flag = 0;
+        ImGui::TextWrapped(
+            "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
+            "\n"
+            "controls:       <-->        keybindings:\n"
+            "1 2 3 C                     1 2 3 4\n"
+            "4 5 6 D                     q w e r\n"
+            "7 8 9 E                     a s d f\n"
+            "A 0 B F                     z x c v\n"
+            "increase speed              page up\n"
+            "decrease speed              page down\n"
+            "quit                        esc\n"
+            "toggle fullscreen           enter\n"
+            "toggle menu                 left alt\n"
+            "show fps                    right alt\n"
+            "soft reset                  f5\n"
+            "pause                       p\n"
+            "mute                        m"
+        );
 
-    gui.show_controls = 0;
-    gui.show_license = 0;
-    gui.show_about = 0;
-    gui.show_usage = 0;
+        ImGui::End();
+    }
+    if (gui.show_license) {
+        ImGui::SetNextWindowSize(ImVec2(550, 245), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("License", &gui.show_license);
 
-    ImGui_ImplSdl_Init(display.window);
+        ImGui::TextWrapped("%s", LICENSE_TEXT);
 
-    /* disable imgui.ini file saving */
-    ImGui::GetIO().IniFilename = NULL;
-}
+        ImGui::End();
+    }
+    if (gui.show_about) {
+        ImGui::SetNextWindowSize(ImVec2(350, 140), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
+        ImGui::Begin("About", &gui.show_about);
 
-void gui_process_events(SDL_Event *event) {
-    ImGui_ImplSdl_ProcessEvent(event);
-}
+        ImGui::TextWrapped(
+            APP_NAME " " VERSION " (" SUB_VERSION ")\n"
+            BUILD_OS " " BUILD_ARCH "\n"
+            "\n"
+            "A cross-platform Chip-8 interpreter written\n"
+            "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
+            "\n"
+            "<https://github.com/Diesel-Net/kiwi-8>\n"
+        );
 
-void gui_new_frame(void) {
-    ImGui_ImplSdl_NewFrame(display.window);
-    gui_main_menu();
+        ImGui::End();
+    }
+    if (gui.show_fps_flag) {
+        if (gui.show_menu_flag) {
+            ImGui::SetNextWindowPos(ImVec2(1, 21));
+        } else {
+            ImGui::SetNextWindowPos(ImVec2(1, 2));
+        }
+        if (!ImGui::Begin(
+                "FPS",
+                &gui.show_fps_flag,
+                ImVec2(0, 0),
+                0.3f,
+                ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoMove |
+                ImGuiWindowFlags_NoSavedSettings
+            )
+        ) {
+            ImGui::End();
+            return;
+        }
+
+        ImGui::Text(
+            "%.1f FPS (%.3f ms/frame)",
+            ImGui::GetIO().Framerate,
+            1000.0f / ImGui::GetIO().Framerate
+        );
+
+        ImGui::End();
+    }
 }
 
 static void gui_main_menu(void) {
@@ -147,107 +212,38 @@ static void gui_main_menu(void) {
     gui_help_windows();
 }
 
-static void gui_help_windows(void) {
-    if (gui.show_usage) {
-        ImGui::SetNextWindowSize(ImVec2(270, 150), ImGuiSetCond_Appearing);
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("Usage", &gui.show_usage);
+/* Global gui instance */
+struct gui gui;
 
-        ImGui::TextWrapped(
-            "Alternatively, you may launch Kiwi8\n"
-            "from the command line.\n"
-            "\n"
-            "Usage: Kiwi8 [filename] [-FMLSV]\n"
-            "-F      Launch in fullscreen\n"
-            "-M      Launch with audio muted\n"
-            "-L      Disable load/store quirk\n"
-            "-S      Disable shift quirk\n"
-            "-V      Disable vertical wrapping"
-        );
+void gui_cleanup(void) {
+    ImGui_ImplSdl_Shutdown();
+}
 
-        ImGui::End();
-    }
-    if (gui.show_controls) {
-        ImGui::SetNextWindowSize(ImVec2(345, 245), ImGuiSetCond_Appearing);
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("Controls", &gui.show_controls);
+void gui_init(void) {
+    gui.soft_reset_flag = 0;
+    gui.load_rom_flag = 0;
+    gui.quit_flag = 0;
+    gui.show_menu_flag = 1;
+    gui.show_fps_flag = 0;
 
-        ImGui::TextWrapped(
-            "The Chip-8 uses a 16 digit hexadecimal keypad.\n"
-            "\n"
-            "controls:       <-->        keybindings:\n"
-            "1 2 3 C                     1 2 3 4\n"
-            "4 5 6 D                     q w e r\n"
-            "7 8 9 E                     a s d f\n"
-            "A 0 B F                     z x c v\n"
-            "increase speed              page up\n"
-            "decrease speed              page down\n"
-            "quit                        esc\n"
-            "toggle fullscreen           enter\n"
-            "toggle menu                 left alt\n"
-            "show fps                    right alt\n"
-            "soft reset                  f5\n"
-            "pause                       p\n"
-            "mute                        m"
-        );
+    gui.show_controls = 0;
+    gui.show_license = 0;
+    gui.show_about = 0;
+    gui.show_usage = 0;
 
-        ImGui::End();
-    }
-    if (gui.show_license) {
-        ImGui::SetNextWindowSize(ImVec2(550, 245), ImGuiSetCond_Appearing);
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("License", &gui.show_license);
+    ImGui_ImplSdl_Init(display.window);
 
-        ImGui::TextWrapped("%s", LICENSE_TEXT);
+    /* disable imgui.ini file saving */
+    ImGui::GetIO().IniFilename = NULL;
+}
 
-        ImGui::End();
-    }
-    if (gui.show_about) {
-        ImGui::SetNextWindowSize(ImVec2(350, 140), ImGuiSetCond_Appearing);
-        ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
-        ImGui::Begin("About", &gui.show_about);
+void gui_process_events(SDL_Event *event) {
+    ImGui_ImplSdl_ProcessEvent(event);
+}
 
-        ImGui::TextWrapped(
-            APP_NAME " " VERSION " (" SUB_VERSION ")\n"
-            BUILD_OS " " BUILD_ARCH "\n"
-            "\n"
-            "A cross-platform Chip-8 interpreter written\n"
-            "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
-            "\n"
-            "<https://github.com/Diesel-Net/kiwi-8>\n"
-        );
-
-        ImGui::End();
-    }
-    if (gui.show_fps_flag) {
-        if (gui.show_menu_flag) {
-            ImGui::SetNextWindowPos(ImVec2(1, 21));
-        } else {
-            ImGui::SetNextWindowPos(ImVec2(1, 2));
-        }
-        if (!ImGui::Begin(
-                "FPS",
-                &gui.show_fps_flag,
-                ImVec2(0, 0),
-                0.3f,
-                ImGuiWindowFlags_NoTitleBar |
-                ImGuiWindowFlags_NoResize |
-                ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoSavedSettings
-            )
-        ) {
-            ImGui::End();
-            return;
-        }
-
-        ImGui::Text(
-            "%.1f FPS (%.3f ms/frame)",
-            ImGui::GetIO().Framerate,
-            1000.0f / ImGui::GetIO().Framerate
-        );
-
-        ImGui::End();
-    }
+void gui_new_frame(void) {
+    ImGui_ImplSdl_NewFrame(display.window);
+    gui_main_menu();
 }
 
 void gui_render(void) {

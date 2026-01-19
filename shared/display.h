@@ -42,12 +42,10 @@ struct display {
     SDL_Window *window;
 };
 
-/* Global display instance */
 extern struct display display;
 
-/* Display functions */
 void display_destroy(void);
-int display_initialize(bool fullscreen);
+int display_init(bool fullscreen);
 void display_resize(int x, int y);
 void display_toggle_fullscreen(void);
 void display_toggle_vsync(void);

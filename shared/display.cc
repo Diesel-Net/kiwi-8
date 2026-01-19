@@ -21,7 +21,7 @@ void display_destroy(void){
 }
 
 
-int display_initialize(bool fullscreen) {
+int display_init(bool fullscreen) {
 
     display.WINDOW_WIDTH = WIDTH * (int)SCALE;
     display.WINDOW_HEIGHT = HEIGHT * (int)SCALE;
@@ -109,7 +109,7 @@ int display_initialize(bool fullscreen) {
     glEnable(GL_TEXTURE_2D);
 
     /* setup ImGui binding */
-    gui_initialize();
+    gui_init();
 
     /* set to fullscreen mode if flag present */
     if (fullscreen) display_toggle_fullscreen();

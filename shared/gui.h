@@ -30,7 +30,7 @@ extern struct gui gui;
 
 /* Gui functions */
 void gui_cleanup(void);
-void gui_initialize(void);
+void gui_init(void);
 void gui_process_events(SDL_Event *event);
 void gui_new_frame(void);
 void gui_render(void);
