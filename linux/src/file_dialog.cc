@@ -58,6 +58,9 @@ std::vector<std::string> openFileDialog(const std::string &title, const std::str
         }
     }
 
+    // Hide dialog and process pending events before destroying
+    gtk_widget_hide(dialog);
+    while (gtk_events_pending()) gtk_main_iteration();
     gtk_widget_destroy(dialog);
 
     return result;
