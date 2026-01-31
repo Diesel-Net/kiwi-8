@@ -231,7 +231,11 @@ void chip8_run(){
             chip8_step_cpu(chip8.cycles);
 
             /* update Audio */
-            if (chip8.sound_timer > 0 && !chip8.muted) audio_beep();
+            if (chip8.sound_timer > 0 && !chip8.muted) {
+                audio.beep_active = 1;
+            } else {
+                audio.beep_active = 0;
+            }
 
             /* check internal timers */
             chip8_update_timers();

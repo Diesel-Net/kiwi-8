@@ -1,29 +1,49 @@
 #include "audio.h"
 #include <stdio.h>
 #include <string.h>
-#include <SDL2/SDL_audio.h>
 #include <math.h>
+#include <SDL2/SDL_audio.h>
 
 struct audio audio;
 
 void audio_destroy(void) {
     SDL_PauseAudioDevice(audio.device, 1);
     if (audio.device) SDL_CloseAudioDevice(audio.device);
-    free (audio.audio_buffer);
 }
 
-int audio_initialize(void) {
-    audio.wave_position = 0;
-    audio.wave_increment = ((double) TONE * (2.0 * M_PI)) / (double) FREQUENCY;
-    audio.beep_active = 0;
-    audio.beep_length = 0;
+void audio_callback(void* userdata, Uint8* stream, int length) {
+    struct audio *audio = (struct audio *)userdata;
 
-    audio.audiospec.freq = FREQUENCY;
-    audio.audiospec.format = AUDIO_U8;
-    audio.audiospec.channels = 1;
-    audio.audiospec.samples = 1024;
-    audio.audiospec.callback = NULL;
-    audio.audiospec.userdata = NULL;
+    Sint16* samples = (Sint16*)stream;
+    int sample_count = length / sizeof(Sint16);
+
+    if (audio->beep_active) {
+        for (int i = 0; i < sample_count; ++i) {
+            // Generate a square wave: high for phase < PI, low for phase >= PI
+            double value = (audio->phase < M_PI) ? 1.0 : -1.0;
+            samples[i] = (Sint16)(value * AMPLITUDE);
+            audio->phase += audio->phase_increment;
+            if (audio->phase >= TAU) {
+                audio->phase -= TAU;
+            }
+        }
+    } else {
+        memset(stream, 0, length); // silence
+    }
+}
+
+
+int audio_initialize(void) {
+    audio.phase = 0.0;
+    audio.phase_increment = TAU * TONE / SAMPLE_RATE;
+    audio.beep_active = 0;
+
+    audio.audiospec.freq = SAMPLE_RATE;
+    audio.audiospec.format = AUDIO_S16SYS; // Use signed 16-bit system endian format
+    audio.audiospec.channels = 1; // mono
+    audio.audiospec.samples = 128; // buffer size (lower: lower latency)
+    audio.audiospec.callback = audio_callback;
+    audio.audiospec.userdata = &audio;
 
     const char* drivers[] = {
         "wasapi",
@@ -59,29 +79,6 @@ int audio_initialize(void) {
             return 1;
         }
     }
-
-    /* ~.5 seconds worth of audio (probably overkill) */
-    audio.audio_buffer = (unsigned char *)malloc(SAMPLES_PER_FRAME * 30);
-    if (!audio.audio_buffer) {
-        fprintf(stderr, "Unable to allocate memory for audio buffer.\n");
-        return 1;
-    }
-
     SDL_PauseAudioDevice(audio.device, 0);
     return 0;
-}
-
-static void audio_sine_wave(int length) {
-    for (int i = 0; i < length; i++) {
-        /* sine wave varies from 120 - 134 */
-        audio.audio_buffer[i] = (unsigned char) ((AMPLITUDE * sin(audio.wave_position)) + BIAS);
-        audio.wave_position += audio.wave_increment;
-    }
-}
-
-void audio_beep() {
-    if (SDL_GetQueuedAudioSize(audio.device) < (SAMPLES_PER_FRAME * 2)) {
-        audio_sine_wave(SAMPLES_PER_FRAME);
-        SDL_QueueAudio(audio.device, audio.audio_buffer, SAMPLES_PER_FRAME);
-    }
 }
