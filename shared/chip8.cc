@@ -281,6 +281,7 @@ void chip8_step_cpu(int cycles){
 void chip8_fetch_opcode() {
     /* fetch two bytes while being careful of byte alignment */
     chip8.opcode = chip8.memory[chip8.PC] << 8 | chip8.memory[chip8.PC + 1];
+    chip8.PC += 2;
 }
 
 void chip8_execute_opcode(){
