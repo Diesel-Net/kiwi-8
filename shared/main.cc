@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "usage.h"
 #include <string.h>
+#include <stdio.h>
 
 #ifdef _WIN32
 #include "../windows/src/resource.h" /* window icon */
@@ -11,14 +12,14 @@ int main(int argc, char **argv){
     /* defaults */
     bool fullscreen = 0;
     struct quirks quirks = {
-        .load_store_quirk = 1,
-        .shift_quirk = 1,
-        .jump_quirk = 0,
-        .logic_vf_quirk = 0,
-        .i_overflow_quirk = 0,
-        .draw_flag_quirk = 0,
-        .vwrap = 1,
-        .hwrap = 0
+        1, // load_store_quirk
+        1, // shift_quirk
+        0, // jump_quirk
+        0, // logic_vf_quirk
+        0, // i_overflow_quirk
+        0, // draw_flag_quirk
+        1, // vwrap
+        0  // hwrap
     };
     bool muted = 0;
 
@@ -43,7 +44,7 @@ int main(int argc, char **argv){
             }
         }
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            printf("%s", USAGE_TEXT);
+            fprintf(stderr, "%s", USAGE_TEXT);
             return 0;
         }
     }
