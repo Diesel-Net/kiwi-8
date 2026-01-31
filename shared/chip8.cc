@@ -23,15 +23,12 @@ void chip8_destroy() {
 
 int chip8_initialize(
     bool fullscreen,
-    bool load_store_quirk,
-    bool shift_quirk,
-    bool vwrap,
+    struct quirks quirks,
     bool muted
 ) {
     chip8.cycles = CYCLES_PER_STEP;
     chip8.paused = 0;
     chip8.muted = 0;
-    chip8.vwrap = 1;
     chip8.vram = NULL;
     chip8.rom = NULL;
 
@@ -44,9 +41,7 @@ int chip8_initialize(
         return 1;
     }
 
-    chip8.load_store_quirk = load_store_quirk;
-    chip8.shift_quirk = shift_quirk;
-    chip8.vwrap = vwrap;
+    chip8.quirks = quirks;
     chip8.muted = muted;
 
     /* init vram */

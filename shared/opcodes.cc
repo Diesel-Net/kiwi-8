@@ -85,18 +85,21 @@ inline void exec8XY0() {
 inline void exec8XY1() {
     /* 0x8XY1: sets VX to VX or VY */
     chip8.V[OP_X] |= chip8.V[OP_Y];
+    if (chip8.quirks.logic_vf_quirk) chip8.V[0xF] = 0;
     chip8.PC += 2;
 }
 
 inline void exec8XY2() {
     /* 0x8XY2: sets VX to VX and VY */
     chip8.V[OP_X] &= chip8.V[OP_Y];
+    if (chip8.quirks.logic_vf_quirk) chip8.V[0xF] = 0;
     chip8.PC += 2;
 }
 
 inline void exec8XY3() {
     /* 0x8XY3: sets VX to VX xor VY */
     chip8.V[OP_X] ^= chip8.V[OP_Y];
+    if (chip8.quirks.logic_vf_quirk) chip8.V[0xF] = 0;
     chip8.PC += 2;
 }
 
@@ -124,7 +127,7 @@ inline void exec8XY6() {
     /*  0x8XY6: shifts VX right by one. VF is set to the value
         of the least significant bit of VX before the shift. */
     chip8.V[0xF] = chip8.V[OP_X] & 0x01;
-    chip8.shift_quirk ? chip8.V[OP_X] >>= 1 : chip8.V[OP_X] = chip8.V[OP_Y] >> 1;
+    chip8.quirks.shift_quirk ? chip8.V[OP_X] >>= 1 : chip8.V[OP_X] = chip8.V[OP_Y] >> 1;
     chip8.PC += 2;
 }
 inline void exec8XY7() {
@@ -138,7 +141,7 @@ inline void exec8XYE() {
     /* 0x8XYE: shifts VX left by one. VF is set to the value of
        the most significant bit of VX before the shift. */
     chip8.V[0xF] = (chip8.V[OP_X] & 0x80) >> 7;
-    chip8.shift_quirk ? chip8.V[OP_X] <<= 1 : chip8.V[OP_X] = chip8.V[OP_Y] << 1;
+    chip8.quirks.shift_quirk ? chip8.V[OP_X] <<= 1 : chip8.V[OP_X] = chip8.V[OP_Y] << 1;
     chip8.PC += 2;
 }
 
@@ -153,8 +156,8 @@ inline void execANNN() {
     chip8.PC += 2;
 }
 inline void execBNNN() {
-    /* BNNN: jumps to the address NNN plus V0 */
-    chip8.PC = OP_NNN + chip8.V[0];
+    /* BNNN: jumps to the address NNN plus V0 or VX (quirk) */
+    chip8.PC = OP_NNN + (chip8.quirks.jump_quirk ? chip8.V[OP_X] : chip8.V[0]);
 }
 inline void execCXNN() {
     /* CXNN: sets VX to the result of a bitwise
@@ -177,26 +180,12 @@ inline void execDXYN() {
 
     for (unsigned char yline = 0; yline < height; yline++) {
         pixel = chip8.memory[chip8.I + yline];
-
         for(unsigned char xline = 0; xline < 8; xline++) {
             if((pixel & (0x80 >> xline)) != 0) {
-
-                /* note: Blitz - David Winter
-                   has sprites with one too many vertical pixel so it ends up
-                   wrapping to the top of the screen if you (y % HEIGHT) */
-                unsigned char true_x = (x + xline) % WIDTH;
-                unsigned char true_y = (y + yline);
-
-                if(chip8.vwrap) true_y = true_y % HEIGHT;
-
-                /* OOB check is needed when vwrap is turned off
-                   so some poorly written games won't crash */
-                if (true_x < WIDTH && true_y < HEIGHT) {
-
-                    /* collision */
+                unsigned char true_x = chip8.quirks.hwrap ? (x + xline) % WIDTH : (x + xline);
+                unsigned char true_y = chip8.quirks.vwrap ? (y + yline) % HEIGHT : (y + yline);
+                if ((chip8.quirks.hwrap || true_x < WIDTH) && (chip8.quirks.vwrap || true_y < HEIGHT)) {
                     if(chip8.vram[true_x][true_y] == 1) chip8.V[0xF] = 1;
-
-                    /* toggle the pixel */
                     chip8.vram[true_x][true_y] ^= 1;
                 }
             }
@@ -263,7 +252,13 @@ inline void execFX1E() {
     //if (sum > 0xFFF) chip8.V[0xF] = 1;
     //else chip8.V[0xF] = 0;
 
-    chip8.I += chip8.V[OP_X];
+    if (chip8.quirks.i_overflow_quirk) {
+        unsigned short sum = chip8.I + chip8.V[OP_X];
+        chip8.I = sum;
+        chip8.V[0xF] = (sum > 0xFFF) ? 1 : 0;
+    } else {
+        chip8.I += chip8.V[OP_X];
+    }
     chip8.PC += 2;
 }
 
@@ -291,7 +286,7 @@ inline void execFX55() {
 
     /* on the original interpreter, when the operation is done,
        I = I + X + 1. */
-    if (!chip8.load_store_quirk) chip8.I += OP_X + 1;
+    if (!chip8.quirks.load_store_quirk) chip8.I += OP_X + 1;
     chip8.PC += 2;
 }
 
@@ -303,7 +298,7 @@ inline void execFX65() {
 
     /* on the original interpreter, when the operation is done,
        I = I + X + 1. */
-    if (!chip8.load_store_quirk) chip8.I += OP_X + 1;
+    if (!chip8.quirks.load_store_quirk) chip8.I += OP_X + 1;
     chip8.PC += 2;
 }
 
