@@ -68,7 +68,7 @@ jobs:
       - name: Create Windows release archive
         shell: powershell
         run: |
-          Compress-Archive -Path * -DestinationPath Kiwi8-${{ github.ref_name }}-Windows-${{ matrix.arch }}.zip
+          Compress-Archive -Path Kiwi8.exe, SDL2.dll -DestinationPath Kiwi8-${{ github.ref_name }}-Windows-${{ matrix.arch }}.zip
 
       - name: Upload Windows build to Release
         uses: softprops/action-gh-release@v2
@@ -94,7 +94,7 @@ jobs:
 
       - name: Create Linux release archive
         run: |
-          tar czf Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}.tar.gz -C .
+          tar czf Kiwi8-${{ github.ref_name }}-Debian-${{ matrix.arch }}.tar.gz Kiwi8 libSDL2-2.0.so.0
 
       - name: Upload Linux build to Release
         uses: softprops/action-gh-release@v2
