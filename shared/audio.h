@@ -3,29 +3,26 @@
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>
+#include <math.h>
 
-#define FREQUENCY 48000
-#define TONE 440
-#define AMPLITUDE 7
-#define BIAS 127
-#define SAMPLES_PER_FRAME ((FREQUENCY / 60) * 3)
+#define TAU (2.0 * M_PI)
+#define AMPLITUDE 28000 // Max amplitude for signed 16-bit
+#define SAMPLE_RATE 48000
+#define TONE 440.0 // Frequency of the beep (e.g., A4 note)
+
 
 struct audio {
     SDL_AudioSpec audiospec;
     SDL_AudioDeviceID device;
 
-    unsigned char *audio_buffer;
-
-    double wave_position;
-    double wave_increment;
+    double phase;
+    double phase_increment;
 
     int beep_active;
-    int beep_length;
 };
 
 extern struct audio audio;
 
-void audio_beep(void);
 void audio_destroy(void);
 int audio_initialize(void);
 
