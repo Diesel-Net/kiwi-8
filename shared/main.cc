@@ -11,6 +11,7 @@ int main(int argc, char **argv){
 
     /* defaults */
     bool fullscreen = 0;
+    bool muted = 0;
     struct quirks quirks = {
         1, // load_store_quirk
         1, // shift_quirk
@@ -21,7 +22,6 @@ int main(int argc, char **argv){
         1, // vwrap
         0  // hwrap
     };
-    bool muted = 0;
 
     /* parse and set any options present */
     for (int i = 1; i < argc; i++){
@@ -56,9 +56,9 @@ int main(int argc, char **argv){
         muted
     )) return 1;
 
-    /* load ROM from argument vector */
-    if (argc >= 2 && *argv[1] != '-') {
-        if (chip8_load(argv[1])) return 1;
+    /* load ROM from the last non-option argument */
+    if (argc > 1 && argv[argc-1][0] != '-') {
+        if (chip8_load(argv[argc-1])) return 1;
     }
 
     chip8_run();
