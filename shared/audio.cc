@@ -41,7 +41,7 @@ int audio_initialize(void) {
     audio.audiospec.freq = SAMPLE_RATE;
     audio.audiospec.format = AUDIO_S16SYS; // Use signed 16-bit system endian format
     audio.audiospec.channels = 1; // mono
-    audio.audiospec.samples = 128; // buffer size (lower: lower latency)
+    audio.audiospec.samples = 256; // buffer size (lower: lower latency)
     audio.audiospec.callback = audio_callback;
     audio.audiospec.userdata = &audio;
 

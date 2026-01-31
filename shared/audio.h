@@ -7,7 +7,7 @@
 
 #define TAU (2.0 * M_PI)
 #define AMPLITUDE 28000 // Max amplitude for signed 16-bit
-#define SAMPLE_RATE 44100 // Standard CD quality sample rate in Hz
+#define SAMPLE_RATE 48000
 #define TONE 440.0 // Frequency of the beep (e.g., A4 note)
 
 
