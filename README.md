@@ -49,12 +49,19 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Usage
 
-    Kiwi8 [filename] [-FMLSV]
-    -F      Launch in fullscreen
-    -M      Launch with audio muted
-    -L      Disable load/store quirk
-    -S      Disable shift quirk
-    -V      Disable vertical wrapping
+      Kiwi8 [options] [rom]
+      Options:
+         -F    Fullscreen
+         -M    Mute audio
+         -L    Disable load/store quirk
+         -S    Disable shift quirk
+         -V    Disable vertical wrapping
+         -H    Enable horizontal wrapping (DXYN)
+         -J    Enable jump with VX offset (BNNN)
+         -G    Enable logic ops VF=0 (8XY1/2/3)
+         -I    Enable I+VX overflow quirk (FX1E)
+         -D    Enable draw flag reset quirk
+         -h, --help  Show this help message
 
 ## Building on Windows
 
