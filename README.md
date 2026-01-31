@@ -49,12 +49,19 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Usage
 
-    Kiwi8 [filename] [-FMLSV]
-    -F      Launch in fullscreen
-    -M      Launch with audio muted
-    -L      Disable load/store quirk
-    -S      Disable shift quirk
-    -V      Disable vertical wrapping
+      Kiwi8 [options] [rom]
+      Options:
+         -F    Fullscreen
+         -M    Mute audio
+         -L    Disable load/store quirk
+         -S    Disable shift quirk
+         -V    Disable vertical wrapping
+         -H    Enable horizontal wrapping (DXYN)
+         -J    Enable jump with VX offset (BNNN)
+         -G    Enable logic ops VF=0 (8XY1/2/3)
+         -I    Enable I+VX overflow quirk (FX1E)
+         -D    Enable draw flag reset quirk
+         -h, --help  Show this help message
 
 ## Building on Windows
 
@@ -142,17 +149,4 @@ sudo apt install libgtk-3-dev xorg-dev libgl1-mesa-dev libasound2-dev libpulse-d
 - [SDL Wiki](https://wiki.libsdl.org/)
 - [ImGui](https://github.com/ocornut/imgui)
 - [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
-
----
-<br>
-<br>
-
-"I can _highly_ recommend this project to anyone
-wanting to get their feet wet in reverse-engineering, game-programming, and/or
-cross-platform development. It's been a great
-educational excercise involving major aspects
-of modern day applications such as input handling,
-user-interface design, 2D graphics rendering,
-audio generation, code profiling and more!"
-
-_- Tom_
+- [Tobias V. Langhoff's Guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator)

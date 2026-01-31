@@ -54,6 +54,17 @@
 #define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
 
+struct quirks {
+    bool load_store_quirk;
+    bool shift_quirk;
+    bool jump_quirk;         /* BNNN: use VX instead of V0 for offset */
+    bool logic_vf_quirk;     /* 8XY1/2/3: set VF=0 */
+    bool i_overflow_quirk;   /* I+VX overflow sets VF (FX1E quirk) */
+    bool draw_flag_quirk;    /* draw_flag reset behavior */
+    bool vwrap;              /* vertical wrapping */
+    bool hwrap;              /* horizontal wrapping */
+};
+
 struct chip8 {
     /* number of cycles per step */
     int cycles;
@@ -64,12 +75,8 @@ struct chip8 {
     /* whether or not emulation is currently paused. */
     bool paused;
 
-    /* CPU quirks */
-    bool load_store_quirk;
-    bool shift_quirk;
-
-    /* vertical wrapping toggle */
-    bool vwrap;
+    /* All quirk toggles */
+    struct quirks quirks;
 
     /* two bytes for each instruction */
     unsigned short opcode;
@@ -127,9 +134,7 @@ extern struct chip8 chip8;
 void chip8_destroy(void);
 int chip8_initialize(
     bool fullscreen,
-    bool load_store_quirk,
-    bool shift_quirk,
-    bool vwrap,
+    struct quirks quirks,
     bool muted
 );
 int chip8_load(const char *rom_name);

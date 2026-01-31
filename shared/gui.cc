@@ -2,26 +2,15 @@
 #include "display.h"
 #include "gui.h"
 #include "license.h" // Generated at build time from LICENSE
+#include "usage.h"
 #include <stdio.h>
 
 static void gui_help_windows(void) {
     if (gui.show_usage) {
-        ImGui::SetNextWindowSize(ImVec2(270, 150), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(350, 210), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &gui.show_usage);
-
-        ImGui::TextWrapped(
-            "Alternatively, you may launch Kiwi8\n"
-            "from the command line.\n"
-            "\n"
-            "Usage: Kiwi8 [filename] [-FMLSV]\n"
-            "-F      Launch in fullscreen\n"
-            "-M      Launch with audio muted\n"
-            "-L      Disable load/store quirk\n"
-            "-S      Disable shift quirk\n"
-            "-V      Disable vertical wrapping"
-        );
-
+        ImGui::TextWrapped("%s", USAGE_TEXT);
         ImGui::End();
     }
     if (gui.show_controls) {
@@ -51,7 +40,7 @@ static void gui_help_windows(void) {
         ImGui::End();
     }
     if (gui.show_license) {
-        ImGui::SetNextWindowSize(ImVec2(550, 245), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(550, 320), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("License", &gui.show_license);
 
@@ -147,9 +136,14 @@ static void gui_main_menu(void) {
                     ImGui::EndMenu();
                 }
 
-                ImGui::MenuItem("Load/Store Quirk", NULL, &chip8.load_store_quirk);
-                ImGui::MenuItem("Shift Quirk", NULL, &chip8.shift_quirk);
-                ImGui::MenuItem("Vertical Wrapping", NULL, &chip8.vwrap);
+                ImGui::MenuItem("Load/Store Quirk", NULL, &chip8.quirks.load_store_quirk);
+                ImGui::MenuItem("Shift Quirk", NULL, &chip8.quirks.shift_quirk);
+                ImGui::MenuItem("Vertical Wrapping", NULL, &chip8.quirks.vwrap);
+                ImGui::MenuItem("Horizontal Wrapping", NULL, &chip8.quirks.hwrap);
+                ImGui::MenuItem("Jump with VX Offset (BNNN)", NULL, &chip8.quirks.jump_quirk);
+                ImGui::MenuItem("Logic Ops VF=0 (8XY1/2/3)", NULL, &chip8.quirks.logic_vf_quirk);
+                ImGui::MenuItem("I+VX Overflow Quirk (FX1E)", NULL, &chip8.quirks.i_overflow_quirk);
+                ImGui::MenuItem("Draw Flag Reset Quirk", NULL, &chip8.quirks.draw_flag_quirk);
                 ImGui::EndMenu();
             }
 
