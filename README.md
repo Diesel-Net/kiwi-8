@@ -149,6 +149,7 @@ sudo apt install libgtk-3-dev xorg-dev libgl1-mesa-dev libasound2-dev libpulse-d
 - [SDL Wiki](https://wiki.libsdl.org/)
 - [ImGui](https://github.com/ocornut/imgui)
 - [/r/EmuDev](https://www.reddit.com/r/EmuDev/)
+- [Tobias V. Langhoff's Guide](https://tobiasvl.github.io/blog/write-a-chip-8-emulator)
 
 ---
 <br>
