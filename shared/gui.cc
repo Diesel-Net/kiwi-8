@@ -7,7 +7,7 @@
 
 static void gui_help_windows(void) {
     if (gui.show_usage) {
-        ImGui::SetNextWindowSize(ImVec2(350, 300), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(350, 210), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &gui.show_usage);
         ImGui::TextWrapped("%s", USAGE_TEXT);
@@ -40,7 +40,7 @@ static void gui_help_windows(void) {
         ImGui::End();
     }
     if (gui.show_license) {
-        ImGui::SetNextWindowSize(ImVec2(550, 245), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(550, 320), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("License", &gui.show_license);
 
