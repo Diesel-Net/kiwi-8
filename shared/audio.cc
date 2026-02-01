@@ -33,7 +33,7 @@ void audio_callback(void* userdata, Uint8* stream, int length) {
 }
 
 
-int audio_initialize(void) {
+int audio_init(void) {
     audio.phase = 0.0;
     audio.phase_increment = TAU * TONE / SAMPLE_RATE;
     audio.beep_active = 0;

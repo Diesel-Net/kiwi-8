@@ -1,3 +1,7 @@
+
+#ifndef OPCODES_H
+#define OPCODES_H
+
 #include "chip8.h"
 #include <stdio.h>
 #include <stdlib.h> /* rand() */
@@ -265,3 +269,5 @@ inline void execFX65() {
 inline void execUnknown() {
     fprintf (stderr, "Unknown opcode: 0x%X\n", chip8.opcode);
 }
+
+#endif // OPCODES_H

@@ -1,4 +1,5 @@
 #include "chip8.h"
+#include "quirks.h"
 #include "usage.h"
 #include <string.h>
 #include <stdio.h>
@@ -49,8 +50,8 @@ int main(int argc, char **argv){
         }
     }
 
-    /* calling initialize() also loads the bootrom */
-    if (chip8_initialize(
+    /* calling init() also loads the bootrom */
+    if (chip8_init(
         fullscreen,
         quirks,
         muted

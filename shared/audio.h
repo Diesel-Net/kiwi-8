@@ -24,6 +24,6 @@ struct audio {
 extern struct audio audio;
 
 void audio_destroy(void);
-int audio_initialize(void);
+int audio_init(void);
 
-#endif
+#endif // AUDIO_H

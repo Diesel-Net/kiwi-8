@@ -2,6 +2,7 @@
 #define CHIP8_H
 
 #include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
+#include "quirks.h"
 #include "display.h"
 #include "input.h"
 #include "audio.h"
@@ -53,17 +54,6 @@
 #define MIN_CYCLES_PER_STEP 1
 #define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
-
-struct quirks {
-    bool load_store_quirk;
-    bool shift_quirk;
-    bool jump_quirk;         /* BNNN: use VX instead of V0 for offset */
-    bool logic_vf_quirk;     /* 8XY1/2/3: set VF=0 */
-    bool i_overflow_quirk;   /* I+VX overflow sets VF (FX1E quirk) */
-    bool draw_flag_quirk;    /* draw_flag reset behavior */
-    bool vwrap;              /* vertical wrapping */
-    bool hwrap;              /* horizontal wrapping */
-};
 
 struct chip8 {
     /* number of cycles per step */
@@ -132,7 +122,7 @@ struct chip8 {
 extern struct chip8 chip8;
 
 void chip8_destroy(void);
-int chip8_initialize(
+int chip8_init(
     bool fullscreen,
     struct quirks quirks,
     bool muted

@@ -1,5 +1,5 @@
 #include "chip8.h"
-#include "opcodes.cc"
+#include "opcodes.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -21,7 +21,7 @@ void chip8_destroy() {
     SDL_Quit();
 }
 
-int chip8_initialize(
+int chip8_init(
     bool fullscreen,
     struct quirks quirks,
     bool muted
@@ -61,7 +61,7 @@ int chip8_initialize(
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    audio_initialize();
+    audio_init();
 
     if (display_init(fullscreen)) return 1;
 
