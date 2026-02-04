@@ -55,8 +55,8 @@ WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
 OBJS = audio.obj chip8.obj crc32.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
-       main.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
-       file_dialog.obj
+	main.obj notifications.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
+	file_dialog.obj
 
 
 # Default target
