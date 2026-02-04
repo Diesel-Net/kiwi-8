@@ -3,70 +3,11 @@
 #include "profiles.h"
 #include "crc32.h"
 #include "chip8.h"
+#include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include <limits.h>
-
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#elif defined(__linux__)
-#include <unistd.h>
-#elif defined(_WIN32)
-#include <windows.h>
-#endif
-
-/* Get the directory containing the executable */
-static void get_executable_dir(char *buf, size_t size) {
-    char exe_path[PATH_MAX];
-
-#ifdef __APPLE__
-    uint32_t bufsize = sizeof(exe_path);
-    if (_NSGetExecutablePath(exe_path, &bufsize) == 0) {
-        /* Find last slash to get directory */
-        char *last_slash = strrchr(exe_path, '/');
-        if (last_slash) {
-            size_t dir_len = last_slash - exe_path;
-            if (dir_len < size) {
-                strncpy(buf, exe_path, dir_len);
-                buf[dir_len] = '\0';
-                return;
-            }
-        }
-    }
-#elif defined(__linux__)
-    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
-    if (len != -1) {
-        exe_path[len] = '\0';
-        char *last_slash = strrchr(exe_path, '/');
-        if (last_slash) {
-            size_t dir_len = last_slash - exe_path;
-            if (dir_len < size) {
-                strncpy(buf, exe_path, dir_len);
-                buf[dir_len] = '\0';
-                return;
-            }
-        }
-    }
-#elif defined(_WIN32)
-    if (GetModuleFileNameA(NULL, exe_path, sizeof(exe_path))) {
-        char *last_slash = strrchr(exe_path, '\\');
-        if (last_slash) {
-            size_t dir_len = last_slash - exe_path;
-            if (dir_len < size) {
-                strncpy(buf, exe_path, dir_len);
-                buf[dir_len] = '\0';
-                return;
-            }
-        }
-    }
-#endif
-
-    /* Fallback to current directory */
-    buf[0] = '.';
-    buf[1] = '\0';
-}
 
 /* ROM profile hashmap: CRC32 -> profile */
 static struct { uint32_t key; struct profile value; } *profile_map = NULL;
@@ -74,16 +15,24 @@ static struct { uint32_t key; struct profile value; } *profile_map = NULL;
 /* Try to load profiles from file */
 static void profiles_load_from_file(void) {
     FILE *file = NULL;
-    char exe_dir[PATH_MAX];
-    char search_paths[3][PATH_MAX];
+    char *base_path = NULL;
+    char search_paths[3][512];
     int i;
 
-    get_executable_dir(exe_dir, sizeof(exe_dir));
-
-    /* Build search paths relative to executable */
-    snprintf(search_paths[0], PATH_MAX, "%s/profiles.ini", exe_dir);
-    snprintf(search_paths[1], PATH_MAX, "%s/../Resources/profiles.ini", exe_dir);
-    snprintf(search_paths[2], PATH_MAX, "%s/../../roms/profiles.ini", exe_dir);
+    /* Get executable's base path using SDL */
+    base_path = SDL_GetBasePath();
+    if (!base_path) {
+        printf("Warning: Could not determine executable path. Trying current directory.\n");
+        snprintf(search_paths[0], sizeof(search_paths[0]), "./profiles.ini");
+        snprintf(search_paths[1], sizeof(search_paths[1]), "../Resources/profiles.ini");
+        snprintf(search_paths[2], sizeof(search_paths[2]), "../../roms/profiles.ini");
+    } else {
+        /* Build search paths relative to executable */
+        snprintf(search_paths[0], sizeof(search_paths[0]), "%sprofiles.ini", base_path);
+        snprintf(search_paths[1], sizeof(search_paths[1]), "%s../Resources/profiles.ini", base_path);
+        snprintf(search_paths[2], sizeof(search_paths[2]), "%s../../roms/profiles.ini", base_path);
+        SDL_free(base_path);
+    }
 
     /* Try each search path */
     for (i = 0; i < 3; i++) {
