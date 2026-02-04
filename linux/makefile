@@ -47,7 +47,7 @@ BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 # Source files
 CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/crc32.cc ../shared/display.cc ../shared/gui.cc \
 			../shared/imgui_impl_sdl.cc ../shared/input.cc ../shared/main.cc \
-			../shared/open_file_dialog.cc ../shared/profiles.cc
+			../shared/notifications.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp
 LINUX_SRCS = src/file_dialog.cc
 

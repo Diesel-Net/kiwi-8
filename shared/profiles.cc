@@ -3,6 +3,7 @@
 #include "profiles.h"
 #include "crc32.h"
 #include "chip8.h"
+#include "notifications.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@ static struct { uint32_t key; struct profile value; } *profile_map = NULL;
 /* Track which path we loaded profiles.ini from */
 static char loaded_profiles_path[512] = "";
 
-/* Try to load profiles from file */
+/* Try to load profiles from file, create if not found */
 static void profiles_load_from_file(void) {
     FILE *file = NULL;
     char *base_path = NULL;
@@ -42,13 +43,33 @@ static void profiles_load_from_file(void) {
             /* Save the path we successfully loaded from */
             strncpy(loaded_profiles_path, search_paths[i], sizeof(loaded_profiles_path) - 1);
             loaded_profiles_path[sizeof(loaded_profiles_path) - 1] = '\0';
-            printf("Loaded ROM profiles from: %s\n", search_paths[i]);
+
+            char notif_msg[256];
+            snprintf(notif_msg, sizeof(notif_msg), "ROM profiles: %s", search_paths[i]);
+            notify_show(NOTIFY_SUCCESS, notif_msg);
+
+            fclose(file);
             break;
         }
     }
 
+    /* If file not found, create empty one at first search path */
     if (!file) {
-        printf("Warning: No profiles.ini found. Using hardcoded defaults.\n");
+        file = fopen(search_paths[0], "w");
+        if (file) {
+            fprintf(file, "# ROM Profiles Database\n");
+            fprintf(file, "# Format: [0xCRC32] followed by quirk settings\n\n");
+            fclose(file);
+            strncpy(loaded_profiles_path, search_paths[0], sizeof(loaded_profiles_path) - 1);
+            loaded_profiles_path[sizeof(loaded_profiles_path) - 1] = '\0';
+
+            char notif_msg[256];
+            snprintf(notif_msg, sizeof(notif_msg), "ROM profiles created: %s", search_paths[0]);
+            notify_show(NOTIFY_INFO, notif_msg);
+        } else {
+            notify_show(NOTIFY_ERROR, "Failed to create profiles.ini");
+            fprintf(stderr, "Error: Unable to create profiles.ini at: %s\n", search_paths[0]);
+        }
         return;
     }
 
@@ -56,6 +77,9 @@ static void profiles_load_from_file(void) {
     char line[512];
     uint32_t current_crc = 0;
     struct profile current_profile;
+
+    file = fopen(loaded_profiles_path, "r");
+    if (!file) return;
 
     while (fgets(line, sizeof(line), file)) {
         /* Remove newline */
@@ -147,99 +171,31 @@ const struct profile* profile_lookup(uint32_t crc32) {
     return &profile_map[idx].value;
 }
 
-/* Write a profile to the INI file
- * Reads existing INI, updates or appends entry, writes back */
-static void profiles_write_to_file(uint32_t crc32, const struct profile *p) {
+/* Write entire profile hashmap to INI file */
+static void profiles_write_to_file(void) {
     FILE *file = NULL;
-    const char *filepath = loaded_profiles_path[0] != '\0' ? loaded_profiles_path : "./profiles.ini";
+    int i;
 
-    /* Try to open for reading first */
-    file = fopen(filepath, "r");
+    if (loaded_profiles_path[0] == '\0') {
+        fprintf(stderr, "Error: profiles.ini path not initialized\n");
+        return;
+    }
 
-    if (file) {
-        /* File exists: read, update, rewrite */
-        FILE *temp_file = NULL;
-        char line[512];
-        char temp_filepath[512];
-        int found = 0;
-        uint32_t current_crc = 0;
+    file = fopen(loaded_profiles_path, "w");
+    if (!file) {
+        fprintf(stderr, "Error: Unable to write to %s\n", loaded_profiles_path);
+        return;
+    }
 
-        snprintf(temp_filepath, sizeof(temp_filepath), "%s.tmp", filepath);
-        temp_file = fopen(temp_filepath, "w");
+    /* Write header */
+    fprintf(file, "# ROM Profiles Database\n");
+    fprintf(file, "# Format: [0xCRC32] followed by quirk settings\n\n");
 
-        if (!temp_file) {
-            fprintf(stderr, "Error: Unable to write profile to %s\n", filepath);
-            fclose(file);
-            return;
-        }
+    /* Write all profiles from hashmap */
+    for (i = 0; i < hmlen(profile_map); i++) {
+        struct profile *p = &profile_map[i].value;
 
-        /* Copy existing file, updating matching entry */
-        while (fgets(line, sizeof(line), file)) {
-            if (line[0] == '[' && sscanf(line, "[0x%x]", &current_crc) == 1) {
-                if (current_crc == crc32) {
-                    /* This is our entry: write updated version */
-                    found = 1;
-                    fprintf(temp_file, "[0x%X]\n", crc32);
-                    if (p->rom_name[0] != '\0') {
-                        fprintf(temp_file, "name=%s\n", p->rom_name);
-                    }
-                    fprintf(temp_file, "load_store_quirk=%d\n", p->quirks.load_store_quirk);
-                    fprintf(temp_file, "shift_quirk=%d\n", p->quirks.shift_quirk);
-                    fprintf(temp_file, "jump_quirk=%d\n", p->quirks.jump_quirk);
-                    fprintf(temp_file, "logic_vf_quirk=%d\n", p->quirks.logic_vf_quirk);
-                    fprintf(temp_file, "i_overflow_quirk=%d\n", p->quirks.i_overflow_quirk);
-                    fprintf(temp_file, "draw_flag_quirk=%d\n", p->quirks.draw_flag_quirk);
-                    fprintf(temp_file, "vwrap=%d\n", p->quirks.vwrap);
-                    fprintf(temp_file, "hwrap=%d\n\n", p->quirks.hwrap);
-
-                    /* Skip old entries for this CRC */
-                    while (fgets(line, sizeof(line), file)) {
-                        if (line[0] == '[') {
-                            fputs(line, temp_file);
-                            break;
-                        }
-                    }
-                    continue;
-                }
-            }
-
-            fputs(line, temp_file);
-        }
-
-        /* If entry wasn't found, append it */
-        if (!found) {
-            fprintf(temp_file, "\n[0x%X]\n", crc32);
-            if (p->rom_name[0] != '\0') {
-                fprintf(temp_file, "name=%s\n", p->rom_name);
-            }
-            fprintf(temp_file, "load_store_quirk=%d\n", p->quirks.load_store_quirk);
-            fprintf(temp_file, "shift_quirk=%d\n", p->quirks.shift_quirk);
-            fprintf(temp_file, "jump_quirk=%d\n", p->quirks.jump_quirk);
-            fprintf(temp_file, "logic_vf_quirk=%d\n", p->quirks.logic_vf_quirk);
-            fprintf(temp_file, "i_overflow_quirk=%d\n", p->quirks.i_overflow_quirk);
-            fprintf(temp_file, "draw_flag_quirk=%d\n", p->quirks.draw_flag_quirk);
-            fprintf(temp_file, "vwrap=%d\n", p->quirks.vwrap);
-            fprintf(temp_file, "hwrap=%d\n\n", p->quirks.hwrap);
-        }
-
-        fclose(file);
-        fclose(temp_file);
-
-        /* Replace original with temp */
-        remove(filepath);
-        rename(temp_filepath, filepath);
-
-    } else {
-        /* File doesn't exist: create new */
-        file = fopen(filepath, "w");
-        if (!file) {
-            fprintf(stderr, "Error: Unable to create %s\n", filepath);
-            return;
-        }
-
-        fprintf(file, "# ROM Profiles Database\n");
-        fprintf(file, "# Format: [0xCRC32] followed by quirk settings\n\n");
-        fprintf(file, "[0x%X]\n", crc32);
+        fprintf(file, "[0x%X]\n", p->crc32);
         if (p->rom_name[0] != '\0') {
             fprintf(file, "name=%s\n", p->rom_name);
         }
@@ -251,9 +207,9 @@ static void profiles_write_to_file(uint32_t crc32, const struct profile *p) {
         fprintf(file, "draw_flag_quirk=%d\n", p->quirks.draw_flag_quirk);
         fprintf(file, "vwrap=%d\n", p->quirks.vwrap);
         fprintf(file, "hwrap=%d\n\n", p->quirks.hwrap);
-
-        fclose(file);
     }
+
+    fclose(file);
 }
 
 void profiles_save_current(void) {
@@ -262,7 +218,13 @@ void profiles_save_current(void) {
 
     /* Check if ROM is actually loaded */
     if (!chip8.rom_loaded || !chip8.rom || chip8.rom_size == 0) {
-        fprintf(stderr, "Error: No ROM loaded. Cannot save profile.\n");
+        notify_show(NOTIFY_ERROR, "No ROM loaded. Cannot save profile.");
+        return;
+    }
+
+    /* Check if we have a valid profiles path */
+    if (loaded_profiles_path[0] == '\0') {
+        notify_show(NOTIFY_ERROR, "Could not locate profiles.ini");
         return;
     }
 
@@ -278,12 +240,17 @@ void profiles_save_current(void) {
     /* Copy current quirks */
     p.quirks = chip8.quirks;
 
-    /* Add to runtime hashmap */
+    /* Update runtime hashmap */
     hmput(profile_map, crc32, p);
 
-    /* Write to INI file */
-    profiles_write_to_file(crc32, &p);
+    /* Write entire hashmap to INI file */
+    profiles_write_to_file();
 
     printf("Saved ROM profile for: %s (CRC32: 0x%X)\n",
            chip8.rom_filename, crc32);
+
+    /* Show success notification with path */
+    char notif_msg[256];
+    snprintf(notif_msg, sizeof(notif_msg), "Profile saved: %s", chip8.rom_filename);
+    notify_show(NOTIFY_SUCCESS, notif_msg);
 }

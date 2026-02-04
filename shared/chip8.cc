@@ -2,6 +2,7 @@
 #include "opcodes.h"
 #include "profiles.h"
 #include "crc32.h"
+#include "notifications.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -63,6 +64,9 @@ int chip8_init(
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
+    /* Initialize notification system first (before audio) */
+    notify_init();
+
     audio_init();
 
     if (display_init(fullscreen)) return 1;
@@ -121,7 +125,7 @@ int chip8_load(const char *rom_name) {
         FILE *file;
         file = fopen(rom_name, "rb");
         if(file == NULL){
-            fprintf(stderr, "File not opened.\n");
+            notify_show(NOTIFY_ERROR, "Unable to open ROM file");
             return 1;
         }
 
@@ -130,7 +134,8 @@ int chip8_load(const char *rom_name) {
         chip8.rom_size = ftell(file);
         rewind(file);
         if (chip8.rom_size > MEM_SIZE - ENTRY_POINT) {
-            fprintf(stderr, "Rom is too large or not formatted properly.\n");
+            notify_show(NOTIFY_ERROR, "ROM is too large or not formatted properly");
+            fclose(file);
             return 1;
         }
 
@@ -138,14 +143,16 @@ int chip8_load(const char *rom_name) {
         free(chip8.rom);
         chip8.rom = (unsigned char *)malloc(chip8.rom_size);
         if(!chip8.rom) {
-            fprintf(stderr, "Unable to allocate memory for rom.\n");
+            notify_show(NOTIFY_ERROR, "Unable to allocate memory for ROM");
+            fclose(file);
             return 1;
         }
         memset(chip8.rom, 0 , chip8.rom_size);
 
         /* save the rom for later (soft-resets) */
         if (!fread(chip8.rom, sizeof(unsigned char), chip8.rom_size, file)) {
-            fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
+            notify_show(NOTIFY_ERROR, "Unable to read ROM file");
+            fclose(file);
             return 1;
         }
 
@@ -168,10 +175,13 @@ int chip8_load(const char *rom_name) {
         if (profile) {
             /* Apply profile quirks */
             chip8.quirks = profile->quirks;
-            printf("Applied ROM profile for: %s (CRC32: 0x%X)\n", chip8.rom_filename, crc);
+            char notif_msg[256];
+            snprintf(notif_msg, sizeof(notif_msg), "Profile applied: %s", chip8.rom_filename);
+            notify_show(NOTIFY_SUCCESS, notif_msg);
         } else {
-            printf("No profile found for: %s (CRC32: 0x%X) - using current quirks\n",
-                   chip8.rom_filename, crc);
+            char notif_msg[256];
+            snprintf(notif_msg, sizeof(notif_msg), "No profile found: %s", chip8.rom_filename);
+            notify_show(NOTIFY_INFO, notif_msg);
         }
 
         chip8_soft_reset();
@@ -257,6 +267,9 @@ void chip8_run(){
             profiles_save_current();
             gui.save_profile_flag = 0;
         }
+
+        /* Update notification timers */
+        notify_update((double)interval / 1000.0);
 
         if (!chip8.paused) {
             /* emulate a number of cycles */

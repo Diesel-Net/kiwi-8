@@ -2,6 +2,7 @@
 #include "display.h"
 #include "gui.h"
 #include "license.h" // Generated at build time from LICENSE
+#include "notifications.h"
 #include "usage.h"
 #include <stdio.h>
 
@@ -94,6 +95,86 @@ static void gui_help_windows(void) {
 
         ImGui::End();
     }
+}
+
+static void gui_notifications(void) {
+    int count;
+    const struct notification *notifications = notify_get_notifications(&count);
+
+    if (count == 0) {
+        return;
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    float spacing = 10.0f;
+    float y_offset = io.DisplaySize.y - spacing;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
+
+    for (int i = 0; i < 8; i++) {
+        if (!notify_is_active(&notifications[i])) {
+            continue;
+        }
+
+        const char *message;
+        int type;
+        double time_remaining;
+        notify_get_info(&notifications[i], &message, &type, &time_remaining);
+
+        /* Calculate alpha for fade out effect */
+        float alpha = 1.0f;
+        if (time_remaining < 0.5) {
+            alpha = (float)(time_remaining / 0.5);
+        }
+
+        /* Set colors based on notification type */
+        ImVec4 bg_color;
+        if (type == NOTIFY_SUCCESS) {
+            bg_color = ImVec4(0.1f, 0.4f, 0.1f, 0.85f * alpha);
+        } else if (type == NOTIFY_ERROR) {
+            bg_color = ImVec4(0.5f, 0.1f, 0.1f, 0.85f * alpha);
+        } else {
+            bg_color = ImVec4(0.25f, 0.25f, 0.25f, 0.85f * alpha);
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, bg_color);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, alpha));
+
+        /* Begin window to calculate size */
+        char window_name[32];
+        snprintf(window_name, sizeof(window_name), "##notification%d", i);
+
+        /* Set max width for notifications */
+        float max_width = 300.0f;
+        ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(max_width, FLT_MAX));
+
+        ImGui::Begin(window_name, NULL,
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_AlwaysAutoResize);
+
+        /* Wrap text to max width */
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + max_width - 20);
+        ImGui::TextWrapped("%s", message);
+        ImGui::PopTextWrapPos();
+
+        /* Get actual window size and reposition from bottom-right */
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 window_pos = ImVec2(io.DisplaySize.x - window_size.x - spacing, y_offset - window_size.y);
+        ImGui::SetWindowPos(window_pos);
+
+        y_offset -= window_size.y + spacing;
+
+        ImGui::End();
+
+        ImGui::PopStyleColor(2);
+    }
+
+    ImGui::PopStyleVar(2);
 }
 
 static void gui_main_menu(void) {
@@ -242,6 +323,7 @@ void gui_process_events(SDL_Event *event) {
 void gui_new_frame(void) {
     ImGui_ImplSdl_NewFrame(display.window);
     gui_main_menu();
+    gui_notifications();
 }
 
 void gui_render(void) {
