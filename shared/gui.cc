@@ -206,7 +206,7 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("Emulation")) {
                 ImGui::MenuItem("Reset", "F5", &gui.soft_reset_flag);
-                ImGui::MenuItem("Pause", "P", chip8.paused);
+                ImGui::MenuItem("Pause", "P", &chip8.paused);
 
                 /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
