@@ -78,6 +78,10 @@ struct chip8 {
     unsigned char *rom;
     unsigned int rom_size;
 
+    /* rom profile tracking */
+    char rom_filename[256];  /* basename of currently loaded ROM */
+    int rom_loaded;          /* 1 if user ROM loaded, 0 if bootrom */
+
     /* registers */
     unsigned char V[NUM_REGISTERS];
     unsigned short I;

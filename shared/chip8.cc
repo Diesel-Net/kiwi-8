@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include "opcodes.h"
+#include "profiles.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -83,6 +84,9 @@ int chip8_init(
     for(int i = 0; i < FONTS_SIZE; ++i) {
         chip8.memory[i] = chip8.chip8_fontset[i];
     }
+
+    /* Initialize ROM profile database */
+    profiles_init();
 
     return chip8_load_bootrom();
 }
