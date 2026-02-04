@@ -40,7 +40,7 @@ int chip8_init(
         SDL_INIT_VIDEO |
         SDL_INIT_EVENTS
     )) {
-        printf("Error: %s\n", SDL_GetError());
+        fprintf(stderr,"Error: %s\n", SDL_GetError());
         return 1;
     }
 

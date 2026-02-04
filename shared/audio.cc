@@ -62,7 +62,7 @@ int audio_init(void) {
     int driver_found = 0;
     for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
         if (SDL_AudioInit(drivers[i]) == 0) {
-            fprintf(stdout, "Loaded audio driver: %s\n", drivers[i]);
+            fprintf(stdout, "Audio driver: %s\n", drivers[i]);
             char msg[256];
             snprintf(msg, sizeof(msg), "Audio driver: %s", drivers[i]);
             notify_show(NOTIFY_INFO, msg);

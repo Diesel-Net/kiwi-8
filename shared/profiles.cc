@@ -26,7 +26,7 @@ static void profiles_load_from_file(void) {
     /* Get executable's base path using SDL */
     base_path = SDL_GetBasePath();
     if (!base_path) {
-        printf("Warning: Could not determine executable path. Trying current directory.\n");
+        fprintf(stderr, "Warning: Could not determine executable path. Trying current directory.\n");
         snprintf(search_paths[0], sizeof(search_paths[0]), "./profiles.ini");
         snprintf(search_paths[1], sizeof(search_paths[1]), "../Resources/profiles.ini");
     } else {
@@ -246,7 +246,7 @@ void profiles_save_current(void) {
     /* Write entire hashmap to INI file */
     profiles_write_to_file();
 
-    printf("Saved ROM profile for: %s (CRC32: 0x%X)\n",
+    fprintf(stdout, "Saved ROM profile for: %s (CRC32: 0x%X)\n",
            chip8.rom_filename, crc32);
 
     /* Show success notification with path */
