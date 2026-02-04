@@ -93,6 +93,7 @@ int input_poll(void) {
         if (gui.quit_flag) response |= USER_QUIT;
         if (gui.soft_reset_flag) response |= SOFT_RESET;
         if (gui.load_rom_flag) response |= LOAD_ROM;
+        if (gui.save_profile_flag) response |= SAVE_PROFILE;
 
         /* check SDL events (window & hotkeys) */
         response |= input_process_events();

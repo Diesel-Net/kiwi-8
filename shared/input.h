@@ -12,6 +12,7 @@ can represent a unique bit position */
 #define USER_QUIT 1
 #define SOFT_RESET 2
 #define LOAD_ROM 4
+#define SAVE_PROFILE 8
 
 struct input {
     /* for processing window/keyboard events */

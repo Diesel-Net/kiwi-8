@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "opcodes.h"
 #include "profiles.h"
+#include "crc32.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -107,6 +108,10 @@ int chip8_load_bootrom() {
     /* copy the entire rom to memory starting from 0x200 */
     memcpy(chip8.memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
 
+    /* Mark as bootrom (not user ROM) */
+    chip8.rom_loaded = 0;
+    chip8.rom_filename[0] = '\0';
+
     return 0;
 }
 
@@ -144,8 +149,32 @@ int chip8_load(const char *rom_name) {
             return 1;
         }
 
-        chip8_soft_reset();
         fclose(file);
+
+        /* Extract basename for profile tracking */
+        const char *basename = strrchr(rom_name, '/');
+        if (!basename) basename = strrchr(rom_name, '\\'); /* Windows */
+        basename = basename ? basename + 1 : rom_name;
+        strncpy(chip8.rom_filename, basename, sizeof(chip8.rom_filename) - 1);
+        chip8.rom_filename[sizeof(chip8.rom_filename) - 1] = '\0';
+
+        /* Mark as user ROM (not bootrom) */
+        chip8.rom_loaded = 1;
+
+        /* Compute CRC32 and lookup profile */
+        uint32_t crc = crc32_compute(chip8.rom, chip8.rom_size);
+        const struct profile *profile = profile_lookup(crc);
+
+        if (profile) {
+            /* Apply profile quirks */
+            chip8.quirks = profile->quirks;
+            printf("Applied ROM profile for: %s (CRC32: 0x%X)\n", chip8.rom_filename, crc);
+        } else {
+            printf("No profile found for: %s (CRC32: 0x%X) - using current quirks\n",
+                   chip8.rom_filename, crc);
+        }
+
+        chip8_soft_reset();
 
     } else {
         /* load ROM from GUI */
@@ -224,6 +253,10 @@ void chip8_run(){
         if (event & USER_QUIT) return;
         if (event & LOAD_ROM) chip8_load(NULL);
         if (event & SOFT_RESET) chip8_soft_reset();
+        if (event & SAVE_PROFILE) {
+            profiles_save_current();
+            gui.save_profile_flag = 0;
+        }
 
         if (!chip8.paused) {
             /* emulate a number of cycles */

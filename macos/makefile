@@ -81,6 +81,7 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
 	cp $(SDL_LIB) debug/libSDL2-2.0.0.dylib
+	cp ../roms/profiles.ini debug/profiles.ini
 	$(CC) $(CFLAGS) -g $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 	# Set the dylib's install name to be relative to the bundle
@@ -104,6 +105,7 @@ release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB
 	# Moving other files into .app bundle
 	cp resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
 	cp $(APP_MANIFEST) release/$(APP_BUNDLE)/Contents/Info.plist
+	cp ../roms/profiles.ini release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib

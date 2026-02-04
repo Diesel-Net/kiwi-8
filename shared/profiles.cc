@@ -12,11 +12,14 @@
 /* ROM profile hashmap: CRC32 -> profile */
 static struct { uint32_t key; struct profile value; } *profile_map = NULL;
 
+/* Track which path we loaded profiles.ini from */
+static char loaded_profiles_path[512] = "";
+
 /* Try to load profiles from file */
 static void profiles_load_from_file(void) {
     FILE *file = NULL;
     char *base_path = NULL;
-    char search_paths[3][512];
+    char search_paths[2][512];
     int i;
 
     /* Get executable's base path using SDL */
@@ -25,19 +28,20 @@ static void profiles_load_from_file(void) {
         printf("Warning: Could not determine executable path. Trying current directory.\n");
         snprintf(search_paths[0], sizeof(search_paths[0]), "./profiles.ini");
         snprintf(search_paths[1], sizeof(search_paths[1]), "../Resources/profiles.ini");
-        snprintf(search_paths[2], sizeof(search_paths[2]), "../../roms/profiles.ini");
     } else {
         /* Build search paths relative to executable */
         snprintf(search_paths[0], sizeof(search_paths[0]), "%sprofiles.ini", base_path);
         snprintf(search_paths[1], sizeof(search_paths[1]), "%s../Resources/profiles.ini", base_path);
-        snprintf(search_paths[2], sizeof(search_paths[2]), "%s../../roms/profiles.ini", base_path);
         SDL_free(base_path);
     }
 
     /* Try each search path */
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < 2; i++) {
         file = fopen(search_paths[i], "r");
         if (file) {
+            /* Save the path we successfully loaded from */
+            strncpy(loaded_profiles_path, search_paths[i], sizeof(loaded_profiles_path) - 1);
+            loaded_profiles_path[sizeof(loaded_profiles_path) - 1] = '\0';
             printf("Loaded ROM profiles from: %s\n", search_paths[i]);
             break;
         }
@@ -147,7 +151,7 @@ const struct profile* profile_lookup(uint32_t crc32) {
  * Reads existing INI, updates or appends entry, writes back */
 static void profiles_write_to_file(uint32_t crc32, const struct profile *p) {
     FILE *file = NULL;
-    const char *filepath = "./profiles.ini";
+    const char *filepath = loaded_profiles_path[0] != '\0' ? loaded_profiles_path : "./profiles.ini";
 
     /* Try to open for reading first */
     file = fopen(filepath, "r");
@@ -204,7 +208,7 @@ static void profiles_write_to_file(uint32_t crc32, const struct profile *p) {
 
         /* If entry wasn't found, append it */
         if (!found) {
-            fprintf(temp_file, "[0x%X]\n", crc32);
+            fprintf(temp_file, "\n[0x%X]\n", crc32);
             if (p->rom_name[0] != '\0') {
                 fprintf(temp_file, "name=%s\n", p->rom_name);
             }
@@ -246,7 +250,7 @@ static void profiles_write_to_file(uint32_t crc32, const struct profile *p) {
         fprintf(file, "i_overflow_quirk=%d\n", p->quirks.i_overflow_quirk);
         fprintf(file, "draw_flag_quirk=%d\n", p->quirks.draw_flag_quirk);
         fprintf(file, "vwrap=%d\n", p->quirks.vwrap);
-        fprintf(file, "hwrap=%d\n", p->quirks.hwrap);
+        fprintf(file, "hwrap=%d\n\n", p->quirks.hwrap);
 
         fclose(file);
     }

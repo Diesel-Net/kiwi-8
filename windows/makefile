@@ -116,12 +116,14 @@ debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
 	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
 	IF NOT EXIST debug MKDIR debug
 	COPY $(SDL_DLL) debug\SDL2.dll
+	COPY ..\roms\profiles.ini debug\profiles.ini
 	MOVE $(APP_EXE) $@
 
 release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
 	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
 	IF NOT EXIST release MKDIR release
 	COPY $(SDL_DLL) release\SDL2.dll
+	COPY ..\roms\profiles.ini release\profiles.ini
 	MOVE $(APP_EXE) $@
 
 run-debug:

@@ -92,12 +92,14 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
 	cp $(SDL_LIB) debug/libSDL2-2.0.so.0
+	cp ../roms/profiles.ini debug/profiles.ini
 	$(CC) $(CFLAGS) -g $(INCS) $(LIBDIRS) $(OBJS) -o $@ $(LIBS) $(LFLAGS)
 
 # release executable
 release/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p release
 	cp $(SDL_LIB) release/libSDL2-2.0.so.0
+	cp ../roms/profiles.ini release/profiles.ini
 	$(CC) $(CFLAGS) $(INCS) $(LIBDIRS) $(OBJS) -o $@ $(LIBS) $(LFLAGS)
 
 run-debug: debug/$(APP_EXE)

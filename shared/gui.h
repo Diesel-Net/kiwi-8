@@ -20,6 +20,7 @@ struct gui {
 
     bool soft_reset_flag;
     bool load_rom_flag;
+    bool save_profile_flag;
     bool quit_flag;
     bool show_menu_flag;
     bool show_fps_flag;

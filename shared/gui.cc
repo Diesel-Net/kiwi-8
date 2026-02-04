@@ -104,6 +104,9 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("File")) {
                 ImGui::MenuItem("Load ROM...", NULL, &gui.load_rom_flag);
+                if (ImGui::MenuItem("Save ROM Profile", NULL, false, chip8.rom_loaded)) {
+                    gui.save_profile_flag = 1;
+                }
                 ImGui::MenuItem("Exit", "Esc", &gui.quit_flag);
                 ImGui::EndMenu();
             }
@@ -216,6 +219,7 @@ void gui_cleanup(void) {
 void gui_init(void) {
     gui.soft_reset_flag = 0;
     gui.load_rom_flag = 0;
+    gui.save_profile_flag = 0;
     gui.quit_flag = 0;
     gui.show_menu_flag = 1;
     gui.show_fps_flag = 0;
