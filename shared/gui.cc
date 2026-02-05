@@ -237,7 +237,7 @@ static void gui_main_menu(void) {
                 if (before != chip8.muted) {
                     notify_show(NOTIFY_INFO, chip8.muted ? "Audio muted" : "Audio unmuted");
                 }
-                
+
                 before = display.limit_fps_flag;
                 ImGui::MenuItem("60 FPS Limit", NULL, &display.limit_fps_flag);
                 if (before != display.limit_fps_flag) {
