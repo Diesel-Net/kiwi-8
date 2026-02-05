@@ -54,17 +54,11 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
       Kiwi8 [options] [rom]
       Options:
-         -F    Fullscreen
-         -M    Mute audio
-         -L    Disable load/store quirk
-         -S    Disable shift quirk
-         -V    Disable vertical wrapping
-         -H    Enable horizontal wrapping (DXYN)
-         -J    Enable jump with VX offset (BNNN)
-         -G    Enable logic ops VF=0 (8XY1/2/3)
-         -I    Enable I+VX overflow quirk (FX1E)
-         -D    Enable draw flag reset quirk
+         -F    Start in fullscreen
+         -M    Start with audio muted
          -h, --help  Show this help message
+
+      Note: Quirks are configured per-ROM via profiles.ini or GUI.
 
 ## Building on Windows
 

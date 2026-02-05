@@ -128,7 +128,6 @@ extern struct chip8 chip8;
 void chip8_destroy(void);
 int chip8_init(
     bool fullscreen,
-    struct quirks quirks,
     bool muted
 );
 int chip8_load(const char *rom_name);
