@@ -44,16 +44,14 @@ int chip8_init(
     }
 
     /* Initialize with default quirks (profiles will override on ROM load) */
-    chip8.quirks = (struct quirks){
-        1, // load_store_quirk
-        1, // shift_quirk
-        0, // jump_quirk
-        0, // logic_vf_quirk
-        0, // i_overflow_quirk
-        0, // draw_flag_quirk
-        1, // vwrap
-        0  // hwrap
-    };
+    chip8.quirks.load_store_quirk = 1;
+    chip8.quirks.shift_quirk = 1;
+    chip8.quirks.jump_quirk = 0;
+    chip8.quirks.logic_vf_quirk = 0;
+    chip8.quirks.i_overflow_quirk = 0;
+    chip8.quirks.draw_flag_quirk = 0;
+    chip8.quirks.vwrap = 1;
+    chip8.quirks.hwrap = 0;
     chip8.muted = muted;
 
     /* init vram */
