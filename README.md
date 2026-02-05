@@ -20,16 +20,18 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 ## Features
 
 - Windows, MacOS, and Linux (Debian)
+- Resizable Window
 - Graphical user interface
 - Color customizer
 - CPU frequency selection
+- FPS limiter
+- Vsync
 - Audio
 - Command line support
 - Configurable quirks
 - Rom Profiles
 
 ## Controls
-
 
     controls        <-->        keybindings
 
