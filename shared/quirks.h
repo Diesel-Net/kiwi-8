@@ -12,4 +12,18 @@ struct quirks {
     bool hwrap;              /* horizontal wrapping */
 };
 
+/* Get default quirks */
+static inline struct quirks quirks_get_defaults(void) {
+    struct quirks defaults;
+    defaults.load_store_quirk = 1;
+    defaults.shift_quirk = 1;
+    defaults.jump_quirk = 0;
+    defaults.logic_vf_quirk = 0;
+    defaults.i_overflow_quirk = 0;
+    defaults.draw_flag_quirk = 0;
+    defaults.vwrap = 1;
+    defaults.hwrap = 0;
+    return defaults;
+}
+
 #endif // QUIRKS_H

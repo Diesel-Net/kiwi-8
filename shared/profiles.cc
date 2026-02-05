@@ -108,6 +108,8 @@ static void profiles_load_from_file(void) {
             /* Initialize profile with defaults */
             memset(&current_profile, 0, sizeof(current_profile));
             current_profile.crc32 = current_crc;
+            /* Set default quirk values */
+            current_profile.quirks = quirks_get_defaults();
             continue;
         }
 

@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "opcodes.h"
 #include "profiles.h"
+#include "quirks.h"
 #include "crc32.h"
 #include "notifications.h"
 #include "open_file_dialog.h"
@@ -44,14 +45,7 @@ int chip8_init(
     }
 
     /* Initialize with default quirks (profiles will override on ROM load) */
-    chip8.quirks.load_store_quirk = 1;
-    chip8.quirks.shift_quirk = 1;
-    chip8.quirks.jump_quirk = 0;
-    chip8.quirks.logic_vf_quirk = 0;
-    chip8.quirks.i_overflow_quirk = 0;
-    chip8.quirks.draw_flag_quirk = 0;
-    chip8.quirks.vwrap = 1;
-    chip8.quirks.hwrap = 0;
+    chip8.quirks = quirks_get_defaults();
     chip8.muted = muted;
 
     /* init vram */
@@ -245,6 +239,8 @@ void chip8_soft_reset() {
     /* flip the GUI bit */
     gui.soft_reset_flag = 0;
 
+    /* Notify user */
+    notify_show(NOTIFY_INFO, "Soft reset complete");
 }
 
 void chip8_run(){

@@ -146,7 +146,7 @@ static void gui_notifications(void) {
         snprintf(window_name, sizeof(window_name), "##notification%d", i);
 
         /* Set max width for notifications */
-        float max_width = 300.0f;
+        float max_width = 400.0f;
         ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(max_width, FLT_MAX));
 
         ImGui::Begin(window_name, NULL,
@@ -232,8 +232,17 @@ static void gui_main_menu(void) {
             }
 
             if (ImGui::BeginMenu("Settings")) {
+                before = chip8.muted;
                 ImGui::MenuItem("Mute Audio", "M", &chip8.muted);
+                if (before != chip8.muted) {
+                    notify_show(NOTIFY_INFO, chip8.muted ? "Audio muted" : "Audio unmuted");
+                }
+                
+                before = display.limit_fps_flag;
                 ImGui::MenuItem("60 FPS Limit", NULL, &display.limit_fps_flag);
+                if (before != display.limit_fps_flag) {
+                    notify_show(NOTIFY_INFO, display.limit_fps_flag ? "60 FPS limit enabled" : "60 FPS limit disabled");
+                }
 
                 /*
                 toggle Vsync is disabled for now because it doesn't really

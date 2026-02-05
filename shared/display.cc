@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "display.h"
 #include "gui.h"
+#include "notifications.h"
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
 
@@ -130,6 +131,7 @@ void display_toggle_fullscreen(void) {
         SDL_SetWindowFullscreen(display.window, 0);
         SDL_ShowCursor(SDL_ENABLE);
         display.fullscreen_flag = 0;
+        notify_show(NOTIFY_INFO, "Windowed mode");
 
     } else {
         /* set fullscreen */
@@ -138,6 +140,7 @@ void display_toggle_fullscreen(void) {
            regardless of SDL2's cursor visibility function */
         SDL_ShowCursor(SDL_DISABLE);
         display.fullscreen_flag = 1;
+        notify_show(NOTIFY_INFO, "Fullscreen mode");
 
     }
 }
