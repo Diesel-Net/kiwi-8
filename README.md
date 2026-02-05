@@ -19,13 +19,14 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Features
 
-- Windows and MacOS
+- Windows, MacOS, and Linux (Debian)
 - Graphical user interface
-- Audio
 - Color customizer
 - CPU frequency selection
+- Audio
 - Command line support
-- No SCHIP support
+- Configurable quirks
+- Rom Profiles
 
 ## Controls
 
