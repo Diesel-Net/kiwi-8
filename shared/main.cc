@@ -40,7 +40,7 @@ int main(int argc, char **argv){
 
     /* load ROM from the last non-option argument */
     if (argc > 1 && argv[argc-1][0] != '-') {
-        if (chip8_load(argv[argc-1])) return 1;
+        if (chip8_load_rom(argv[argc-1])) return 1;
     }
 
     chip8_run();

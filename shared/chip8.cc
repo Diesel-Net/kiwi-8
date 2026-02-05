@@ -128,11 +128,11 @@ int chip8_load_bootrom() {
     return 0;
 }
 
-int chip8_load(const char *rom_name) {
-    if (rom_name) {
+int chip8_load_rom(const char *rom_filepath) {
+    if (rom_filepath) {
         /* open the file */
         FILE *file;
-        file = fopen(rom_name, "rb");
+        file = fopen(rom_filepath, "rb");
         if(file == NULL){
             notify_show(NOTIFY_ERROR, "Unable to open ROM file");
             return 1;
@@ -168,9 +168,9 @@ int chip8_load(const char *rom_name) {
         fclose(file);
 
         /* Extract basename for profile tracking */
-        const char *basename = strrchr(rom_name, '/');
-        if (!basename) basename = strrchr(rom_name, '\\'); /* Windows */
-        basename = basename ? basename + 1 : rom_name;
+        const char *basename = strrchr(rom_filepath, '/');
+        if (!basename) basename = strrchr(rom_filepath, '\\'); /* Windows */
+        basename = basename ? basename + 1 : rom_filepath;
         strncpy(chip8.rom_filename, basename, sizeof(chip8.rom_filename) - 1);
         chip8.rom_filename[sizeof(chip8.rom_filename) - 1] = '\0';
 
@@ -200,7 +200,7 @@ int chip8_load(const char *rom_name) {
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name) ?
             fprintf(stderr, "User aborted the open file dialog.\n") :
-            chip8_load(new_rom_name);
+            chip8_load_rom(new_rom_name);
 
         /* flip GUI toggle */
         gui.load_rom_flag = 0;
@@ -270,7 +270,7 @@ void chip8_run(){
 
         /* do something based on response... */
         if (event & USER_QUIT) return;
-        if (event & LOAD_ROM) chip8_load(NULL);
+        if (event & LOAD_ROM) chip8_load_rom(NULL);
         if (event & SOFT_RESET) chip8_soft_reset();
         if (event & SAVE_PROFILE) {
             profiles_save_current();

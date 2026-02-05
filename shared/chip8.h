@@ -130,7 +130,7 @@ int chip8_init(
     bool fullscreen,
     bool muted
 );
-int chip8_load(const char *rom_name);
+int chip8_load_rom(const char *rom_filepath);
 void chip8_run(void);
 void chip8_update_timers(void);
 void chip8_step_cpu(int cycles);
