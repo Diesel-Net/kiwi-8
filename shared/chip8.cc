@@ -190,7 +190,7 @@ int chip8_load_rom(const char *rom_filepath) {
         /* load ROM from GUI */
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name) ?
-            fprintf(stderr, "User aborted the open file dialog.\n") :
+            fprintf(stdout, "User aborted the open file dialog.\n") :
             chip8_load_rom(new_rom_name);
 
         /* flip GUI toggle */
