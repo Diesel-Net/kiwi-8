@@ -168,6 +168,9 @@ int chip8_load_rom(const char *rom_filepath) {
 
         /* Mark as user ROM (not bootrom) */
         chip8.rom_loaded = 1;
+        char notif_msg[256];
+        snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
+        notify_show(NOTIFY_SUCCESS, notif_msg);
 
         /* Compute CRC32 and lookup profile */
         uint32_t crc = crc32_compute(chip8.rom, chip8.rom_size);
@@ -176,13 +179,9 @@ int chip8_load_rom(const char *rom_filepath) {
         if (profile) {
             /* Apply profile quirks */
             chip8.quirks = profile->quirks;
-            char notif_msg[256];
-            snprintf(notif_msg, sizeof(notif_msg), "Profile applied: %s", chip8.rom_filename);
-            notify_show(NOTIFY_SUCCESS, notif_msg);
+            notify_show(NOTIFY_SUCCESS, "Profile applied");
         } else {
-            char notif_msg[256];
-            snprintf(notif_msg, sizeof(notif_msg), "No profile found: %s", chip8.rom_filename);
-            notify_show(NOTIFY_INFO, notif_msg);
+            notify_show(NOTIFY_INFO, "No profile found");
         }
 
         chip8_soft_reset();
@@ -239,8 +238,6 @@ void chip8_soft_reset() {
     /* flip the GUI bit */
     gui.soft_reset_flag = 0;
 
-    /* Notify user */
-    notify_show(NOTIFY_INFO, "Soft reset complete");
 }
 
 void chip8_run(){
@@ -265,7 +262,10 @@ void chip8_run(){
         /* do something based on response... */
         if (event & USER_QUIT) return;
         if (event & LOAD_ROM) chip8_load_rom(NULL);
-        if (event & SOFT_RESET) chip8_soft_reset();
+        if (event & SOFT_RESET) {
+            chip8_soft_reset();
+            notify_show(NOTIFY_INFO, "Soft reset complete");
+        }
         if (event & SAVE_PROFILE) {
             profiles_save_current();
             gui.save_profile_flag = 0;
