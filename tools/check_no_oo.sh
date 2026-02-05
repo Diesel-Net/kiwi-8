@@ -8,7 +8,6 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TARGET_DIR="${1:-shared}"
 
 EXCLUDE_PATTERNS=(
-  "shared/imgui_impl_sdl"
   "shared/open_file_dialog.cc"
 )
 
