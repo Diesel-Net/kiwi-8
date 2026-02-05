@@ -29,6 +29,7 @@ LFLAGS = /link \
 
 INCS = /I..\external\sdl\build\include \
 	   /I..\external\imgui \
+	   /I..\external\stb \
 	   /I..\shared
 LIBS = user32.lib \
 	   SDL2.lib \
@@ -48,9 +49,9 @@ BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
 CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\crc32.cc ..\shared\display.cc ..\shared\gui.cc \
-			..\shared\imgui_impl_sdl.cc ..\shared\input.cc ..\shared\main.cc \
+			..\shared\input.cc ..\shared\main.cc \
 			..\shared\notifications.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
-IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp
+IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp ..\external\imgui\imgui_impl_sdl.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)

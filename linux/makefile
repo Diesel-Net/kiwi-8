@@ -33,7 +33,7 @@ JACK_LIBS = $(shell pkg-config --libs jack)
 
 CFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS)
 
-INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
+INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../shared/
 LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS) $(ESD_LIBS) $(SNDIO_LIBS) -lm -ldl -lpthread
 
 # SDL dependency files
@@ -46,13 +46,15 @@ BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
 CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/crc32.cc ../shared/display.cc ../shared/gui.cc \
-			../shared/imgui_impl_sdl.cc ../shared/input.cc ../shared/main.cc \
+			../shared/input.cc ../shared/main.cc \
 			../shared/notifications.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
-IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp
+IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
 LINUX_SRCS = src/file_dialog.cc
 
 # Object files (convert source paths to .o in current directory)
-OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(LINUX_SRCS:.cc=.o))
+OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
+	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
+	$(notdir $(LINUX_SRCS:.cc=.o))
 DEPS = $(OBJS:.o=.d)
 
 # Include auto-generated dependency files (must be before targets)

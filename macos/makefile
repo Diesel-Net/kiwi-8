@@ -18,7 +18,7 @@ APP_EXE = $(APP_NAME)
 CC = clang++
 CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
+INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
@@ -31,13 +31,15 @@ BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
 CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/crc32.cc ../shared/display.cc ../shared/gui.cc \
-			../shared/imgui_impl_sdl.cc ../shared/input.cc ../shared/main.cc \
+			../shared/input.cc ../shared/main.cc \
 			../shared/notifications.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
-IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp
+IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)
-OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
+OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
+	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
+	$(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
 
 # Include auto-generated dependency files (must be before targets)
