@@ -46,7 +46,7 @@ static void profiles_load_from_file(void) {
                 char notif_msg[256];
                 snprintf(notif_msg, sizeof(notif_msg), "Failed to create: %s", loaded_profiles_path);
                 notify_show(NOTIFY_ERROR, notif_msg);
-                fprintf(stderr, "Error: Unable to create profiles.ini at: %s\n", loaded_profiles_path);
+                printf("Error: Unable to create profiles.ini at: %s\n", loaded_profiles_path);
             }
             return;
         }
@@ -57,7 +57,7 @@ static void profiles_load_from_file(void) {
     /* Get executable's base path using SDL */
     base_path = SDL_GetBasePath();
     if (!base_path) {
-        fprintf(stderr, "Warning: Could not determine executable path. Trying current directory.\n");
+        printf("Warning: Could not determine executable path. Trying current directory.\n");
         snprintf(search_paths[0], sizeof(search_paths[0]), "./profiles.ini");
         snprintf(search_paths[1], sizeof(search_paths[1]), "../Resources/profiles.ini");
     } else {
@@ -99,7 +99,7 @@ static void profiles_load_from_file(void) {
             notify_show(NOTIFY_INFO, notif_msg);
         } else {
             notify_show(NOTIFY_ERROR, "Failed to create profiles.ini");
-            fprintf(stderr, "Error: Unable to create profiles.ini at: %s\n", search_paths[0]);
+            printf("Error: Unable to create profiles.ini at: %s\n", search_paths[0]);
         }
         return;
     }
@@ -132,7 +132,7 @@ parse_ini:
             }
 
             if (sscanf(line, "[0x%x]", &current_crc) != 1) {
-                fprintf(stderr, "Error: Invalid profile section header: %s\n", line);
+                printf("Error: Invalid profile section header: %s\n", line);
                 current_crc = 0;
                 continue;
             }
@@ -215,13 +215,13 @@ static void profiles_write_to_file(void) {
     int i;
 
     if (loaded_profiles_path[0] == '\0') {
-        fprintf(stderr, "Error: profiles.ini path not initialized\n");
+        printf("Error: profiles.ini path not initialized\n");
         return;
     }
 
     file = fopen(loaded_profiles_path, "w");
     if (!file) {
-        fprintf(stderr, "Error: Unable to write to %s\n", loaded_profiles_path);
+        printf("Error: Unable to write to %s\n", loaded_profiles_path);
         return;
     }
 
@@ -284,7 +284,7 @@ void profiles_save_current(void) {
     /* Write entire hashmap to INI file */
     profiles_write_to_file();
 
-    fprintf(stdout, "Saved ROM profile for: %s (CRC32: 0x%X)\n",
+    printf("Saved ROM profile for: %s (CRC32: 0x%X)\n",
            chip8.rom_filename, crc32);
 
     /* Show success notification with path */

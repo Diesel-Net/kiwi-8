@@ -62,7 +62,7 @@ int audio_init(void) {
     int driver_found = 0;
     for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
         if (SDL_AudioInit(drivers[i]) == 0) {
-            fprintf(stdout, "Audio driver: %s\n", drivers[i]);
+            printf("Audio driver: %s\n", drivers[i]);
             char msg[256];
             snprintf(msg, sizeof(msg), "Audio driver: %s", drivers[i]);
             notify_show(NOTIFY_SUCCESS, msg);
@@ -71,18 +71,18 @@ int audio_init(void) {
         }
     }
     if (!driver_found) {
-        fprintf(stderr, "Could not initialize any audio driver, continuing without sound.\n");
+        printf("Could not initialize any audio driver, continuing without sound.\n");
         notify_show(NOTIFY_ERROR, "Could not initialize audio driver");
         notify_show(NOTIFY_INFO, "Continuing without sound");
     }
     audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
     if (!audio.device) {
-        fprintf(stderr, "No audio device available, using dummy driver. %s\n", SDL_GetError());
+        printf("No audio device available, using dummy driver. %s\n", SDL_GetError());
         notify_show(NOTIFY_INFO, "Using dummy audio driver");
         SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
         audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
         if (!audio.device) {
-            fprintf(stderr, "Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
+            printf("Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
             notify_show(NOTIFY_ERROR, "Failed to initialize audio");
             return 1;
         }

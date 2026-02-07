@@ -41,7 +41,7 @@ int chip8_init(
         SDL_INIT_VIDEO |
         SDL_INIT_EVENTS
     )) {
-        fprintf(stderr,"Error: %s\n", SDL_GetError());
+        printf("Error: %s\n", SDL_GetError());
         return 1;
     }
 
@@ -53,14 +53,14 @@ int chip8_init(
     chip8.vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     const char *err_str = "Unable to allocate memory on the heap.\n";
     if (!chip8.vram) {
-        fprintf(stderr, "%s", err_str);
+        printf("%s", err_str);
         return 1;
     }
     memset(chip8.vram, 0, WIDTH * sizeof(unsigned char *));
     for (int i = 0; i < WIDTH; i++) {
         chip8.vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
         if (!chip8.vram[i]) {
-            fprintf(stderr, "%s", err_str);
+            printf("%s", err_str);
             return 1;
         }
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -103,7 +103,7 @@ int chip8_load_bootrom() {
     chip8.rom_size = BOOTROM_SIZE;
     chip8.rom = (unsigned char *)malloc(chip8.rom_size);
     if(!chip8.rom) {
-        fprintf(stderr, "Unable to allocate memory for rom.\n");
+        printf("Unable to allocate memory for rom.\n");
         return 1;
     }
     memset(chip8.rom, 0 , chip8.rom_size);
@@ -191,7 +191,7 @@ int chip8_load_rom(const char *rom_filepath) {
         /* load ROM from GUI */
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name) ?
-            fprintf(stdout, "User aborted the open file dialog.\n") :
+            printf("User aborted the open file dialog.\n") :
             chip8_load_rom(new_rom_name);
 
         /* flip GUI toggle */

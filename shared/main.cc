@@ -31,7 +31,7 @@ int main(int argc, char **argv){
             }
         }
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
-            fprintf(stderr, "%s", USAGE_TEXT);
+            printf("%s", USAGE_TEXT);
             return 0;
         }
         if (strcmp(argv[i], "--fullscreen") == 0) fullscreen = 1;
