@@ -42,12 +42,14 @@ OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
 
+PROFILES_INI = ../roms/profiles.ini
+
 # Include auto-generated dependency files (must be before targets)
 -include $(DEPS)
 
 .DEFAULT_GOAL := all
 
-all: debug/$(APP_EXE) release/$(APP_BUNDLE)
+all: debug/$(APP_EXE) release/$(APP_BUNDLE) debug/profiles.ini release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
@@ -79,11 +81,18 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 %.o: src/%.mm
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
+debug/profiles.ini: $(PROFILES_INI)
+	mkdir -p debug
+	cp $(PROFILES_INI) debug/profiles.ini
+
+release/$(APP_BUNDLE)/Contents/Resources/profiles.ini: $(PROFILES_INI)
+	mkdir -p release/$(APP_BUNDLE)/Contents/Resources
+	cp $(PROFILES_INI) release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
+
 # debug executable
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
 	cp $(SDL_LIB) debug/libSDL2-2.0.0.dylib
-	cp ../roms/profiles.ini debug/profiles.ini
 	$(CC) $(CFLAGS) -g $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 	# Set the dylib's install name to be relative to the bundle
@@ -98,7 +107,7 @@ release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 # .app bundle
-release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns $(APP_MANIFEST)
+release/$(APP_BUNDLE): $(APP_MANIFEST) $(SDL_LIB) resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
 	mkdir -p release/$(APP_BUNDLE)/Contents/{Resources,Frameworks}
 
 	# Copying the frameworks into .app bundle
@@ -107,7 +116,6 @@ release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB
 	# Moving other files into .app bundle
 	cp resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
 	cp $(APP_MANIFEST) release/$(APP_BUNDLE)/Contents/Info.plist
-	cp ../roms/profiles.ini release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib

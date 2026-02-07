@@ -59,9 +59,10 @@ OBJS = audio.obj chip8.obj crc32.obj display.obj gui.obj imgui_impl_sdl.obj inpu
 	main.obj notifications.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
 	file_dialog.obj
 
+PROFILES_INI = ..\roms\profiles.ini
 
 # Default target
-all: debug\$(APP_EXE) release\$(APP_EXE)
+all: debug\$(APP_EXE) release\$(APP_EXE) debug\profiles.ini release\profiles.ini
 
 # Detect architecture from environment (set by MSVC vcvarsall.bat)
 # VSCMD_ARG_TGT_ARCH is set to x64, x86, arm64, or arm
@@ -113,18 +114,24 @@ $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
 	MOVE src\Kiwi8.res $@
 
+debug\profiles.ini: $(PROFILES_INI)
+	IF NOT EXIST debug MKDIR debug
+	COPY $(PROFILES_INI) debug\profiles.ini
+
+release\profiles.ini: $(PROFILES_INI)
+	IF NOT EXIST release MKDIR release
+	COPY $(PROFILES_INI) release\profiles.ini
+
 debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
 	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
 	IF NOT EXIST debug MKDIR debug
 	COPY $(SDL_DLL) debug\SDL2.dll
-	COPY ..\roms\profiles.ini debug\profiles.ini
 	MOVE $(APP_EXE) $@
 
 release\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
 	$(CC) $(CFLAGS) /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:WINDOWS
 	IF NOT EXIST release MKDIR release
 	COPY $(SDL_DLL) release\SDL2.dll
-	COPY ..\roms\profiles.ini release\profiles.ini
 	MOVE $(APP_EXE) $@
 
 run-debug:

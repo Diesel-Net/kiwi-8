@@ -57,12 +57,14 @@ OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(LINUX_SRCS:.cc=.o))
 DEPS = $(OBJS:.o=.d)
 
+PROFILES_INI = ../roms/profiles.ini
+
 # Include auto-generated dependency files (must be before targets)
 -include $(DEPS)
 
 .DEFAULT_GOAL := all
 
-all: debug/$(APP_EXE) release/$(APP_EXE)
+all: debug/$(APP_EXE) release/$(APP_EXE) debug/profiles.ini release/profiles.ini
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
@@ -90,18 +92,24 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 %.o: src/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
+debug/profiles.ini: $(PROFILES_INI)
+	mkdir -p debug
+	cp $(PROFILES_INI) debug/profiles.ini
+
+release/profiles.ini: $(PROFILES_INI)
+	mkdir -p release
+	cp $(PROFILES_INI) release/profiles.ini
+
 # debug executable
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
 	cp $(SDL_LIB) debug/libSDL2-2.0.so.0
-	cp ../roms/profiles.ini debug/profiles.ini
 	$(CC) $(CFLAGS) -g $(INCS) $(LIBDIRS) $(OBJS) -o $@ $(LIBS) $(LFLAGS)
 
 # release executable
 release/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p release
 	cp $(SDL_LIB) release/libSDL2-2.0.so.0
-	cp ../roms/profiles.ini release/profiles.ini
 	$(CC) $(CFLAGS) $(INCS) $(LIBDIRS) $(OBJS) -o $@ $(LIBS) $(LFLAGS)
 
 run-debug: debug/$(APP_EXE)
