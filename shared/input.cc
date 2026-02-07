@@ -1,7 +1,7 @@
 #include "chip8.h"
 #include "input.h"
 #include "display.h"
-#include "notifications.h"
+#include "toast.h"
 
 /* Global input instance */
 struct input input;
@@ -48,11 +48,11 @@ static int input_process_events(void) {
         if (input.state[SDL_SCANCODE_RETURN]) display_toggle_fullscreen();
         if (input.state[SDL_SCANCODE_P]) {
             chip8.paused = !chip8.paused;
-            notify_show(NOTIFY_INFO, chip8.paused ? "Paused" : "Unpaused");
+            toast_show(TOAST_INFO, chip8.paused ? "Paused" : "Unpaused");
         }
         if (input.state[SDL_SCANCODE_M]) {
             chip8.muted = !chip8.muted;
-            notify_show(NOTIFY_INFO, chip8.muted ? "Muted" : "Unmuted");
+            toast_show(TOAST_INFO, chip8.muted ? "Muted" : "Unmuted");
         }
         if (input.state[SDL_SCANCODE_LALT]) gui.show_menu_flag = !gui.show_menu_flag;
         if (input.state[SDL_SCANCODE_RALT]) gui.show_fps_flag = !gui.show_fps_flag;

@@ -2,7 +2,7 @@
 #include "display.h"
 #include "gui.h"
 #include "license.h" // Generated at build time from LICENSE
-#include "notifications.h"
+#include "toast.h"
 #include "usage.h"
 #include <stdio.h>
 
@@ -99,9 +99,9 @@ static void gui_help_windows(void) {
     }
 }
 
-static void gui_notifications(void) {
+static void gui_toasts(void) {
     int count;
-    const struct notification *notifications = notify_get_notifications(&count);
+    const struct toast *notifications = toast_get_toasts(&count);
 
     if (count == 0) {
         return;
@@ -115,14 +115,14 @@ static void gui_notifications(void) {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
 
     for (int i = 0; i < 8; i++) {
-        if (!notify_is_active(&notifications[i])) {
+        if (!toast_is_active(&notifications[i])) {
             continue;
         }
 
         const char *message;
         int type;
         double time_remaining;
-        notify_get_info(&notifications[i], &message, &type, &time_remaining);
+        toast_get_info(&notifications[i], &message, &type, &time_remaining);
 
         /* Calculate alpha for fade out effect */
         float alpha = 1.0f;
@@ -132,9 +132,9 @@ static void gui_notifications(void) {
 
         /* Set colors based on notification type */
         ImVec4 bg_color;
-        if (type == NOTIFY_SUCCESS) {
+        if (type == TOAST_SUCCESS) {
             bg_color = ImVec4(0.1f, 0.4f, 0.1f, 0.85f * alpha);
-        } else if (type == NOTIFY_ERROR) {
+        } else if (type == TOAST_ERROR) {
             bg_color = ImVec4(0.5f, 0.1f, 0.1f, 0.85f * alpha);
         } else {
             bg_color = ImVec4(0.25f, 0.25f, 0.25f, 0.85f * alpha);
@@ -211,7 +211,7 @@ static void gui_main_menu(void) {
                 before = chip8.paused;
                 ImGui::MenuItem("Pause", "P", &chip8.paused);
                 if (before != chip8.paused) {
-                    notify_show(NOTIFY_INFO, chip8.paused ? "Paused" : "Unpaused");
+                    toast_show(TOAST_INFO, chip8.paused ? "Paused" : "Unpaused");
                 }
 
                 /* CPU frequency */
@@ -241,13 +241,13 @@ static void gui_main_menu(void) {
                 before = chip8.muted;
                 ImGui::MenuItem("Mute Audio", "M", &chip8.muted);
                 if (before != chip8.muted) {
-                    notify_show(NOTIFY_INFO, chip8.muted ? "Muted" : "Unmuted");
+                    toast_show(TOAST_INFO, chip8.muted ? "Muted" : "Unmuted");
                 }
 
                 before = display.limit_fps_flag;
                 ImGui::MenuItem("60 FPS Limit", NULL, &display.limit_fps_flag);
                 if (before != display.limit_fps_flag) {
-                    notify_show(NOTIFY_INFO, display.limit_fps_flag ? "60 FPS limit enabled" : "60 FPS limit disabled");
+                    toast_show(TOAST_INFO, display.limit_fps_flag ? "60 FPS limit enabled" : "60 FPS limit disabled");
                 }
 
                 /*
@@ -338,7 +338,7 @@ void gui_process_events(SDL_Event *event) {
 void gui_new_frame(void) {
     ImGui_ImplSdl_NewFrame(display.window);
     gui_main_menu();
-    gui_notifications();
+    gui_toasts();
 }
 
 void gui_render(void) {

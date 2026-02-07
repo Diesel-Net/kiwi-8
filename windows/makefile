@@ -50,13 +50,13 @@ BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 # Source files
 CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\crc32.cc ..\shared\display.cc ..\shared\gui.cc \
 			..\shared\input.cc ..\shared\main.cc \
-			..\shared\notifications.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
+			..\shared\toast.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
 IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp ..\external\imgui\imgui_impl_sdl.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
 OBJS = audio.obj chip8.obj crc32.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
-	main.obj notifications.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
+	main.obj toast.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
 	file_dialog.obj
 
 PROFILES_INI = ..\roms\profiles.ini

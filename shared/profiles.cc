@@ -3,7 +3,7 @@
 #include "profiles.h"
 #include "crc32.h"
 #include "chip8.h"
-#include "notifications.h"
+#include "toast.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@ static void profiles_load_from_file(void) {
         if (file) {
             char notif_msg[256];
             snprintf(notif_msg, sizeof(notif_msg), "ROM profiles: %s", loaded_profiles_path);
-            notify_show(NOTIFY_SUCCESS, notif_msg);
+            toast_show(TOAST_SUCCESS, notif_msg);
             fclose(file);
         } else {
             /* Custom path specified but file doesn't exist — create it */
@@ -41,11 +41,11 @@ static void profiles_load_from_file(void) {
 
                 char notif_msg[256];
                 snprintf(notif_msg, sizeof(notif_msg), "ROM profiles created: %s", loaded_profiles_path);
-                notify_show(NOTIFY_INFO, notif_msg);
+                toast_show(TOAST_INFO, notif_msg);
             } else {
                 char notif_msg[256];
                 snprintf(notif_msg, sizeof(notif_msg), "Failed to create: %s", loaded_profiles_path);
-                notify_show(NOTIFY_ERROR, notif_msg);
+                toast_show(TOAST_ERROR, notif_msg);
                 printf("Error: Unable to create profiles.ini at: %s\n", loaded_profiles_path);
             }
             return;
@@ -77,7 +77,7 @@ static void profiles_load_from_file(void) {
 
             char notif_msg[256];
             snprintf(notif_msg, sizeof(notif_msg), "ROM profiles: %s", search_paths[i]);
-            notify_show(NOTIFY_SUCCESS, notif_msg);
+            toast_show(TOAST_SUCCESS, notif_msg);
 
             fclose(file);
             break;
@@ -96,9 +96,9 @@ static void profiles_load_from_file(void) {
 
             char notif_msg[256];
             snprintf(notif_msg, sizeof(notif_msg), "ROM profiles created: %s", search_paths[0]);
-            notify_show(NOTIFY_INFO, notif_msg);
+            toast_show(TOAST_INFO, notif_msg);
         } else {
-            notify_show(NOTIFY_ERROR, "Failed to create profiles.ini");
+            toast_show(TOAST_ERROR, "Failed to create profiles.ini");
             printf("Error: Unable to create profiles.ini at: %s\n", search_paths[0]);
         }
         return;
@@ -256,13 +256,13 @@ void profiles_save_current(void) {
 
     /* Check if ROM is actually loaded */
     if (!chip8.rom_loaded || !chip8.rom || chip8.rom_size == 0) {
-        notify_show(NOTIFY_ERROR, "No ROM loaded. Cannot save profile.");
+        toast_show(TOAST_ERROR, "No ROM loaded. Cannot save profile.");
         return;
     }
 
     /* Check if we have a valid profiles path */
     if (loaded_profiles_path[0] == '\0') {
-        notify_show(NOTIFY_ERROR, "Could not locate profiles.ini");
+        toast_show(TOAST_ERROR, "Could not locate profiles.ini");
         return;
     }
 
@@ -290,5 +290,5 @@ void profiles_save_current(void) {
     /* Show success notification with path */
     char notif_msg[256];
     snprintf(notif_msg, sizeof(notif_msg), "Profile saved: %s", chip8.rom_filename);
-    notify_show(NOTIFY_SUCCESS, notif_msg);
+    toast_show(TOAST_SUCCESS, notif_msg);
 }

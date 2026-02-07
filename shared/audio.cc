@@ -1,5 +1,5 @@
 #include "audio.h"
-#include "notifications.h"
+#include "toast.h"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -65,25 +65,25 @@ int audio_init(void) {
             printf("Audio driver: %s\n", drivers[i]);
             char msg[256];
             snprintf(msg, sizeof(msg), "Audio driver: %s", drivers[i]);
-            notify_show(NOTIFY_SUCCESS, msg);
+            toast_show(TOAST_SUCCESS, msg);
             driver_found = 1;
             break;
         }
     }
     if (!driver_found) {
         printf("Could not initialize any audio driver, continuing without sound.\n");
-        notify_show(NOTIFY_ERROR, "Could not initialize audio driver");
-        notify_show(NOTIFY_INFO, "Continuing without sound");
+        toast_show(TOAST_ERROR, "Could not initialize audio driver");
+        toast_show(TOAST_INFO, "Continuing without sound");
     }
     audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
     if (!audio.device) {
         printf("No audio device available, using dummy driver. %s\n", SDL_GetError());
-        notify_show(NOTIFY_INFO, "Using dummy audio driver");
+        toast_show(TOAST_INFO, "Using dummy audio driver");
         SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
         audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
         if (!audio.device) {
             printf("Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
-            notify_show(NOTIFY_ERROR, "Failed to initialize audio");
+            toast_show(TOAST_ERROR, "Failed to initialize audio");
             return 1;
         }
     }

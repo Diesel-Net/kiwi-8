@@ -3,7 +3,7 @@
 #include "profiles.h"
 #include "quirks.h"
 #include "crc32.h"
-#include "notifications.h"
+#include "toast.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -66,8 +66,8 @@ int chip8_init(
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    /* Initialize notification system first (before audio) */
-    notify_init();
+    /* Initialize toast system first (before audio) */
+    toast_init();
 
     audio_init();
 
@@ -127,7 +127,7 @@ int chip8_load_rom(const char *rom_filepath) {
         FILE *file;
         file = fopen(rom_filepath, "rb");
         if(file == NULL){
-            notify_show(NOTIFY_ERROR, "Unable to open ROM file");
+            toast_show(TOAST_ERROR, "Unable to open ROM file");
             return 1;
         }
 
@@ -136,7 +136,7 @@ int chip8_load_rom(const char *rom_filepath) {
         chip8.rom_size = ftell(file);
         rewind(file);
         if (chip8.rom_size > MEM_SIZE - ENTRY_POINT) {
-            notify_show(NOTIFY_ERROR, "ROM is too large or not formatted properly");
+            toast_show(TOAST_ERROR, "ROM is too large or not formatted properly");
             fclose(file);
             return 1;
         }
@@ -145,7 +145,7 @@ int chip8_load_rom(const char *rom_filepath) {
         free(chip8.rom);
         chip8.rom = (unsigned char *)malloc(chip8.rom_size);
         if(!chip8.rom) {
-            notify_show(NOTIFY_ERROR, "Unable to allocate memory for ROM");
+            toast_show(TOAST_ERROR, "Unable to allocate memory for ROM");
             fclose(file);
             return 1;
         }
@@ -153,7 +153,7 @@ int chip8_load_rom(const char *rom_filepath) {
 
         /* save the rom for later (soft-resets) */
         if (!fread(chip8.rom, sizeof(unsigned char), chip8.rom_size, file)) {
-            notify_show(NOTIFY_ERROR, "Unable to read ROM file");
+            toast_show(TOAST_ERROR, "Unable to read ROM file");
             fclose(file);
             return 1;
         }
@@ -171,7 +171,7 @@ int chip8_load_rom(const char *rom_filepath) {
         chip8.rom_loaded = 1;
         char notif_msg[256];
         snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
-        notify_show(NOTIFY_SUCCESS, notif_msg);
+        toast_show(TOAST_SUCCESS, notif_msg);
 
         /* Compute CRC32 and lookup profile */
         uint32_t crc = crc32_compute(chip8.rom, chip8.rom_size);
@@ -180,9 +180,9 @@ int chip8_load_rom(const char *rom_filepath) {
         if (profile) {
             /* Apply profile quirks */
             chip8.quirks = profile->quirks;
-            notify_show(NOTIFY_SUCCESS, "Profile applied");
+            toast_show(TOAST_SUCCESS, "Profile applied");
         } else {
-            notify_show(NOTIFY_INFO, "No profile found");
+            toast_show(TOAST_INFO, "No profile found");
         }
 
         chip8_soft_reset();
@@ -265,15 +265,15 @@ void chip8_run(){
         if (event & LOAD_ROM) chip8_load_rom(NULL);
         if (event & SOFT_RESET) {
             chip8_soft_reset();
-            notify_show(NOTIFY_INFO, "Reset");
+            toast_show(TOAST_INFO, "Reset");
         }
         if (event & SAVE_PROFILE) {
             profiles_save_current();
             gui.save_profile_flag = 0;
         }
 
-        /* Update notification timers */
-        notify_update((double)interval / 1000.0);
+        /* Update toast timers */
+        toast_update((double)interval / 1000.0);
 
         if (!chip8.paused) {
             /* emulate a number of cycles */
