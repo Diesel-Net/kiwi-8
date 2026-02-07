@@ -265,7 +265,7 @@ void chip8_run(){
         if (event & LOAD_ROM) chip8_load_rom(NULL);
         if (event & SOFT_RESET) {
             chip8_soft_reset();
-            notify_show(NOTIFY_INFO, "Soft reset complete");
+            notify_show(NOTIFY_INFO, "Reset");
         }
         if (event & SAVE_PROFILE) {
             profiles_save_current();

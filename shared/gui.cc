@@ -67,11 +67,8 @@ static void gui_help_windows(void) {
         ImGui::End();
     }
     if (gui.show_fps_flag) {
-        if (gui.show_menu_flag) {
-            ImGui::SetNextWindowPos(ImVec2(1, 21));
-        } else {
-            ImGui::SetNextWindowPos(ImVec2(1, 2));
-        }
+        ImGuiIO& io = ImGui::GetIO();
+        float y = gui.show_menu_flag ? 21.0f : 2.0f;
         if (!ImGui::Begin(
                 "FPS",
                 &gui.show_fps_flag,
@@ -80,7 +77,8 @@ static void gui_help_windows(void) {
                 ImGuiWindowFlags_NoTitleBar |
                 ImGuiWindowFlags_NoResize |
                 ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoSavedSettings
+                ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_AlwaysAutoResize
             )
         ) {
             ImGui::End();
@@ -92,6 +90,10 @@ static void gui_help_windows(void) {
             ImGui::GetIO().Framerate,
             1000.0f / ImGui::GetIO().Framerate
         );
+
+        /* Pin to top-right corner */
+        ImVec2 ws = ImGui::GetWindowSize();
+        ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ws.x - 1, y));
 
         ImGui::End();
     }
@@ -185,7 +187,7 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("File")) {
                 ImGui::MenuItem("Load ROM...", NULL, &gui.load_rom_flag);
-                if (ImGui::MenuItem("Save ROM Profile", NULL, false, chip8.rom_loaded)) {
+                if (ImGui::MenuItem("Save Profile", NULL, false, chip8.rom_loaded)) {
                     gui.save_profile_flag = 1;
                 }
                 ImGui::MenuItem("Exit", "Esc", &gui.quit_flag);
@@ -206,7 +208,11 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("Emulation")) {
                 ImGui::MenuItem("Reset", "F5", &gui.soft_reset_flag);
+                before = chip8.paused;
                 ImGui::MenuItem("Pause", "P", &chip8.paused);
+                if (before != chip8.paused) {
+                    notify_show(NOTIFY_INFO, chip8.paused ? "Paused" : "Unpaused");
+                }
 
                 /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){

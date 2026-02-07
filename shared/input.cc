@@ -48,7 +48,7 @@ static int input_process_events(void) {
         if (input.state[SDL_SCANCODE_RETURN]) display_toggle_fullscreen();
         if (input.state[SDL_SCANCODE_P]) {
             chip8.paused = !chip8.paused;
-            notify_show(NOTIFY_INFO, chip8.paused ? "Paused" : "Resumed");
+            notify_show(NOTIFY_INFO, chip8.paused ? "Paused" : "Unpaused");
         }
         if (input.state[SDL_SCANCODE_M]) {
             chip8.muted = !chip8.muted;
