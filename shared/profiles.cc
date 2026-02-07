@@ -23,6 +23,37 @@ static void profiles_load_from_file(void) {
     char search_paths[2][512];
     int i;
 
+    /* If a custom path was already set via profiles_init(), use it directly */
+    if (loaded_profiles_path[0] != '\0') {
+        file = fopen(loaded_profiles_path, "r");
+        if (file) {
+            char notif_msg[256];
+            snprintf(notif_msg, sizeof(notif_msg), "ROM profiles: %s", loaded_profiles_path);
+            notify_show(NOTIFY_SUCCESS, notif_msg);
+            fclose(file);
+        } else {
+            /* Custom path specified but file doesn't exist — create it */
+            file = fopen(loaded_profiles_path, "w");
+            if (file) {
+                fprintf(file, "# ROM Profiles Database\n");
+                fprintf(file, "# Format: [0xCRC32] followed by quirk settings\n\n");
+                fclose(file);
+
+                char notif_msg[256];
+                snprintf(notif_msg, sizeof(notif_msg), "ROM profiles created: %s", loaded_profiles_path);
+                notify_show(NOTIFY_INFO, notif_msg);
+            } else {
+                char notif_msg[256];
+                snprintf(notif_msg, sizeof(notif_msg), "Failed to create: %s", loaded_profiles_path);
+                notify_show(NOTIFY_ERROR, notif_msg);
+                fprintf(stderr, "Error: Unable to create profiles.ini at: %s\n", loaded_profiles_path);
+            }
+            return;
+        }
+        /* Fall through to INI parsing below */
+        goto parse_ini;
+    }
+
     /* Get executable's base path using SDL */
     base_path = SDL_GetBasePath();
     if (!base_path) {
@@ -73,6 +104,7 @@ static void profiles_load_from_file(void) {
         return;
     }
 
+parse_ini:
     /* Parse INI file */
     char line[512];
     uint32_t current_crc = 0;
@@ -158,8 +190,12 @@ static void profiles_load_from_file(void) {
     fclose(file);
 }
 
-void profiles_init(void) {
+void profiles_init(const char *custom_path) {
     if (profile_map == NULL) {
+        if (custom_path && custom_path[0] != '\0') {
+            strncpy(loaded_profiles_path, custom_path, sizeof(loaded_profiles_path) - 1);
+            loaded_profiles_path[sizeof(loaded_profiles_path) - 1] = '\0';
+        }
         profiles_load_from_file();
     }
 }

@@ -52,11 +52,12 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Usage
 
-      Kiwi8 [options] [rom]
+      Kiwi8 [options] [rom_file]
       Options:
-         -F    Start in fullscreen
-         -M    Start with audio muted
-         -h, --help  Show this help message
+         -f, --fullscreen         Start in fullscreen
+         -m, --muted              Start with audio muted
+         -p, --profiles <path>    Use a custom profiles.ini file
+         -h, --help               Show this help message
 
       Note: Quirks are configured per-ROM via profiles.ini or GUI.
 

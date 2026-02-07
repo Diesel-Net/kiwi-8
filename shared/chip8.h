@@ -128,7 +128,8 @@ extern struct chip8 chip8;
 void chip8_destroy(void);
 int chip8_init(
     bool fullscreen,
-    bool muted
+    bool muted,
+    const char *profiles_path
 );
 int chip8_load_rom(const char *rom_filepath);
 void chip8_run(void);

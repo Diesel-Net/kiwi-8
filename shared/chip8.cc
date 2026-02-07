@@ -27,7 +27,8 @@ void chip8_destroy() {
 
 int chip8_init(
     bool fullscreen,
-    bool muted
+    bool muted,
+    const char *profiles_path
 ) {
     chip8.cycles = CYCLES_PER_STEP;
     chip8.paused = 0;
@@ -92,7 +93,7 @@ int chip8_init(
     }
 
     /* Initialize ROM profile database */
-    profiles_init();
+    profiles_init(profiles_path);
 
     return chip8_load_bootrom();
 }

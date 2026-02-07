@@ -10,8 +10,9 @@ struct profile {
     struct quirks quirks;
 };
 
-/* Initialize the ROM profiles database at startup */
-void profiles_init(void);
+/* Initialize the ROM profiles database at startup.
+ * Pass a custom file path, or NULL to use default search paths. */
+void profiles_init(const char *custom_path);
 
 /* Lookup a ROM profile by CRC32. Returns NULL if not found. */
 const struct profile* profile_lookup(uint32_t crc32);

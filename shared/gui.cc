@@ -8,7 +8,7 @@
 
 static void gui_help_windows(void) {
     if (gui.show_usage) {
-        ImGui::SetNextWindowSize(ImVec2(350, 210), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(445, 150), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &gui.show_usage);
         ImGui::TextWrapped("%s", USAGE_TEXT);
@@ -235,7 +235,7 @@ static void gui_main_menu(void) {
                 before = chip8.muted;
                 ImGui::MenuItem("Mute Audio", "M", &chip8.muted);
                 if (before != chip8.muted) {
-                    notify_show(NOTIFY_INFO, chip8.muted ? "Audio muted" : "Audio unmuted");
+                    notify_show(NOTIFY_INFO, chip8.muted ? "Muted" : "Unmuted");
                 }
 
                 before = display.limit_fps_flag;

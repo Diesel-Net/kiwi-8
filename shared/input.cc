@@ -52,7 +52,7 @@ static int input_process_events(void) {
         }
         if (input.state[SDL_SCANCODE_M]) {
             chip8.muted = !chip8.muted;
-            notify_show(NOTIFY_INFO, chip8.muted ? "Audio muted" : "Audio unmuted");
+            notify_show(NOTIFY_INFO, chip8.muted ? "Muted" : "Unmuted");
         }
         if (input.state[SDL_SCANCODE_LALT]) gui.show_menu_flag = !gui.show_menu_flag;
         if (input.state[SDL_SCANCODE_RALT]) gui.show_fps_flag = !gui.show_fps_flag;
