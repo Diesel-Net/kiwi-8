@@ -62,7 +62,7 @@ OBJS = audio.obj chip8.obj crc32.obj display.obj gui.obj imgui_impl_sdl.obj inpu
 PROFILES_INI = ..\roms\profiles.ini
 
 # Default target
-all: debug\$(APP_EXE) release\$(APP_EXE) debug\profiles.ini release\profiles.ini
+all: debug\profiles.ini debug\$(APP_EXE) release\profiles.ini release\$(APP_EXE)
 
 # Detect architecture from environment (set by MSVC vcvarsall.bat)
 # VSCMD_ARG_TGT_ARCH is set to x64, x86, arm64, or arm

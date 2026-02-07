@@ -64,7 +64,7 @@ PROFILES_INI = ../roms/profiles.ini
 
 .DEFAULT_GOAL := all
 
-all: debug/$(APP_EXE) release/$(APP_EXE) debug/profiles.ini release/profiles.ini
+all: debug/profiles.ini debug/$(APP_EXE) release/profiles. release/$(APP_EXE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
