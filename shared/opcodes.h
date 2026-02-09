@@ -5,6 +5,7 @@
 #include "chip8.h"
 #include <stdio.h>
 #include <stdlib.h> /* rand() */
+#include <string.h> /* memset() */
 
 /* Decode the instruction */
 #define OP ((chip8.opcode & 0xF000) >> 12)
