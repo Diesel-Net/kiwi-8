@@ -78,7 +78,7 @@ int chip8_init(
     /* init registers and memory once */
     memset(chip8.V, 0 , NUM_REGISTERS);
     memset(chip8.memory, 0, MEM_SIZE);
-    memset(chip8.stack, 0, STACK_DEPTH);
+    memset(chip8.stack, 0, sizeof(chip8.stack));
     chip8.I = 0;
     chip8.PC = ENTRY_POINT;
     chip8.sp = 0;
@@ -213,7 +213,7 @@ void chip8_soft_reset() {
 
     /* clear registers and the stack */
     memset(chip8.V, 0 , NUM_REGISTERS);
-    memset(chip8.stack, 0, STACK_DEPTH);
+    memset(chip8.stack, 0, sizeof(chip8.stack));
     memset(chip8.memory, 0, MEM_SIZE);
 
     /* load fontset */
