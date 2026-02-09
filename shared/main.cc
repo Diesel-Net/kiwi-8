@@ -13,7 +13,7 @@ int main(int argc, char **argv){
     /* parse and set any options present */
     for (int i = 1; i < argc; i++){
         char *pos = argv[i];
-        if (*pos == '-') {
+        if (*pos == '-' && *(pos + 1) != '-') {
             pos++;
             int len = strlen(pos);
             for (int j = 0; j < len; j++) {
@@ -44,7 +44,7 @@ int main(int argc, char **argv){
     )) return 1;
 
     /* load ROM from the last non-option argument */
-    if (argc > 1 && argv[argc-1][0] != '-') {
+    if (argc > 1 && argv[argc-1][0] != '-' && argv[argc-1] != profiles_path) {
         if (chip8_load_rom(argv[argc-1])) return 1;
     }
 
