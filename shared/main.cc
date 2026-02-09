@@ -1,6 +1,4 @@
 #include "chip8.h"
-#include "build_info.h"
-#include "quirks.h"
 #include "usage.h"
 #include <string.h>
 #include <stdio.h>

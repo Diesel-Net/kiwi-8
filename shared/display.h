@@ -1,7 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include "gui.h"
 #include <SDL2/SDL.h>
 #include <stdlib.h>
 

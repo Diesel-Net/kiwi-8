@@ -1,8 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
 #include <SDL2/SDL.h>
 
 #define MENU_HEIGHT 38

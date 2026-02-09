@@ -1,6 +1,6 @@
 #include "open_file_dialog.h"
 
-#include <cstring>
+#include <cstdio>
 #include <string>
 #include <vector>
 

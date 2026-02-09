@@ -2,8 +2,6 @@
 #include "toast.h"
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
-#include <SDL2/SDL_audio.h>
 
 struct audio audio;
 

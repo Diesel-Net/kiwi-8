@@ -3,9 +3,6 @@
 
 #include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
 #include "quirks.h"
-#include "display.h"
-#include "input.h"
-#include "audio.h"
 #include <stdlib.h>
 
 #define MEM_SIZE 4096

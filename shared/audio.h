@@ -2,7 +2,6 @@
 #define AUDIO_H
 
 #include <SDL2/SDL.h>
-#include <stdlib.h>
 #include <math.h>
 
 #define TAU (2.0 * M_PI)

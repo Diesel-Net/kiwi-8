@@ -1,6 +1,5 @@
 #include "toast.h"
 #include <string.h>
-#include <stdio.h>
 
 #define MAX_TOASTS 8
 #define TOAST_DURATION 3.0
