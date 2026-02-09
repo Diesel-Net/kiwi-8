@@ -1,6 +1,7 @@
 #include "chip8.h"
 #include "display.h"
 #include "gui.h"
+#include "build_info.h"
 #include "license.h" // Generated at build time from LICENSE
 #include "toast.h"
 #include "usage.h"

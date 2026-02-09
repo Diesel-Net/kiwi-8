@@ -1,12 +1,9 @@
 #include "chip8.h"
+#include "build_info.h"
 #include "quirks.h"
 #include "usage.h"
 #include <string.h>
 #include <stdio.h>
-
-#ifdef _WIN32
-#include "../windows/src/resource.h" /* window icon */
-#endif
 
 int main(int argc, char **argv){
 
