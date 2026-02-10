@@ -25,11 +25,10 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 - Color customizer
 - CPU frequency selection
 - FPS limiter
-- Vsync
-- Audio
+- Audio beep
 - Command line support
 - Configurable quirks
-- Rom Profiles
+- ROM profiles
 
 ## Controls
 
