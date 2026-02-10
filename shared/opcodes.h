@@ -4,6 +4,7 @@
 
 #include "chip8.h"
 #include "display.h" /* for WIDTH and HEIGHT */
+#include "input.h"
 #include <stdio.h>
 #include <stdlib.h> /* rand() */
 #include <string.h> /* memset() */
