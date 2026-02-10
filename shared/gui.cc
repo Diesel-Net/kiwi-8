@@ -140,7 +140,7 @@ static void gui_toasts(void) {
         } else if (type == TOAST_ERROR) {
             bg_color = ImVec4(0.5f, 0.1f, 0.1f, 0.85f * alpha);
         } else {
-            bg_color = ImVec4(0.25f, 0.25f, 0.25f, 0.85f * alpha);
+            bg_color = ImVec4(0.5f, 0.4f, 0.1f, 0.85f * alpha);
         }
 
         ImGui::PushStyleColor(ImGuiCol_WindowBg, bg_color);
