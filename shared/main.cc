@@ -19,21 +19,21 @@ int main(int argc, char **argv){
             for (int j = 0; j < len; j++) {
                 if (*pos == 'f') fullscreen = 1;
                 if (*pos == 'm') muted = 1;
-                if (*pos == 'p' && i + 1 < argc) {
-                    profiles_path = argv[++i];
+                if (*pos == 'p' && i + 1 < argc) profiles_path = argv[++i];
+                if (*pos == 'h') {
+                    printf("%s", USAGE_TEXT);
+                    return 0;
                 }
                 pos++;
             }
         }
-        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+        if (strcmp(argv[i], "--help") == 0) {
             printf("%s", USAGE_TEXT);
             return 0;
         }
         if (strcmp(argv[i], "--fullscreen") == 0) fullscreen = 1;
         if (strcmp(argv[i], "--muted") == 0) muted = 1;
-        if (strcmp(argv[i], "--profiles") == 0 && i + 1 < argc) {
-            profiles_path = argv[++i];
-        }
+        if (strcmp(argv[i], "--profiles") == 0 && i + 1 < argc) profiles_path = argv[++i];
     }
 
     /* calling init() also loads the bootrom */
@@ -43,7 +43,7 @@ int main(int argc, char **argv){
         profiles_path
     )) return 1;
 
-    /* load ROM from the last non-option argument */
+    /* load ROM from the last argument */
     if (argc > 1 && argv[argc-1][0] != '-' && argv[argc-1] != profiles_path) {
         if (chip8_load_rom(argv[argc-1])) return 1;
     }
