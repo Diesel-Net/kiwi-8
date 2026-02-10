@@ -1,6 +1,6 @@
+#include "input.h"
 #include "chip8.h"
 #include "gui.h"
-#include "input.h"
 #include "display.h"
 #include "toast.h"
 #include <string.h> /* memset() */

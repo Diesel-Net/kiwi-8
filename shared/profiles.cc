@@ -1,6 +1,6 @@
+#include "profiles.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
-#include "profiles.h"
 #include "crc32.h"
 #include "chip8.h"
 #include "toast.h"
