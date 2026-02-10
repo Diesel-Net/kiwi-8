@@ -3,6 +3,7 @@
 #include "input.h"
 #include "display.h"
 #include "toast.h"
+#include <string.h> /* memset() */
 
 /* Global input instance */
 struct input input;
