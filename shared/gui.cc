@@ -3,7 +3,7 @@
 #include "display.h"
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
-#include "build_info.h"
+#include "meta.h"
 #include "license.h" // Generated at build time from LICENSE
 #include "toast.h"
 #include "usage.h"

@@ -1,5 +1,5 @@
-#ifndef BUILD_INFO_H
-#define BUILD_INFO_H
+#ifndef META_H
+#define META_H
 
 /* Detect OS at compile time */
 #if defined(_WIN32) || defined(_WIN64)
