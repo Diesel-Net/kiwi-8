@@ -115,14 +115,14 @@ static int resolve_profiles_path(void) {
             fclose(file);
             char msg[256];
             snprintf(msg, sizeof(msg), "ROM profiles: %s", loaded_profiles_path);
-            toast_show(TOAST_SUCCESS, msg);
+            toast_show(TOAST_INFO, msg);
             return 1;
         }
         /* Doesn't exist yet — create it */
         if (create_profiles_file(loaded_profiles_path)) {
             char msg[256];
             snprintf(msg, sizeof(msg), "ROM profiles created: %s", loaded_profiles_path);
-            toast_show(TOAST_INFO, msg);
+            toast_show(TOAST_SUCCESS, msg);
         } else {
             char msg[256];
             snprintf(msg, sizeof(msg), "Failed to create: %s", loaded_profiles_path);
@@ -153,7 +153,7 @@ static int resolve_profiles_path(void) {
             set_path(loaded_profiles_path, sizeof(loaded_profiles_path), search_paths[i]);
             char msg[256];
             snprintf(msg, sizeof(msg), "ROM profiles: %s", search_paths[i]);
-            toast_show(TOAST_SUCCESS, msg);
+            toast_show(TOAST_INFO, msg);
             return 1;
         }
     }
