@@ -14,6 +14,6 @@
 #include <limits.h> /* PATH_MAX */
 #endif
 
-int openFileDialog(char *rom_name);
+int open_file_dialog(char *rom_name);
 
 #endif

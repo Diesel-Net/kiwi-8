@@ -4,6 +4,6 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string>openFileDialog(char const * const aTitle, char const * const aDefaultPathAndFile, const std::vector<std::string> & filters);
+std::vector<std::string>open_file_dialog(char const * const aTitle, char const * const aDefaultPathAndFile, const std::vector<std::string> & filters);
 
 #endif
