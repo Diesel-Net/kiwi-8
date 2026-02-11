@@ -42,7 +42,7 @@ OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
 
-PROFILES_INI = ../roms/profiles.ini
+PROFILES_INI = ../shared/profiles.ini
 
 # Include auto-generated dependency files (must be before targets)
 -include $(DEPS)
