@@ -15,19 +15,14 @@ static struct { uint32_t key; struct profile value; } *profile_map = NULL;
 /* Track which path we loaded profiles.ini from */
 static char loaded_profiles_path[512] = "";
 
-/* Quirk field descriptor table — single source of truth for INI keys */
+/* Quirk field descriptor table — generated from QUIRK_FIELDS X-macro in quirks.h */
 static const struct {
     const char *name;
     size_t offset;
 } quirk_fields[] = {
-    { "load_store_quirk", offsetof(struct quirks, load_store_quirk) },
-    { "shift_quirk",      offsetof(struct quirks, shift_quirk)      },
-    { "jump_quirk",       offsetof(struct quirks, jump_quirk)       },
-    { "logic_vf_quirk",   offsetof(struct quirks, logic_vf_quirk)   },
-    { "i_overflow_quirk", offsetof(struct quirks, i_overflow_quirk) },
-    { "draw_flag_quirk",  offsetof(struct quirks, draw_flag_quirk)  },
-    { "vwrap",            offsetof(struct quirks, vwrap)             },
-    { "hwrap",            offsetof(struct quirks, hwrap)             },
+#define QUIRK_X_ENTRY(name, default_val) { #name, offsetof(struct quirks, name) },
+    QUIRK_FIELDS(QUIRK_X_ENTRY)
+#undef QUIRK_X_ENTRY
 };
 #define NUM_QUIRK_FIELDS (sizeof(quirk_fields) / sizeof(quirk_fields[0]))
 
