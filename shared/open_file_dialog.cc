@@ -1,6 +1,6 @@
 #include "open_file_dialog.h"
 
-#include <cstring>
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -25,7 +25,7 @@ int openFileDialog(char *rom_name) {
     const char* defaultDir = ""; // unify behavior: let OS choose last-used/home
     std::vector<std::string> files = openFileDialog("Chip8", defaultDir, fileTypes);
     if (files.empty()) return 1;
-    strcpy(rom_name, files[0].c_str());
+    snprintf(rom_name, 256, "%s", files[0].c_str());
     return 0;
 
     #elif defined(_WIN32)

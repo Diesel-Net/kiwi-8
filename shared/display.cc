@@ -1,5 +1,5 @@
-#include "chip8.h"
 #include "display.h"
+#include "chip8.h"
 #include "gui.h"
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
@@ -48,7 +48,7 @@ int display_init(bool fullscreen) {
     const char *err_str = "Unable to allocate memory on the heap.\n";
 
     if(!display.back_buffer) {
-        fprintf(stderr, "%s", err_str);
+        printf("%s", err_str);
         return 1;
     }
     memset(display.back_buffer, 0, WIDTH * sizeof(unsigned char *));
@@ -56,7 +56,7 @@ int display_init(bool fullscreen) {
     for (int i = 0; i < WIDTH; i++) {
         display.back_buffer[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
         if(!display.back_buffer[i]) {
-            fprintf(stderr, "%s", err_str);
+            printf("%s", err_str);
             return 1;
         }
         memset(display.back_buffer[i], 0, HEIGHT * sizeof(unsigned char));
@@ -79,7 +79,7 @@ int display_init(bool fullscreen) {
     );
 
     if (display.window == NULL) {
-        fprintf(stderr, "Error: %s\n", SDL_GetError());
+        printf("Error: %s\n", SDL_GetError());
         return 1;
     }
 

@@ -38,6 +38,7 @@ jobs:
         run: |
           cd macos
           make clean
+          make release/Kiwi8.app/Contents/Resources/profiles.ini
           make release/Kiwi8.app
 
       - name: Verify binary and dependencies
@@ -97,6 +98,7 @@ jobs:
         run: |
           cd windows
           nmake clean
+          nmake release\profiles.ini
           nmake release\Kiwi8.exe
 
       - name: Verify binary and dependencies
@@ -151,6 +153,7 @@ jobs:
         run: |
           cd linux
           make clean
+          make release/profiles.ini
           make release/Kiwi8
 
       - name: Verify binary and dependencies

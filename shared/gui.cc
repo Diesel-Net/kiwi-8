@@ -1,13 +1,17 @@
+#include "gui.h"
 #include "chip8.h"
 #include "display.h"
-#include "gui.h"
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "meta.h"
 #include "license.h" // Generated at build time from LICENSE
+#include "toast.h"
 #include "usage.h"
 #include <stdio.h>
 
 static void gui_help_windows(void) {
     if (gui.show_usage) {
-        ImGui::SetNextWindowSize(ImVec2(350, 210), ImGuiSetCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(445, 150), ImGuiSetCond_Appearing);
         ImGui::SetNextWindowPosCenter(ImGuiSetCond_Appearing);
         ImGui::Begin("Usage", &gui.show_usage);
         ImGui::TextWrapped("%s", USAGE_TEXT);
@@ -66,11 +70,8 @@ static void gui_help_windows(void) {
         ImGui::End();
     }
     if (gui.show_fps_flag) {
-        if (gui.show_menu_flag) {
-            ImGui::SetNextWindowPos(ImVec2(1, 21));
-        } else {
-            ImGui::SetNextWindowPos(ImVec2(1, 2));
-        }
+        ImGuiIO& io = ImGui::GetIO();
+        float y = gui.show_menu_flag ? 21.0f : 2.0f;
         if (!ImGui::Begin(
                 "FPS",
                 &gui.show_fps_flag,
@@ -79,7 +80,8 @@ static void gui_help_windows(void) {
                 ImGuiWindowFlags_NoTitleBar |
                 ImGuiWindowFlags_NoResize |
                 ImGuiWindowFlags_NoMove |
-                ImGuiWindowFlags_NoSavedSettings
+                ImGuiWindowFlags_NoSavedSettings |
+                ImGuiWindowFlags_AlwaysAutoResize
             )
         ) {
             ImGui::End();
@@ -92,8 +94,92 @@ static void gui_help_windows(void) {
             1000.0f / ImGui::GetIO().Framerate
         );
 
+        /* Pin to top-right corner */
+        ImVec2 ws = ImGui::GetWindowSize();
+        ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ws.x - 1, y));
+
         ImGui::End();
     }
+}
+
+static void gui_toasts(void) {
+    int count;
+    const struct toast *notifications = toast_get_toasts(&count);
+
+    if (count == 0) {
+        return;
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    float spacing = 10.0f;
+    float y_offset = io.DisplaySize.y - spacing;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
+
+    for (int i = 0; i < 8; i++) {
+        if (!toast_is_active(&notifications[i])) {
+            continue;
+        }
+
+        const char *message;
+        int type;
+        double time_remaining;
+        toast_get_info(&notifications[i], &message, &type, &time_remaining);
+
+        /* Calculate alpha for fade out effect */
+        float alpha = 1.0f;
+        if (time_remaining < 0.5) {
+            alpha = (float)(time_remaining / 0.5);
+        }
+
+        /* Set colors based on notification type */
+        ImVec4 bg_color;
+        if (type == TOAST_SUCCESS) {
+            bg_color = ImVec4(0.1f, 0.4f, 0.1f, 0.85f * alpha);
+        } else if (type == TOAST_ERROR) {
+            bg_color = ImVec4(0.5f, 0.1f, 0.1f, 0.85f * alpha);
+        } else {
+            bg_color = ImVec4(0.5f, 0.4f, 0.1f, 0.85f * alpha);
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, bg_color);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, alpha));
+
+        /* Begin window to calculate size */
+        char window_name[32];
+        snprintf(window_name, sizeof(window_name), "##notification%d", i);
+
+        /* Set max width for notifications */
+        float max_width = 400.0f;
+        ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(max_width, FLT_MAX));
+
+        ImGui::Begin(window_name, NULL,
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_AlwaysAutoResize);
+
+        /* Wrap text to max width */
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + max_width - 20);
+        ImGui::TextWrapped("%s", message);
+        ImGui::PopTextWrapPos();
+
+        /* Get actual window size and reposition from bottom-right */
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 window_pos = ImVec2(io.DisplaySize.x - window_size.x - spacing, y_offset - window_size.y);
+        ImGui::SetWindowPos(window_pos);
+
+        y_offset -= window_size.y + spacing;
+
+        ImGui::End();
+
+        ImGui::PopStyleColor(2);
+    }
+
+    ImGui::PopStyleVar(2);
 }
 
 static void gui_main_menu(void) {
@@ -104,6 +190,9 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("File")) {
                 ImGui::MenuItem("Load ROM...", NULL, &gui.load_rom_flag);
+                if (ImGui::MenuItem("Save Profile", NULL, false, chip8.rom_loaded)) {
+                    gui.save_profile_flag = 1;
+                }
                 ImGui::MenuItem("Exit", "Esc", &gui.quit_flag);
                 ImGui::EndMenu();
             }
@@ -122,7 +211,11 @@ static void gui_main_menu(void) {
 
             if (ImGui::BeginMenu("Emulation")) {
                 ImGui::MenuItem("Reset", "F5", &gui.soft_reset_flag);
-                ImGui::MenuItem("Pause", "P", chip8.paused);
+                before = chip8.paused;
+                ImGui::MenuItem("Pause", "P", &chip8.paused);
+                if (before != chip8.paused) {
+                    toast_show(TOAST_INFO, chip8.paused ? "Paused" : "Unpaused");
+                }
 
                 /* CPU frequency */
                 if (ImGui::BeginMenu("CPU Frequency")){
@@ -148,8 +241,17 @@ static void gui_main_menu(void) {
             }
 
             if (ImGui::BeginMenu("Settings")) {
+                before = chip8.muted;
                 ImGui::MenuItem("Mute Audio", "M", &chip8.muted);
+                if (before != chip8.muted) {
+                    toast_show(TOAST_INFO, chip8.muted ? "Muted" : "Unmuted");
+                }
+
+                before = display.limit_fps_flag;
                 ImGui::MenuItem("60 FPS Limit", NULL, &display.limit_fps_flag);
+                if (before != display.limit_fps_flag) {
+                    toast_show(TOAST_INFO, display.limit_fps_flag ? "60 FPS limit enabled" : "60 FPS limit disabled");
+                }
 
                 /*
                 toggle Vsync is disabled for now because it doesn't really
@@ -216,6 +318,7 @@ void gui_cleanup(void) {
 void gui_init(void) {
     gui.soft_reset_flag = 0;
     gui.load_rom_flag = 0;
+    gui.save_profile_flag = 0;
     gui.quit_flag = 0;
     gui.show_menu_flag = 1;
     gui.show_fps_flag = 0;
@@ -238,6 +341,7 @@ void gui_process_events(SDL_Event *event) {
 void gui_new_frame(void) {
     ImGui_ImplSdl_NewFrame(display.window);
     gui_main_menu();
+    gui_toasts();
 }
 
 void gui_render(void) {

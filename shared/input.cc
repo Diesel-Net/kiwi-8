@@ -1,6 +1,9 @@
-#include "chip8.h"
 #include "input.h"
+#include "chip8.h"
+#include "gui.h"
 #include "display.h"
+#include "toast.h"
+#include <string.h> /* memset() */
 
 /* Global input instance */
 struct input input;
@@ -45,8 +48,14 @@ static int input_process_events(void) {
         if (input.state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
         if (input.state[SDL_SCANCODE_F5]) response = SOFT_RESET;
         if (input.state[SDL_SCANCODE_RETURN]) display_toggle_fullscreen();
-        if (input.state[SDL_SCANCODE_P]) chip8.paused = !chip8.paused;
-        if (input.state[SDL_SCANCODE_M]) chip8.muted = !chip8.muted;
+        if (input.state[SDL_SCANCODE_P]) {
+            chip8.paused = !chip8.paused;
+            toast_show(TOAST_INFO, chip8.paused ? "Paused" : "Unpaused");
+        }
+        if (input.state[SDL_SCANCODE_M]) {
+            chip8.muted = !chip8.muted;
+            toast_show(TOAST_INFO, chip8.muted ? "Muted" : "Unmuted");
+        }
         if (input.state[SDL_SCANCODE_LALT]) gui.show_menu_flag = !gui.show_menu_flag;
         if (input.state[SDL_SCANCODE_RALT]) gui.show_fps_flag = !gui.show_fps_flag;
 
@@ -93,6 +102,7 @@ int input_poll(void) {
         if (gui.quit_flag) response |= USER_QUIT;
         if (gui.soft_reset_flag) response |= SOFT_RESET;
         if (gui.load_rom_flag) response |= LOAD_ROM;
+        if (gui.save_profile_flag) response |= SAVE_PROFILE;
 
         /* check SDL events (window & hotkeys) */
         response |= input_process_events();

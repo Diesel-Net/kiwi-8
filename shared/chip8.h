@@ -2,47 +2,8 @@
 #define CHIP8_H
 
 #include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
-#include "display.h"
-#include "input.h"
-#include "audio.h"
+#include "quirks.h"
 #include <stdlib.h>
-
-/* Detect OS at compile time */
-#if defined(_WIN32) || defined(_WIN64)
-    #define BUILD_OS "Windows"
-#elif defined(__APPLE__) || defined(__MACH__)
-    #define BUILD_OS "macOS"
-#elif defined(__linux__)
-    #define BUILD_OS "Linux"
-#else
-    #define BUILD_OS "unknown"
-#endif
-
-/* Detect architecture at compile time */
-#if defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64)
-    #define BUILD_ARCH "ARM64"
-#elif defined(__x86_64__) || defined(_M_X64)
-    #define BUILD_ARCH "x86_64"
-#elif defined(__i386__) || defined(_M_IX86)
-    #define BUILD_ARCH "x86"
-#else
-    #define BUILD_ARCH "unknown"
-#endif
-
-// APP_NAME is defined by the compiler via -DAPP_NAME="..."
-#ifndef APP_NAME
-#define APP_NAME "Kiwi8"
-#endif
-
-// VERSION is defined by the compiler via -DVERSION="..."
-#ifndef VERSION
-#define VERSION "develop"
-#endif
-
-// SUB_VERSION is defined by the compiler via -DSUB_VERSION="..."
-#ifndef SUB_VERSION
-#define SUB_VERSION "unknown"
-#endif
 
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
@@ -53,17 +14,6 @@
 #define MIN_CYCLES_PER_STEP 1
 #define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
-
-struct quirks {
-    bool load_store_quirk;
-    bool shift_quirk;
-    bool jump_quirk;         /* BNNN: use VX instead of V0 for offset */
-    bool logic_vf_quirk;     /* 8XY1/2/3: set VF=0 */
-    bool i_overflow_quirk;   /* I+VX overflow sets VF (FX1E quirk) */
-    bool draw_flag_quirk;    /* draw_flag reset behavior */
-    bool vwrap;              /* vertical wrapping */
-    bool hwrap;              /* horizontal wrapping */
-};
 
 struct chip8 {
     /* number of cycles per step */
@@ -87,6 +37,10 @@ struct chip8 {
     /* copy of the rom for soft resetting */
     unsigned char *rom;
     unsigned int rom_size;
+
+    /* rom profile tracking */
+    char rom_filename[256];  /* basename of currently loaded ROM */
+    int rom_loaded;          /* 1 if user ROM loaded, 0 if bootrom */
 
     /* registers */
     unsigned char V[NUM_REGISTERS];
@@ -132,12 +86,12 @@ struct chip8 {
 extern struct chip8 chip8;
 
 void chip8_destroy(void);
-int chip8_initialize(
+int chip8_init(
     bool fullscreen,
-    struct quirks quirks,
-    bool muted
+    bool muted,
+    const char *profiles_path
 );
-int chip8_load(const char *rom_name);
+int chip8_load_rom(const char *rom_filepath);
 void chip8_run(void);
 void chip8_update_timers(void);
 void chip8_step_cpu(int cycles);

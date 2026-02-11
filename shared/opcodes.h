@@ -1,6 +1,13 @@
+
+#ifndef OPCODES_H
+#define OPCODES_H
+
 #include "chip8.h"
+#include "display.h" /* for WIDTH and HEIGHT */
+#include "input.h"
 #include <stdio.h>
 #include <stdlib.h> /* rand() */
+#include <string.h> /* memset() */
 
 /* Decode the instruction */
 #define OP ((chip8.opcode & 0xF000) >> 12)
@@ -265,3 +272,5 @@ inline void execFX65() {
 inline void execUnknown() {
     fprintf (stderr, "Unknown opcode: 0x%X\n", chip8.opcode);
 }
+
+#endif // OPCODES_H

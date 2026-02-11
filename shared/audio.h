@@ -2,7 +2,6 @@
 #define AUDIO_H
 
 #include <SDL2/SDL.h>
-#include <stdlib.h>
 #include <math.h>
 
 #define TAU (2.0 * M_PI)
@@ -24,6 +23,6 @@ struct audio {
 extern struct audio audio;
 
 void audio_destroy(void);
-int audio_initialize(void);
+int audio_init(void);
 
-#endif
+#endif // AUDIO_H

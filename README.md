@@ -19,16 +19,18 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Features
 
-- Windows and MacOS
+- Windows, MacOS, and Linux (Debian)
+- Resizable Window
 - Graphical user interface
-- Audio
 - Color customizer
 - CPU frequency selection
+- FPS limiter
+- Audio beep
 - Command line support
-- No SCHIP support
+- Configurable quirks
+- ROM profiles
 
 ## Controls
-
 
     controls        <-->        keybindings
 
@@ -49,19 +51,14 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Usage
 
-      Kiwi8 [options] [rom]
+      Kiwi8 [options] [rom_file]
       Options:
-         -F    Fullscreen
-         -M    Mute audio
-         -L    Disable load/store quirk
-         -S    Disable shift quirk
-         -V    Disable vertical wrapping
-         -H    Enable horizontal wrapping (DXYN)
-         -J    Enable jump with VX offset (BNNN)
-         -G    Enable logic ops VF=0 (8XY1/2/3)
-         -I    Enable I+VX overflow quirk (FX1E)
-         -D    Enable draw flag reset quirk
-         -h, --help  Show this help message
+         -f, --fullscreen         Start in fullscreen
+         -m, --muted              Start with audio muted
+         -p, --profiles <path>    Use a custom profiles.ini file
+         -h, --help               Show this help message
+
+      Note: Quirks are configured per-ROM via profiles.ini or GUI.
 
 ## Building on Windows
 

@@ -1,5 +1,12 @@
 #include "chip8.h"
-#include "opcodes.cc"
+#include "display.h"
+#include "gui.h"
+#include "input.h"
+#include "audio.h"
+#include "opcodes.h"
+#include "profiles.h"
+#include "crc32.h"
+#include "toast.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -21,10 +28,10 @@ void chip8_destroy() {
     SDL_Quit();
 }
 
-int chip8_initialize(
+int chip8_init(
     bool fullscreen,
-    struct quirks quirks,
-    bool muted
+    bool muted,
+    const char *profiles_path
 ) {
     chip8.cycles = CYCLES_PER_STEP;
     chip8.paused = 0;
@@ -41,27 +48,31 @@ int chip8_initialize(
         return 1;
     }
 
-    chip8.quirks = quirks;
+    /* Initialize with default quirks (profiles will override on ROM load) */
+    chip8.quirks = quirks_get_defaults();
     chip8.muted = muted;
 
     /* init vram */
     chip8.vram = (unsigned char **) malloc(WIDTH * sizeof(unsigned char *));
     const char *err_str = "Unable to allocate memory on the heap.\n";
     if (!chip8.vram) {
-        fprintf(stderr, "%s", err_str);
+        printf("%s", err_str);
         return 1;
     }
     memset(chip8.vram, 0, WIDTH * sizeof(unsigned char *));
     for (int i = 0; i < WIDTH; i++) {
         chip8.vram[i] = (unsigned char *) malloc(HEIGHT * sizeof(unsigned char));
         if (!chip8.vram[i]) {
-            fprintf(stderr, "%s", err_str);
+            printf("%s", err_str);
             return 1;
         }
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
     }
 
-    audio_initialize();
+    /* Initialize toast system first (before audio) */
+    toast_init();
+
+    audio_init();
 
     if (display_init(fullscreen)) return 1;
 
@@ -70,7 +81,7 @@ int chip8_initialize(
     /* init registers and memory once */
     memset(chip8.V, 0 , NUM_REGISTERS);
     memset(chip8.memory, 0, MEM_SIZE);
-    memset(chip8.stack, 0, STACK_DEPTH);
+    memset(chip8.stack, 0, sizeof(chip8.stack));
     chip8.I = 0;
     chip8.PC = ENTRY_POINT;
     chip8.sp = 0;
@@ -84,6 +95,9 @@ int chip8_initialize(
         chip8.memory[i] = chip8.chip8_fontset[i];
     }
 
+    /* Initialize ROM profile database */
+    profiles_init(profiles_path);
+
     return chip8_load_bootrom();
 }
 
@@ -92,7 +106,7 @@ int chip8_load_bootrom() {
     chip8.rom_size = BOOTROM_SIZE;
     chip8.rom = (unsigned char *)malloc(chip8.rom_size);
     if(!chip8.rom) {
-        fprintf(stderr, "Unable to allocate memory for rom.\n");
+        printf("Unable to allocate memory for rom.\n");
         return 1;
     }
     memset(chip8.rom, 0 , chip8.rom_size);
@@ -103,16 +117,20 @@ int chip8_load_bootrom() {
     /* copy the entire rom to memory starting from 0x200 */
     memcpy(chip8.memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
 
+    /* Mark as bootrom (not user ROM) */
+    chip8.rom_loaded = 0;
+    chip8.rom_filename[0] = '\0';
+
     return 0;
 }
 
-int chip8_load(const char *rom_name) {
-    if (rom_name) {
+int chip8_load_rom(const char *rom_filepath) {
+    if (rom_filepath) {
         /* open the file */
         FILE *file;
-        file = fopen(rom_name, "rb");
+        file = fopen(rom_filepath, "rb");
         if(file == NULL){
-            fprintf(stderr, "File not opened.\n");
+            toast_show(TOAST_ERROR, "Unable to open ROM file");
             return 1;
         }
 
@@ -121,7 +139,8 @@ int chip8_load(const char *rom_name) {
         chip8.rom_size = ftell(file);
         rewind(file);
         if (chip8.rom_size > MEM_SIZE - ENTRY_POINT) {
-            fprintf(stderr, "Rom is too large or not formatted properly.\n");
+            toast_show(TOAST_ERROR, "ROM is too large or not formatted properly");
+            fclose(file);
             return 1;
         }
 
@@ -129,26 +148,54 @@ int chip8_load(const char *rom_name) {
         free(chip8.rom);
         chip8.rom = (unsigned char *)malloc(chip8.rom_size);
         if(!chip8.rom) {
-            fprintf(stderr, "Unable to allocate memory for rom.\n");
+            toast_show(TOAST_ERROR, "Unable to allocate memory for ROM");
+            fclose(file);
             return 1;
         }
         memset(chip8.rom, 0 , chip8.rom_size);
 
         /* save the rom for later (soft-resets) */
         if (!fread(chip8.rom, sizeof(unsigned char), chip8.rom_size, file)) {
-            fprintf(stderr, "Unable to read Rom file after successfully opening.\n");
+            toast_show(TOAST_ERROR, "Unable to read ROM file");
+            fclose(file);
             return 1;
         }
 
-        chip8_soft_reset();
         fclose(file);
+
+        /* Extract basename for profile tracking */
+        const char *basename = strrchr(rom_filepath, '/');
+        if (!basename) basename = strrchr(rom_filepath, '\\'); /* Windows */
+        basename = basename ? basename + 1 : rom_filepath;
+        strncpy(chip8.rom_filename, basename, sizeof(chip8.rom_filename) - 1);
+        chip8.rom_filename[sizeof(chip8.rom_filename) - 1] = '\0';
+
+        /* Mark as user ROM (not bootrom) */
+        chip8.rom_loaded = 1;
+        char notif_msg[256];
+        snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
+        toast_show(TOAST_SUCCESS, notif_msg);
+
+        /* Compute CRC32 and lookup profile */
+        uint32_t crc = crc32_compute(chip8.rom, chip8.rom_size);
+        const struct profile *profile = profile_lookup(crc);
+
+        if (profile) {
+            /* Apply profile quirks */
+            chip8.quirks = profile->quirks;
+            toast_show(TOAST_SUCCESS, "Profile applied");
+        } else {
+            toast_show(TOAST_INFO, "No profile found");
+        }
+
+        chip8_soft_reset();
 
     } else {
         /* load ROM from GUI */
         char new_rom_name[PATH_MAX];
         openFileDialog(new_rom_name) ?
-            fprintf(stderr, "User aborted the open file dialog.\n") :
-            chip8_load(new_rom_name);
+            printf("User aborted the open file dialog.\n") :
+            chip8_load_rom(new_rom_name);
 
         /* flip GUI toggle */
         gui.load_rom_flag = 0;
@@ -169,7 +216,7 @@ void chip8_soft_reset() {
 
     /* clear registers and the stack */
     memset(chip8.V, 0 , NUM_REGISTERS);
-    memset(chip8.stack, 0, STACK_DEPTH);
+    memset(chip8.stack, 0, sizeof(chip8.stack));
     memset(chip8.memory, 0, MEM_SIZE);
 
     /* load fontset */
@@ -218,8 +265,18 @@ void chip8_run(){
 
         /* do something based on response... */
         if (event & USER_QUIT) return;
-        if (event & LOAD_ROM) chip8_load(NULL);
-        if (event & SOFT_RESET) chip8_soft_reset();
+        if (event & LOAD_ROM) chip8_load_rom(NULL);
+        if (event & SOFT_RESET) {
+            chip8_soft_reset();
+            toast_show(TOAST_INFO, "Reset");
+        }
+        if (event & SAVE_PROFILE) {
+            profiles_save_current();
+            gui.save_profile_flag = 0;
+        }
+
+        /* Update toast timers */
+        toast_update((double)interval / 1000.0);
 
         if (!chip8.paused) {
             /* emulate a number of cycles */

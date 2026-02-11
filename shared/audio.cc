@@ -1,8 +1,7 @@
 #include "audio.h"
+#include "toast.h"
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
-#include <SDL2/SDL_audio.h>
 
 struct audio audio;
 
@@ -33,7 +32,7 @@ void audio_callback(void* userdata, Uint8* stream, int length) {
 }
 
 
-int audio_initialize(void) {
+int audio_init(void) {
     audio.phase = 0.0;
     audio.phase_increment = TAU * TONE / SAMPLE_RATE;
     audio.beep_active = 0;
@@ -61,21 +60,28 @@ int audio_initialize(void) {
     int driver_found = 0;
     for (int i = 0; i < sizeof(drivers) / sizeof(drivers[0]); i++) {
         if (SDL_AudioInit(drivers[i]) == 0) {
-            fprintf(stdout, "Successfully initialized audio with driver: %s\n", drivers[i]);
+            printf("Audio driver: %s\n", drivers[i]);
+            char msg[256];
+            snprintf(msg, sizeof(msg), "Audio driver: %s", drivers[i]);
+            toast_show(TOAST_SUCCESS, msg);
             driver_found = 1;
             break;
         }
     }
     if (!driver_found) {
-        fprintf(stderr, "Warning: Could not initialize any audio driver, continuing without sound.\n");
+        printf("Could not initialize any audio driver, continuing without sound.\n");
+        toast_show(TOAST_ERROR, "Could not initialize audio driver");
+        toast_show(TOAST_INFO, "Continuing without sound");
     }
     audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
     if (!audio.device) {
-        fprintf(stderr, "Warning: No audio device available, using dummy driver. %s\n", SDL_GetError());
+        printf("No audio device available, using dummy driver. %s\n", SDL_GetError());
+        toast_show(TOAST_INFO, "Using dummy audio driver");
         SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
         audio.device = SDL_OpenAudioDevice(NULL, 0, &audio.audiospec, NULL, SDL_AUDIO_ALLOW_ANY_CHANGE);
         if (!audio.device) {
-            fprintf(stderr, "Error: Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
+            printf("Failed to initialize audio (even with dummy driver): %s\n", SDL_GetError());
+            toast_show(TOAST_ERROR, "Failed to initialize audio");
             return 1;
         }
     }

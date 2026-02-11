@@ -18,7 +18,7 @@ APP_EXE = $(APP_NAME)
 CC = clang++
 CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../shared/
+INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../shared/
 LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
@@ -30,22 +30,26 @@ BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared/gui.cc \
-            ../shared/imgui_impl_sdl.cc ../shared/input.cc ../shared/main.cc \
-            ../shared/opcodes.cc ../shared/open_file_dialog.cc
-IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp
+CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/crc32.cc ../shared/display.cc ../shared/gui.cc \
+			../shared/input.cc ../shared/main.cc \
+			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
+IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)
-OBJS = $(notdir $(CORE_SRCS:.cc=.o)) $(notdir $(IMGUI_SRCS:.cpp=.o)) $(notdir $(MACOS_SRCS:.mm=.o))
+OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
+	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
+	$(notdir $(MACOS_SRCS:.mm=.o))
 DEPS = $(OBJS:.o=.d)
+
+PROFILES_INI = ../roms/profiles.ini
 
 # Include auto-generated dependency files (must be before targets)
 -include $(DEPS)
 
 .DEFAULT_GOAL := all
 
-all: debug/$(APP_EXE) release/$(APP_BUNDLE)
+all: debug/profiles.ini debug/$(APP_EXE) release/$(APP_BUNDLE)/Contents/Resources/profiles.ini release/$(APP_BUNDLE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
@@ -77,6 +81,14 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 %.o: src/%.mm
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
+debug/profiles.ini: $(PROFILES_INI)
+	mkdir -p debug
+	cp $(PROFILES_INI) debug/profiles.ini
+
+release/$(APP_BUNDLE)/Contents/Resources/profiles.ini: $(PROFILES_INI)
+	mkdir -p release/$(APP_BUNDLE)/Contents/Resources
+	cp $(PROFILES_INI) release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
+
 # debug executable
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
@@ -95,7 +107,7 @@ release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
 # .app bundle
-release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) $(SDL_LIB) resources/Kiwi8.icns $(APP_MANIFEST)
+release/$(APP_BUNDLE): $(APP_MANIFEST) $(SDL_LIB) resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
 	mkdir -p release/$(APP_BUNDLE)/Contents/{Resources,Frameworks}
 
 	# Copying the frameworks into .app bundle

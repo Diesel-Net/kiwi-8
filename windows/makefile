@@ -29,6 +29,7 @@ LFLAGS = /link \
 
 INCS = /I..\external\sdl\build\include \
 	   /I..\external\imgui \
+	   /I..\external\stb \
 	   /I..\shared
 LIBS = user32.lib \
 	   SDL2.lib \
@@ -47,20 +48,21 @@ BOOTROM_HEADER = ..\shared\bootrom.h
 BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\display.cc ..\shared\gui.cc \
-            ..\shared\imgui_impl_sdl.cc ..\shared\input.cc ..\shared\main.cc \
-            ..\shared\opcodes.cc ..\shared\open_file_dialog.cc
-IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp
+CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\crc32.cc ..\shared\display.cc ..\shared\gui.cc \
+			..\shared\input.cc ..\shared\main.cc \
+			..\shared\toast.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
+IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp ..\external\imgui\imgui_impl_sdl.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
-OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
-       main.obj opcodes.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
-       file_dialog.obj
+OBJS = audio.obj chip8.obj crc32.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
+	main.obj toast.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
+	file_dialog.obj
 
+PROFILES_INI = ..\roms\profiles.ini
 
 # Default target
-all: debug\$(APP_EXE) release\$(APP_EXE)
+all: debug\profiles.ini debug\$(APP_EXE) release\profiles.ini release\$(APP_EXE)
 
 # Detect architecture from environment (set by MSVC vcvarsall.bat)
 # VSCMD_ARG_TGT_ARCH is set to x64, x86, arm64, or arm
@@ -111,6 +113,14 @@ chip8.obj: ..\shared\chip8.cc $(BOOTROM_HEADER)
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
 	MOVE src\Kiwi8.res $@
+
+debug\profiles.ini: $(PROFILES_INI)
+	IF NOT EXIST debug MKDIR debug
+	COPY $(PROFILES_INI) debug\profiles.ini
+
+release\profiles.ini: $(PROFILES_INI)
+	IF NOT EXIST release MKDIR release
+	COPY $(PROFILES_INI) release\profiles.ini
 
 debug\$(APP_EXE): $(SDL_LIB) $(SDL_DLL) $(OBJS) $(APP_RES)
 	$(CC) $(CFLAGS) /Zi /Fe$(APP_NAME) $(INCS) $(OBJS) $(APP_RES) $(LIBS) $(LFLAGS) /SUBSYSTEM:CONSOLE
