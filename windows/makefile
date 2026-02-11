@@ -59,7 +59,7 @@ OBJS = audio.obj chip8.obj crc32.obj display.obj gui.obj imgui_impl_sdl.obj inpu
 	main.obj toast.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
 	file_dialog.obj
 
-PROFILES_INI = ..\roms\profiles.ini
+PROFILES_INI = ..\shared\profiles.ini
 
 # Default target
 all: debug\profiles.ini debug\$(APP_EXE) release\profiles.ini release\$(APP_EXE)
