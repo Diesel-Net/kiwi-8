@@ -63,7 +63,7 @@ int audio_init(void) {
             printf("Audio driver: %s\n", drivers[i]);
             char msg[256];
             snprintf(msg, sizeof(msg), "Audio driver: %s", drivers[i]);
-            toast_show(TOAST_SUCCESS, msg);
+            toast_show(TOAST_INFO, msg);
             driver_found = 1;
             break;
         }

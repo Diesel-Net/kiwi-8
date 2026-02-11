@@ -1,6 +1,6 @@
 #ifndef WIN32_FILE_DIALOG_H
 #define WIN32_FILE_DIALOG_H
 
-int openFileDialog(char *rom_name, char *filters);
+int open_file_dialog(char *rom_name, char *filters);
 
 #endif

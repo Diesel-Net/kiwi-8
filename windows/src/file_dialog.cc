@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int openFileDialog(char *rom_name, char *filters) {
+int open_file_dialog(char *rom_name, char *filters) {
     /* open file dialogue */
     char cwd[MAX_PATH];
     GetCurrentDirectory(MAX_PATH, cwd);
@@ -34,7 +34,7 @@ int openFileDialog(char *rom_name, char *filters) {
         /* user hit cancel */
         return 1;
     }
-    
+
     strcpy(rom_name, szFile);
     return 0;
 }
