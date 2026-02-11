@@ -1,28 +1,35 @@
 #ifndef QUIRKS_H
 #define QUIRKS_H
 
+/*
+ * X-macro list of all quirk fields.
+ * Format: X(field_name, default_value)
+ * This is the single source of truth — the struct, defaults,
+ * and INI field table are all generated from this list.
+ */
+#define QUIRK_FIELDS(X)                 \
+    X(load_store_quirk, 1)              \
+    X(shift_quirk,      1)              \
+    X(jump_quirk,       0)              \
+    X(logic_vf_quirk,   0)              \
+    X(i_overflow_quirk, 0)              \
+    X(draw_flag_quirk,  0)              \
+    X(vwrap,            1)              \
+    X(hwrap,            0)
+
+
 struct quirks {
-    bool load_store_quirk;
-    bool shift_quirk;
-    bool jump_quirk;         /* BNNN: use VX instead of V0 for offset */
-    bool logic_vf_quirk;     /* 8XY1/2/3: set VF=0 */
-    bool i_overflow_quirk;   /* I+VX overflow sets VF (FX1E quirk) */
-    bool draw_flag_quirk;    /* draw_flag reset behavior */
-    bool vwrap;              /* vertical wrapping */
-    bool hwrap;              /* horizontal wrapping */
+#define QUIRK_X_FIELD(name, default_val) bool name;
+    QUIRK_FIELDS(QUIRK_X_FIELD)
+#undef QUIRK_X_FIELD
 };
 
 /* Get default quirks */
 static inline struct quirks quirks_get_defaults(void) {
     struct quirks defaults;
-    defaults.load_store_quirk = 1;
-    defaults.shift_quirk = 1;
-    defaults.jump_quirk = 0;
-    defaults.logic_vf_quirk = 0;
-    defaults.i_overflow_quirk = 0;
-    defaults.draw_flag_quirk = 0;
-    defaults.vwrap = 1;
-    defaults.hwrap = 0;
+#define QUIRK_X_DEFAULT(name, default_val) defaults.name = default_val;
+    QUIRK_FIELDS(QUIRK_X_DEFAULT)
+#undef QUIRK_X_DEFAULT
     return defaults;
 }
 
