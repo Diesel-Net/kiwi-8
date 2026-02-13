@@ -23,14 +23,18 @@ APP_RES = $(APP_NAME).res
 
 CC = CL
 CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERSION=\"$(VERSION)\"" "/DSUB_VERSION=\"$(SUB_VERSION)\""
+
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
+		 /LIBPATH:"C:\Program Files\OpenSSL\lib" \
 		 /ENTRY:mainCRTStartup
 
 INCS = /I..\external\sdl\build\include \
 	   /I..\external\imgui \
 	   /I..\external\stb \
-	   /I..\shared
+	   /I..\.shared \
+	   /I"C:\Program Files\OpenSSL\include"
+
 LIBS = user32.lib \
 	   SDL2.lib \
 	   SDL2main.lib \
