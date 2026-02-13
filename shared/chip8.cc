@@ -5,7 +5,7 @@
 #include "audio.h"
 #include "opcodes.h"
 #include "profiles.h"
-#include "crc32.h"
+#include "sha256.h"
 #include "toast.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
@@ -176,9 +176,9 @@ int chip8_load_rom(const char *rom_filepath) {
         snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
         toast_show(TOAST_SUCCESS, notif_msg);
 
-        /* Compute CRC32 and lookup profile */
-        uint32_t crc = crc32_compute(chip8.rom, chip8.rom_size);
-        const struct profile *profile = profile_lookup(crc);
+        /* Compute SHA256 and lookup profile */
+        sha256_hash_t sha256 = sha256_compute(chip8.rom, chip8.rom_size);
+        const struct profile *profile = profile_lookup(&sha256);
 
         if (profile) {
             /* Apply profile quirks */

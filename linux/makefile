@@ -31,10 +31,10 @@ PIPEWIRE_LIBS = $(shell pkg-config --libs libpipewire-0.3)
 JACK_CFLAGS = $(shell pkg-config --cflags jack)
 JACK_LIBS = $(shell pkg-config --libs jack)
 
-CFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS)
+CFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS) $(shell pkg-config --cflags openssl)
 
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../shared/
-LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS) $(ESD_LIBS) $(SNDIO_LIBS) -lm -ldl -lpthread
+LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS) $(ESD_LIBS) $(SNDIO_LIBS) -lm -ldl -lpthread $(shell pkg-config --libs openssl)
 
 # SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.so.0
@@ -45,7 +45,7 @@ BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/crc32.cc ../shared/display.cc ../shared/gui.cc \
+CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/sha256.cc ../shared/display.cc ../shared/gui.cc \
 			../shared/input.cc ../shared/main.cc \
 			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp

@@ -1,7 +1,7 @@
 #include "profiles.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
-#include "crc32.h"
+#include "sha256.h"
 #include "chip8.h"
 #include "toast.h"
 #include <SDL2/SDL.h>
@@ -9,8 +9,8 @@
 #include <string.h>
 #include <stddef.h>
 
-/* ROM profile hashmap: CRC32 -> profile */
-static struct { uint32_t key; struct profile value; } *profile_map = NULL;
+/* ROM profile hashmap: SHA256 -> profile */
+static struct { sha256_hash_t key; struct profile value; } *profile_map = NULL;
 
 /* Track which path we loaded profiles.ini from */
 static char loaded_profiles_path[512] = "";
@@ -36,7 +36,7 @@ static int create_profiles_file(const char *path) {
     FILE *file = fopen(path, "w");
     if (!file) return 0;
     fprintf(file, "# ROM Profiles Database\n");
-    fprintf(file, "# Format: [0xCRC32] followed by quirk settings\n\n");
+    fprintf(file, "# Format: [0xSHA256] followed by quirk settings\n\n");
     fclose(file);
     return 1;
 }
@@ -47,7 +47,8 @@ static void parse_profiles_ini(void) {
     if (!file) return;
 
     char line[512];
-    uint32_t current_crc = 0;
+    sha256_hash_t current_sha256 = {0};
+    int has_current = 0;
     struct profile current_profile;
 
     while (fgets(line, sizeof(line), file)) {
@@ -58,23 +59,46 @@ static void parse_profiles_ini(void) {
         /* Skip empty lines and comments */
         if (line[0] == '\0' || line[0] == '#') continue;
 
-        /* Section header [0xHEXVALUE] */
+        /* Section header [0xHEXVALUE] - 64 hex chars for SHA256 */
         if (line[0] == '[') {
-            if (current_crc != 0) hmput(profile_map, current_crc, current_profile);
+            if (has_current) hmput(profile_map, current_sha256, current_profile);
 
-            if (sscanf(line, "[0x%x]", &current_crc) != 1) {
+            char hex_str[65];
+            if (sscanf(line, "[%64[0-9a-fA-F]]", hex_str) != 1) {
                 printf("Error: Invalid profile section header: %s\n", line);
-                current_crc = 0;
+                has_current = 0;
                 continue;
             }
+
+            /* Parse 64 hex characters into 32 bytes */
+            if (strlen(hex_str) != 64) {
+                printf("Error: SHA256 must be 64 hex characters: %s\n", hex_str);
+                has_current = 0;
+                continue;
+            }
+
+            for (int i = 0; i < 32; i++) {
+                unsigned int byte;
+                if (sscanf(hex_str + i*2, "%2x", &byte) != 1) {
+                    printf("Error: Invalid hex in SHA256: %s\n", hex_str);
+                    has_current = 0;
+                    goto next_line;
+                }
+                current_sha256.bytes[i] = (uint8_t)byte;
+            }
+
             memset(&current_profile, 0, sizeof(current_profile));
-            current_profile.crc32 = current_crc;
+            current_profile.sha256 = current_sha256;
             current_profile.quirks = quirks_get_defaults();
+            has_current = 1;
+            continue;
+
+        next_line:
             continue;
         }
 
         /* Key=value pairs */
-        if (current_crc == 0) continue;
+        if (!has_current) continue;
 
         char key[256];
         int value;
@@ -96,7 +120,7 @@ static void parse_profiles_ini(void) {
     }
 
     /* Commit last entry */
-    if (current_crc != 0) hmput(profile_map, current_crc, current_profile);
+    if (has_current) hmput(profile_map, current_sha256, current_profile);
     fclose(file);
 }
 
@@ -177,8 +201,8 @@ void profiles_init(const char *custom_path) {
     }
 }
 
-const struct profile* profile_lookup(uint32_t crc32) {
-    ptrdiff_t idx = hmgeti(profile_map, crc32);
+const struct profile* profile_lookup(const sha256_hash_t *sha256) {
+    ptrdiff_t idx = hmgeti(profile_map, *sha256);
     return (idx >= 0) ? &profile_map[idx].value : NULL;
 }
 
@@ -196,11 +220,13 @@ static void profiles_write_to_file(void) {
     }
 
     fprintf(file, "# ROM Profiles Database\n");
-    fprintf(file, "# Format: [0xCRC32] followed by quirk settings\n\n");
+    fprintf(file, "# Format: [0xSHA256] followed by quirk settings\n\n");
 
     for (int i = 0; i < hmlen(profile_map); i++) {
         struct profile *p = &profile_map[i].value;
-        fprintf(file, "[0x%X]\n", p->crc32);
+        char hash_hex[65];
+        sha256_to_hex(&p->sha256, hash_hex, sizeof(hash_hex));
+        fprintf(file, "[%s]\n", hash_hex);
         if (p->rom_name[0] != '\0') fprintf(file, "name=%s\n", p->rom_name);
         for (size_t q = 0; q < NUM_QUIRK_FIELDS; q++) {
             bool val = *(bool *)((char *)&p->quirks + quirk_fields[q].offset);
@@ -222,18 +248,20 @@ void profiles_save_current(void) {
         return;
     }
 
-    uint32_t crc = crc32_compute(chip8.rom, chip8.rom_size);
+    sha256_hash_t sha256 = sha256_compute(chip8.rom, chip8.rom_size);
 
     struct profile p;
     memset(&p, 0, sizeof(p));
-    p.crc32 = crc;
+    p.sha256 = sha256;
     set_path(p.rom_name, sizeof(p.rom_name), chip8.rom_filename);
     p.quirks = chip8.quirks;
 
-    hmput(profile_map, crc, p);
+    hmput(profile_map, sha256, p);
     profiles_write_to_file();
 
-    printf("Saved ROM profile for: %s (CRC32: 0x%X)\n", chip8.rom_filename, crc);
+    char hash_hex[65];
+    sha256_to_hex(&sha256, hash_hex, sizeof(hash_hex));
+    printf("Saved ROM profile for: %s (SHA256: %s)\n", chip8.rom_filename, hash_hex);
     char msg[256];
     snprintf(msg, sizeof(msg), "Profile saved: %s", chip8.rom_filename);
     toast_show(TOAST_SUCCESS, msg);

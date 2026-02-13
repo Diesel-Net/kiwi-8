@@ -16,10 +16,10 @@ APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"' $(shell pkg-config --cflags openssl)
 LFLAGS = -mmacosx-version-min=11.0
 INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../shared/
-LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
+LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL $(shell pkg-config --libs openssl)
 
 # SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
@@ -30,7 +30,7 @@ BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/crc32.cc ../shared/display.cc ../shared/gui.cc \
+CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/sha256.cc ../shared/display.cc ../shared/gui.cc \
 			../shared/input.cc ../shared/main.cc \
 			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
