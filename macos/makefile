@@ -111,16 +111,21 @@ release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p release/$(APP_BUNDLE)/Contents/MacOS
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
-# .app bundle
-release/$(APP_BUNDLE): $(APP_MANIFEST) $(SDL_LIB) resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
-	mkdir -p release/$(APP_BUNDLE)/Contents/{Resources,Frameworks}
+# Info.plist in the bundle
+release/$(APP_BUNDLE)/Contents/Info.plist: $(APP_MANIFEST)
+	mkdir -p release/$(APP_BUNDLE)/Contents
+	cp $(APP_MANIFEST) $@
 
-	# Copying the frameworks into .app bundle
-	cp $(SDL_LIB) release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
+# Icon file in the bundle
+release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns: resources/Kiwi8.icns
+	mkdir -p release/$(APP_BUNDLE)/Contents/Resources
+	cp resources/Kiwi8.icns $@
 
-	# Moving other files into .app bundle
-	cp resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns
-	cp $(APP_MANIFEST) release/$(APP_BUNDLE)/Contents/Info.plist
+release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib: $(SDL_LIB)
+	mkdir -p release/$(APP_BUNDLE)/Contents/Frameworks
+
+	# Copy the frameworks into .app bundle
+	cp $(SDL_LIB) $@
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
@@ -128,8 +133,8 @@ release/$(APP_BUNDLE): $(APP_MANIFEST) $(SDL_LIB) resources/Kiwi8.icns release/$
 	# Fix executable's reference to SDL (from @rpath to bundle-relative path)
 	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
 
-	# Update directory timestamp so Make knows bundle is up-to-date
-	touch release/$(APP_BUNDLE)
+# .app bundle
+release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) release/$(APP_BUNDLE)/Contents/Info.plist release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
 run-debug: debug/$(APP_EXE)
 	./debug/$(APP_EXE)
