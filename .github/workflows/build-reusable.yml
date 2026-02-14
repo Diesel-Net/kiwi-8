@@ -31,7 +31,7 @@ jobs:
         run: |
           brew install cmake pkg-config nasm
 
-      - name: Build macOS (${{ matrix.runner.arch }})
+      - name: Build for macOS (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
@@ -90,7 +90,7 @@ jobs:
         with:
           arch: ${{ matrix.runner.arch }}
 
-      - name: Build Windows (${{ matrix.runner.arch }})
+      - name: Build for Windows (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
@@ -146,7 +146,7 @@ jobs:
           path: external/sdl/build
           key: sdl-2.32.10-debian-${{ matrix.runner.arch }}
 
-      - name: Build Linux (${{ matrix.runner.arch }})
+      - name: Build for Linux (${{ matrix.runner.arch }})
         env:
           VERSION: ${{ steps.sanitize.outputs.ref_name }}
           SUB_VERSION: ${{ steps.sanitize.outputs.short_sha }}
