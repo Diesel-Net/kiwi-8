@@ -5,6 +5,8 @@
 #include "quirks.h"
 #include "sha256.h"
 
+typedef struct { uint8_t bytes[32]; } sha256_hash_t;
+
 struct profile {
     sha256_hash_t sha256;
     char rom_name[256];

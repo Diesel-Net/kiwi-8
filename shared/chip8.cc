@@ -176,8 +176,9 @@ int chip8_load_rom(const char *rom_filepath) {
         snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
         toast_show(TOAST_SUCCESS, notif_msg);
 
-        /* Compute SHA256 and lookup profile */
-        sha256_hash_t sha256 = sha256_compute(chip8.rom, chip8.rom_size);
+        /* Compute SHA256 and lookup profile using upstream function */
+        sha256_hash_t sha256;
+        sha256_easy_hash(chip8.rom, chip8.rom_size, sha256.bytes);
         const struct profile *profile = profile_lookup(&sha256);
 
         if (profile) {

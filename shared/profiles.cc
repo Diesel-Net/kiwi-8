@@ -31,6 +31,18 @@ static void set_path(char *dst, size_t dst_size, const char *src) {
     dst[dst_size - 1] = '\0';
 }
 
+/* Convert 32-byte digest to lowercase hex (null-terminated) */
+static void bytes_to_hex(const uint8_t *bytes, char *hex_out, size_t dst_size) {
+    if (dst_size < 65) return;
+    static const char *lut = "0123456789abcdef";
+    for (int i = 0; i < 32; ++i) {
+        uint8_t c = bytes[i];
+        hex_out[i*2] = lut[c >> 4];
+        hex_out[i*2 + 1] = lut[c & 0x0f];
+    }
+    hex_out[64] = '\0';
+}
+
 /* Write the empty profiles.ini header to a new file. Returns 1 on success. */
 static int create_profiles_file(const char *path) {
     FILE *file = fopen(path, "w");
@@ -222,10 +234,11 @@ static void profiles_write_to_file(void) {
     fprintf(file, "# ROM Profiles Database\n");
     fprintf(file, "# Format: [0xSHA256] followed by quirk settings\n\n");
 
+    /* use file-scope bytes_to_hex */
     for (int i = 0; i < hmlen(profile_map); i++) {
         struct profile *p = &profile_map[i].value;
         char hash_hex[65];
-        sha256_to_hex(&p->sha256, hash_hex, sizeof(hash_hex));
+        bytes_to_hex(p->sha256.bytes, hash_hex, sizeof(hash_hex));
         fprintf(file, "[%s]\n", hash_hex);
         if (p->rom_name[0] != '\0') fprintf(file, "name=%s\n", p->rom_name);
         for (size_t q = 0; q < NUM_QUIRK_FIELDS; q++) {
@@ -248,7 +261,8 @@ void profiles_save_current(void) {
         return;
     }
 
-    sha256_hash_t sha256 = sha256_compute(chip8.rom, chip8.rom_size);
+    sha256_hash_t sha256;
+    sha256_easy_hash(chip8.rom, chip8.rom_size, sha256.bytes);
 
     struct profile p;
     memset(&p, 0, sizeof(p));
@@ -260,7 +274,7 @@ void profiles_save_current(void) {
     profiles_write_to_file();
 
     char hash_hex[65];
-    sha256_to_hex(&sha256, hash_hex, sizeof(hash_hex));
+    bytes_to_hex(sha256.bytes, hash_hex, sizeof(hash_hex));
     printf("Saved ROM profile for: %s (SHA256: %s)\n", chip8.rom_filename, hash_hex);
     char msg[256];
     snprintf(msg, sizeof(msg), "Profile saved: %s", chip8.rom_filename);
