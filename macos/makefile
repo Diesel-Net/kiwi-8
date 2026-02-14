@@ -34,14 +34,14 @@ CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared
 			../shared/input.cc ../shared/main.cc \
 			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
-SHA256_SRC = ../external/lekkit/sha256.cc
+SHA256_SRC = ../external/lekkit/sha256.c
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
 	$(notdir $(MACOS_SRCS:.mm=.o)) \
-	$(notdir $(SHA256_SRC:.cc=.o))
+	$(notdir $(SHA256_SRC:.c=.o))
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini
@@ -74,16 +74,16 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 	sed -e 's/@APP_NAME@/$(APP_NAME)/g' -e 's/@VERSION@/$(VERSION)/g' -e 's/@SUB_VERSION@/$(SUB_VERSION)/g' $< > $@
 
 # Pattern rules for incremental compilation
-%.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
 %.o: src/%.mm
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../external/imgui/%.cpp
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/lekkit/%.cc
+%.o: ../external/lekkit/%.c
+	$(CC) $(CFLAGS) -x c $(INCS) -c $< -o $@
+
+%.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)

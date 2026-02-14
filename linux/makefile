@@ -56,7 +56,7 @@ SHA256_SRC = ../external/lekkit/sha256.cc
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
 	$(notdir $(LINUX_SRCS:.cc=.o)) \
-	$(notdir $(SHA256_SRC:.cc=.o))
+	$(notdir $(SHA256_SRC:.c=.o))
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini
@@ -85,16 +85,16 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Pattern rules for incremental compilation
-%.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
 %.o: src/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../external/imgui/%.cpp
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/lekkit/%.cc
+%.o: ../external/lekkit/%.c
+	$(CC) $(CFLAGS) -x c $(INCS) -c $< -o $@
+
+%.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)

@@ -56,7 +56,7 @@ CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\display.cc ..\shared
 			..\shared\toast.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
 IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp ..\external\imgui\imgui_impl_sdl.cpp
 WINDOWS_SRCS = src\file_dialog.cc
-SHA256_SRC = ..\external\lekkit\sha256.cc
+SHA256_SRC = ..\external\lekkit\sha256.c
 
 # Object files (all built in current directory)
 OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
@@ -98,24 +98,17 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Inference rules for incremental compilation
-{..\shared}.cc{}.obj:
-	$(CC) $(CFLAGS) /c $(INCS) $<
-
 {src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 {..\external\imgui}.cpp{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-{..\external\lekkit}.cc{}.obj:
+{..\external\lekkit}.c{}.obj:
+	$(CC) $(CFLAGS) /TC /c $(INCS) $<
+
+{..\shared}.cc{}.obj: $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) /c $(INCS) $<
-
-# Explicit rules for files depending on generated headers
-gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\shared\gui.cc
-
-chip8.obj: ..\shared\chip8.cc $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) ..\shared\chip8.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
