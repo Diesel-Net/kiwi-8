@@ -26,23 +26,20 @@ CFLAGS = /std:c++17 /W4 /MD /nologo /w44996 "/DAPP_NAME=\"$(APP_NAME)\"" "/DVERS
 
 LFLAGS = /link \
 		 /LIBPATH:..\external\sdl\build\lib \
-		 /LIBPATH:"C:\Program Files\OpenSSL\lib" \
 		 /ENTRY:mainCRTStartup
 
-INCS = /I..\external\sdl\build\include \
-	   /I..\external\imgui \
-	   /I..\external\stb \
-	   /I..\.shared \
-	   /I"C:\Program Files\OpenSSL\include"
+INCS = /I..\.shared \
+	/I..\external\sdl\build\include \
+	/I..\external\imgui \
+	/I..\external\stb \
+	/I..\external\lekkit
 
 LIBS = user32.lib \
-	   SDL2.lib \
-	   SDL2main.lib \
-	   opengl32.lib \
-	   Comdlg32.lib \
-	   Shell32.lib \
-	   libssl.lib \
-	   libcrypto.lib
+	SDL2.lib \
+	SDL2main.lib \
+	opengl32.lib \
+	Comdlg32.lib \
+	Shell32.lib
 
 # SDL dependency files
 SDL_LIB = ..\external\sdl\build\lib\SDL2.lib
@@ -54,16 +51,16 @@ BOOTROM_HEADER = ..\shared\bootrom.h
 BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\sha256.cc ..\shared\display.cc ..\shared\gui.cc \
+CORE_SRCS = ..\.shared\audio.cc ..\.shared\chip8.cc ..\.shared\display.cc ..\.shared\gui.cc \
 			..\shared\input.cc ..\shared\main.cc \
 			..\shared\toast.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
 IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp ..\external\imgui\imgui_impl_sdl.cpp
 WINDOWS_SRCS = src\file_dialog.cc
 
 # Object files (all built in current directory)
-OBJS = audio.obj chip8.obj sha256.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
+OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
 	main.obj toast.obj profiles.obj open_file_dialog.obj imgui.obj imgui_draw.obj \
-	file_dialog.obj
+	file_dialog.obj sha256.obj
 
 PROFILES_INI = ..\shared\profiles.ini
 
@@ -115,6 +112,9 @@ gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)
 
 chip8.obj: ..\shared\chip8.cc $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) /c $(INCS) ..\shared\chip8.cc
+
+sha256.obj: ..\external\lekkit\sha256.c
+	$(CC) $(CFLAGS) /c $(INCS) ..\external\lekkit\sha256.c
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc

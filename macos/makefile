@@ -16,10 +16,10 @@ APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
 CC = clang++
-CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"' $(shell pkg-config --cflags openssl)
+CFLAGS = -std=c++17 -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -mmacosx-version-min=11.0
-INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../shared/
-LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL $(shell pkg-config --libs openssl)
+INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
+LIBS = -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
 # SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
@@ -30,7 +30,7 @@ BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
 # Source files
-CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/sha256.cc ../shared/display.cc ../shared/gui.cc \
+CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared/gui.cc \
 			../shared/input.cc ../shared/main.cc \
 			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
@@ -39,7 +39,8 @@ MACOS_SRCS = src/file_dialog.mm
 # Object files (convert source paths to .o in current directory)
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
-	$(notdir $(MACOS_SRCS:.mm=.o))
+	$(notdir $(MACOS_SRCS:.mm=.o)) \
+	sha256.o
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini
@@ -79,6 +80,9 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: src/%.mm
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+sha256.o: ../external/lekkit/sha256.c
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)
