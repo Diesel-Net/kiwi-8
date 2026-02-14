@@ -98,6 +98,9 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Inference rules for incremental compilation
+{..\shared}.cc{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
+
 {src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
@@ -107,8 +110,12 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 {..\external\lekkit}.c{}.obj:
 	$(CC) $(CFLAGS) /TC /c $(INCS) $<
 
-{..\shared}.cc{}.obj: $(LICENSE_HEADER) $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) /c $(INCS) $<
+# Explicit rules for files depending on generated headers
+gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\gui.cc
+
+chip8.obj: ..\shared\chip8.cc $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) /c $(INCS) ..\shared\chip8.cc
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
