@@ -111,6 +111,9 @@ release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p release/$(APP_BUNDLE)/Contents/MacOS
 	$(CC) $(CFLAGS) $(LIBS) $(INCS) $(OBJS) -o $@ $(LFLAGS)
 
+	# Fix executable's reference to SDL (from @rpath to bundle-relative path)
+	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
+
 # Info.plist in the bundle
 release/$(APP_BUNDLE)/Contents/Info.plist: $(APP_MANIFEST)
 	mkdir -p release/$(APP_BUNDLE)/Contents
@@ -121,6 +124,7 @@ release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns: resources/Kiwi8.icns
 	mkdir -p release/$(APP_BUNDLE)/Contents/Resources
 	cp resources/Kiwi8.icns $@
 
+# SDL dylib in the bundle
 release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib: $(SDL_LIB)
 	mkdir -p release/$(APP_BUNDLE)/Contents/Frameworks
 
@@ -129,9 +133,6 @@ release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib: $(SDL_LIB)
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
-
-	# Fix executable's reference to SDL (from @rpath to bundle-relative path)
-	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
 
 # .app bundle
 release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) release/$(APP_BUNDLE)/Contents/Info.plist release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
