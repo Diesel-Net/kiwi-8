@@ -34,14 +34,14 @@ CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared
 			../shared/input.cc ../shared/main.cc \
 			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
-SHA256_SRC = ../external/lekkit/sha256.c
+SHA256_SRC = ../external/lekkit/sha256.cc
 MACOS_SRCS = src/file_dialog.mm
 
 # Object files (convert source paths to .o in current directory)
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
 	$(notdir $(MACOS_SRCS:.mm=.o)) \
-	$(notdir $(SHA256_SRC:.c=.o))
+	$(notdir $(SHA256_SRC:.cc=.o))
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini

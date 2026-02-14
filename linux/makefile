@@ -56,7 +56,7 @@ SHA256_SRC = ../external/lekkit/sha256.cc
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
 	$(notdir $(LINUX_SRCS:.cc=.o)) \
-	$(notdir $(SHA256_SRC:.c=.o))
+	$(notdir $(SHA256_SRC:.cc=.o))
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini
