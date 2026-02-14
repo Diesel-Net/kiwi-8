@@ -56,7 +56,7 @@ CORE_SRCS = ..\shared\audio.cc ..\shared\chip8.cc ..\shared\display.cc ..\shared
 			..\shared\toast.cc ..\shared\open_file_dialog.cc ..\shared\profiles.cc
 IMGUI_SRCS = ..\external\imgui\imgui.cpp ..\external\imgui\imgui_draw.cpp ..\external\imgui\imgui_impl_sdl.cpp
 WINDOWS_SRCS = src\file_dialog.cc
-SHA256_SRC = ..\external\lekkit\sha256.c
+SHA256_SRC = ..\external\lekkit\sha256.cc
 
 # Object files (all built in current directory)
 OBJS = audio.obj chip8.obj display.obj gui.obj imgui_impl_sdl.obj input.obj \
@@ -107,8 +107,8 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 {..\external\imgui}.cpp{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-{..\external\lekkit}.c{}.obj:
-	$(CC) $(CFLAGS) /TC /c $(INCS) $<
+{..\external\lekkit}.cc{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
 
 # Explicit rules for files depending on generated headers
 gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)

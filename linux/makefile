@@ -91,8 +91,8 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 %.o: ../external/imgui/%.cpp
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/lekkit/%.c
-	$(CC) $(CFLAGS) -x c $(INCS) -c $< -o $@
+%.o: ../external/lekkit/%.cc
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
