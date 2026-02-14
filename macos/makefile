@@ -80,10 +80,10 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 %.o: src/%.mm
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/%.cpp
+%.o: ../external/imgui/%.cpp
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/%.cc
+%.o: ../external/lekkit/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)

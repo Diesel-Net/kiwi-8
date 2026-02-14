@@ -91,10 +91,10 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 %.o: src/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/%.cpp
+%.o: ../external/imgui/%.cpp
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/%.cc
+%.o: ../external/lekkit/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)

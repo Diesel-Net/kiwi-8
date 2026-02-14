@@ -101,12 +101,13 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 {..\shared}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-{..\external}.cpp{}.obj:
+{src}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
-{src}.cc{}.obj:
-	$(CC) $(CFLAGS) /c $(INCS) $@
-{..\external}.c{}.obj:
+{..\external\imgui}.cpp{}.obj:
+	$(CC) $(CFLAGS) /c $(INCS) $<
+
+{..\external\lekkit}.cc{}.obj:
 	$(CC) $(CFLAGS) /c $(INCS) $<
 
 # Explicit rules for files depending on generated headers
