@@ -50,12 +50,13 @@ CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared
 			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
 IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
 LINUX_SRCS = src/file_dialog.cc
+SHA256_SRC = ../external/lekkit/sha256.cc
 
 # Object files (convert source paths to .o in current directory)
 OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
 	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
 	$(notdir $(LINUX_SRCS:.cc=.o)) \
-	sha256.o
+	$(notdir $(SHA256_SRC:.cc=.o))
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini
@@ -87,13 +88,13 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-%.o: ../external/imgui/%.cpp
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
 %.o: src/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-sha256.o: ../external/lekkit/sha256.c
+%.o: ../external/%.cpp
+	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+%.o: ../external/%.cc
 	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)
