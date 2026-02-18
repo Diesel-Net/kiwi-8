@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Simple linter to detect forbidden C++/OO tokens in the shared/ folder.
-# Usage: tools/check_no_oo.sh [TARGET_DIR]
+# Usage: tools/check_forbidden_tokens.sh [TARGET_DIR]
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TARGET_DIR="${1:-shared}"

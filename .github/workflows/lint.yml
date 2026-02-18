@@ -8,6 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run no-OO linter
+      - name: Run forbidden tokens linter
         run: |
-          bash tools/check_no_oo.sh shared
+          bash tools/check_forbidden_tokens.sh shared
