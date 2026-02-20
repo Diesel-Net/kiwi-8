@@ -14,7 +14,7 @@ endif
 APP_EXE = $(APP_NAME)
 
 CC = g++
-CFLAGS = -std=c++17 -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
+CFLAGS = -std=c++11 -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
 LFLAGS = -Wl,-rpath,'$$ORIGIN'
 
 # Use pkg-config to get GTK3 and audio backend flags
