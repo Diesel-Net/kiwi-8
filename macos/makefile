@@ -15,7 +15,6 @@ APP_MANIFEST = src/Info.plist
 APP_BUNDLE = $(APP_NAME).app
 APP_EXE = $(APP_NAME)
 
-
 CC = clang
 CXX = clang++
 CFLAGS = -std=c11
@@ -24,7 +23,6 @@ CXXFLAGS = -std=c++11
 INCLUDE_DIRS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
 LDFLAGS = -mmacosx-version-min=11.0 -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
 
-# SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
 
 # Generated headers

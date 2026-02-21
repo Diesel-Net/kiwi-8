@@ -13,9 +13,15 @@ endif
 
 APP_EXE = $(APP_NAME)
 
-CC = g++
-CFLAGS = -std=c++11 -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
-LFLAGS = -Wl,-rpath,'$$ORIGIN'
+CC = gcc
+CXX = g++
+CFLAGS = -std=c11
+CPPFLAGS = -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
+CXXFLAGS = -std=c++11
+
+INCLUDE_DIRS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
+
+LDFLAGS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL -lm -ldl -lpthread -Wl,-rpath,'$$ORIGIN'
 
 # Use pkg-config to get GTK3 and audio backend flags
 GTK3_CFLAGS = $(shell pkg-config --cflags gtk+-3.0)
@@ -31,12 +37,9 @@ PIPEWIRE_LIBS = $(shell pkg-config --libs libpipewire-0.3)
 JACK_CFLAGS = $(shell pkg-config --cflags jack)
 JACK_LIBS = $(shell pkg-config --libs jack)
 
-CFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS)
+CPPFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS)
+LDFLAGS += $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS)
 
-INCS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
-LIBS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS) $(ESD_LIBS) $(SNDIO_LIBS) -lm -ldl -lpthread
-
-# SDL dependency files
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.so.0
 
 # Generated headers
@@ -44,19 +47,21 @@ LICENSE_HEADER = ../shared/license.h
 BOOTROM_HEADER = ../shared/bootrom.h
 BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
 
-# Source files
-CORE_SRCS = ../shared/audio.cc ../shared/chip8.cc ../shared/display.cc ../shared/gui.cc \
-			../shared/input.cc ../shared/main.cc \
-			../shared/toast.cc ../shared/open_file_dialog.cc ../shared/profiles.cc
-IMGUI_SRCS = ../external/imgui/imgui.cpp ../external/imgui/imgui_draw.cpp ../external/imgui/imgui_impl_sdl.cpp
-LINUX_SRCS = src/file_dialog.cc
-SHA256_SRC = ../external/lekkit/sha256.cc
+OBJS = audio.o \
+	chip8.o \
+	display.o \
+	gui.o \
+	input.o \
+	main.o \
+	toast.o \
+	open_file_dialog.o \
+	profiles.o \
+	imgui.o \
+	imgui_draw.o \
+	imgui_impl_sdl.o \
+	sha256.o \
+	file_dialog.o
 
-# Object files (convert source paths to .o in current directory)
-OBJS = $(notdir $(CORE_SRCS:.cc=.o)) \
-	$(notdir $(IMGUI_SRCS:.cpp=.o)) \
-	$(notdir $(LINUX_SRCS:.cc=.o)) \
-	$(notdir $(SHA256_SRC:.cc=.o))
 DEPS = $(OBJS:.o=.d)
 
 PROFILES_INI = ../shared/profiles.ini
@@ -66,7 +71,7 @@ PROFILES_INI = ../shared/profiles.ini
 
 .DEFAULT_GOAL := all
 
-all: debug/profiles.ini debug/$(APP_EXE) release/profiles. release/$(APP_EXE)
+all: debug/profiles.ini debug/$(APP_EXE) release/profiles.ini release/$(APP_EXE)
 
 # Build SDL (force rebuild with: make sdl)
 sdl:
@@ -85,17 +90,17 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Pattern rules for incremental compilation
-%.o: src/%.cc
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
-
 %.o: ../external/imgui/%.cpp
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
-%.o: ../external/lekkit/%.cc
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+%.o: ../external/lekkit/%.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
+
+%.o: ../shared/%.c $(LICENSE_HEADER) $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
 debug/profiles.ini: $(PROFILES_INI)
 	mkdir -p debug
@@ -109,13 +114,13 @@ release/profiles.ini: $(PROFILES_INI)
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
 	cp $(SDL_LIB) debug/libSDL2-2.0.so.0
-	$(CC) $(CFLAGS) -g $(INCS) $(LIBDIRS) $(OBJS) -o $@ $(LIBS) $(LFLAGS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -g $(INCLUDE_DIRS) $(LDFLAGS) $(OBJS) -o $@
 
 # release executable
 release/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p release
 	cp $(SDL_LIB) release/libSDL2-2.0.so.0
-	$(CC) $(CFLAGS) $(INCS) $(LIBDIRS) $(OBJS) -o $@ $(LIBS) $(LFLAGS)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) $(LDFLAGS) $(OBJS) -o $@
 
 run-debug: debug/$(APP_EXE)
 	./debug/$(APP_EXE)
