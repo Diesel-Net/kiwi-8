@@ -43,7 +43,7 @@ CPPFLAGS = /W4 \
 	"/DVERSION=\"$(VERSION)\"" \
 	"/DSUB_VERSION=\"$(SUB_VERSION)\""
 
-CXXFLAGS = /std:c++11
+CXXFLAGS = /std:c11
 INCLUDE_DIRS = /I..\shared \
 	/I..\external\sdl\build\include \
 	/I..\external\imgui \
