@@ -163,7 +163,4 @@ clean:
 distclean: clean
 	$(RM) -r ../external/sdl
 
-debug-vars:
-	@echo "OBJS content: $(OBJS)"
-
 .PHONY: all sdl clean distclean run-release run-debug
