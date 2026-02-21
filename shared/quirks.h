@@ -1,6 +1,12 @@
 #ifndef QUIRKS_H
 #define QUIRKS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
+
 /*
  * X-macro list of all quirk fields.
  * Format: X(field_name, default_value)
@@ -32,5 +38,9 @@ static inline struct quirks quirks_get_defaults(void) {
 #undef QUIRK_X_DEFAULT
     return defaults;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // QUIRKS_H

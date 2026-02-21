@@ -59,8 +59,16 @@ def generate_header(license_file, output_file):
 #ifndef LICENSE_H
 #define LICENSE_H
 
-const char* LICENSE_TEXT =
+#ifdef __cplusplus
+extern "C" {{
+#endif
+
+static const char* LICENSE_TEXT =
 {chr(10).join(cpp_lines)};
+
+#ifdef __cplusplus
+}}
+#endif
 
 #endif // LICENSE_H
 """

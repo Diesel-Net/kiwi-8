@@ -1,6 +1,10 @@
 #ifndef TOAST_H
 #define TOAST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Toast struct definition */
 struct toast {
     char message[256];
@@ -31,4 +35,8 @@ const struct toast* toast_get_toasts(int *count);
 int toast_is_active(const struct toast *t);
 void toast_get_info(const struct toast *t, const char **message, int *type, double *time);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // TOAST_H
