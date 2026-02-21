@@ -1,11 +1,12 @@
 APP_NAME = Kiwi8
 
-# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
+# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to develop
 VERSION ?= $(GITHUB_REF_NAME)
 ifeq ($(VERSION),)
 VERSION = develop
 endif
 
+# Use SUB_VERSION if set, otherwise fall back to GITHUB_SHA, then default to unknown
 SUB_VERSION ?= $(GITHUB_SHA)
 ifeq ($(SUB_VERSION),)
 SUB_VERSION = unknown
@@ -18,10 +19,23 @@ APP_EXE = $(APP_NAME)
 CC = clang
 CXX = clang++
 CFLAGS = -std=c11
-CPPFLAGS = -Wall -mmacosx-version-min=11.0 -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
+CPPFLAGS = -Wall \
+	-mmacosx-version-min=11.0 \
+	-MMD -MP -DAPP_NAME='"$(APP_NAME)"' \
+	-DVERSION='"$(VERSION)"' \
+	-DSUB_VERSION='"$(SUB_VERSION)"'
+
 CXXFLAGS = -std=c++11
-INCLUDE_DIRS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
-LDFLAGS = -mmacosx-version-min=11.0 -L../external/sdl/build/lib/ -lSDL2-2.0.0 -framework Cocoa -framework OpenGL
+INCLUDE_DIRS = -I../external/sdl/build/include/ \
+	-I../external/imgui/ \
+	-I../external/stb/ \
+	-I../external/lekkit/
+
+LDFLAGS = -mmacosx-version-min=11.0 \
+	-L../external/sdl/build/lib/ \
+	-lSDL2-2.0.0 \
+	-framework Cocoa \
+	-framework OpenGL
 
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
 

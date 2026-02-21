@@ -1,11 +1,12 @@
 APP_NAME = Kiwi8
 
-# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to unknown
+# Use VERSION if set, otherwise fall back to GITHUB_REF_NAME, then default to develop
 VERSION ?= $(GITHUB_REF_NAME)
 ifeq ($(VERSION),)
 VERSION = develop
 endif
 
+# Use SUB_VERSION if set, otherwise fall back to GITHUB_SHA, then default to unknown
 SUB_VERSION ?= $(GITHUB_SHA)
 ifeq ($(SUB_VERSION),)
 SUB_VERSION = unknown
@@ -16,12 +17,27 @@ APP_EXE = $(APP_NAME)
 CC = gcc
 CXX = g++
 CFLAGS = -std=gnu11
-CPPFLAGS = -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
+CPPFLAGS = -Wall \
+	-MMD \
+	-MP \
+	-DAPP_NAME='"$(APP_NAME)"' \
+	-DVERSION='"$(VERSION)"' \
+	-DSUB_VERSION='"$(SUB_VERSION)"'
+
 CXXFLAGS = -std=gnu++11
 
-INCLUDE_DIRS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
+INCLUDE_DIRS = -I../external/sdl/build/include/ \
+	-I../external/imgui/ \
+	-I../external/stb/ \
+	-I../external/lekkit/
 
-LDFLAGS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL -lm -ldl -lpthread -Wl,-rpath,'$$ORIGIN'
+LDFLAGS = -L../external/sdl/build/lib \
+	-lSDL2-2.0 \
+	-lGL \
+	-lm \
+	-ldl \
+	-lpthread \
+	-Wl,-rpath,'$$ORIGIN'
 
 # Use pkg-config to get GTK3 and audio backend flags
 GTK3_CFLAGS = $(shell pkg-config --cflags gtk+-3.0)
