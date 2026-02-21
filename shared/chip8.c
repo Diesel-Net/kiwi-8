@@ -92,7 +92,7 @@ int chip8_init(
 
     /* load fontset */
     for(int i = 0; i < FONTS_SIZE; ++i) {
-        chip8.memory[i] = chip8.chip8_fontset[i];
+        chip8.memory[i] = chip8_fontset[i];
     }
 
     /* Initialize ROM profile database */
@@ -222,7 +222,7 @@ void chip8_soft_reset() {
 
     /* load fontset */
     for(int i = 0; i < FONTS_SIZE; ++i) {
-        chip8.memory[i] = chip8.chip8_fontset[i];
+        chip8.memory[i] = chip8_fontset[i];
     }
 
     /* copy the entire rom to memory starting from 0x200 */

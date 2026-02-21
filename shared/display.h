@@ -1,8 +1,13 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <SDL2/SDL.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define WIDTH 64
 #define HEIGHT 32
@@ -50,5 +55,9 @@ void display_toggle_fullscreen(void);
 void display_toggle_vsync(void);
 void display_raise_window(void);
 void display_render_frame(unsigned char **frame);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

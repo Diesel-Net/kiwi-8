@@ -1,5 +1,4 @@
 #include "gui.h"
-#include "chip8.h"
 #include "display.h"
 #include "imgui.h"
 #include "imgui_impl_sdl.h"

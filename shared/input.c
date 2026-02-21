@@ -60,8 +60,8 @@ static int input_process_events(void) {
         if (input.state[SDL_SCANCODE_RALT]) gui.show_fps_flag = !gui.show_fps_flag;
 
         /* slow/raise emulation speed */
-        if (input.state[SDL_SCANCODE_PAGEDOWN]) (chip8.cycles -1 < MIN_CYCLES_PER_STEP ) ? chip8.cycles = MIN_CYCLES_PER_STEP : chip8.cycles -= 1;
-        if (input.state[SDL_SCANCODE_PAGEUP]) (chip8.cycles +1 > MAX_CYCLES_PER_STEP ) ? chip8.cycles = MAX_CYCLES_PER_STEP : chip8.cycles += 1;
+        if (input.state[SDL_SCANCODE_PAGEDOWN]) (chip8.cycles -1 < MIN_CYCLES_PER_STEP ) ? (chip8.cycles = MIN_CYCLES_PER_STEP) : (chip8.cycles -= 1);
+        if (input.state[SDL_SCANCODE_PAGEUP]) (chip8.cycles +1 > MAX_CYCLES_PER_STEP ) ? (chip8.cycles = MAX_CYCLES_PER_STEP) : (chip8.cycles += 1);
     }
 
     /* window events */

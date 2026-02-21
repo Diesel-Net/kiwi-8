@@ -1,6 +1,11 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 
 #define NUM_KEYS 16
@@ -31,5 +36,9 @@ extern struct input input;
 /* Input functions */
 void input_reset(void);
 int input_poll(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

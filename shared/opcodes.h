@@ -2,6 +2,10 @@
 #ifndef OPCODES_H
 #define OPCODES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "chip8.h"
 #include "display.h" /* for WIDTH and HEIGHT */
 #include "input.h"
@@ -103,7 +107,7 @@ inline void exec8XY4() {
        carry, and to 0 when there isn't */
     unsigned short sum;
     sum  = chip8.V[OP_Y] + chip8.V[OP_X];
-    (sum > 0xFF) ? chip8.V[0xF] = 1 : chip8.V[0xF] = 0;
+    (sum > 0xFF) ? (chip8.V[0xF] = 1) : (chip8.V[0xF] = 0);
 
     /* only the lowest 8 bits are kept */
     chip8.V[OP_X] = (unsigned char) sum;
@@ -112,7 +116,7 @@ inline void exec8XY4() {
 inline void exec8XY5() {
     /* 0x8XY5: VY is subtracted from VX. VF is set to 0 when
        there's a borrow, and 1 when there isn't */
-    (chip8.V[OP_Y] > chip8.V[OP_X]) ? chip8.V[0xF] = 0 : chip8.V[0xF] = 1;
+    (chip8.V[OP_Y] > chip8.V[OP_X]) ? (chip8.V[0xF] = 0) : (chip8.V[0xF] = 1);
     chip8.V[OP_X] -= chip8.V[OP_Y];
 }
 
@@ -120,19 +124,19 @@ inline void exec8XY6() {
     /*  0x8XY6: shifts VX right by one. VF is set to the value
         of the least significant bit of VX before the shift. */
     chip8.V[0xF] = chip8.V[OP_X] & 0x01;
-    chip8.quirks.shift_quirk ? chip8.V[OP_X] >>= 1 : chip8.V[OP_X] = chip8.V[OP_Y] >> 1;
+    chip8.quirks.shift_quirk ? (chip8.V[OP_X] >>= 1) : (chip8.V[OP_X] = chip8.V[OP_Y] >> 1);
 }
 inline void exec8XY7() {
     /* 0x8XY7: sets VX to VY minus VX. VF is set to 0 when
        there's a borrow, and 1 when there isn't. */
-    (chip8.V[OP_X] > chip8.V[OP_Y]) ? chip8.V[0xF] = 0 : chip8.V[0xF] = 1;
+    (chip8.V[OP_X] > chip8.V[OP_Y]) ? (chip8.V[0xF] = 0) : (chip8.V[0xF] = 1);
     chip8.V[OP_X] = chip8.V[OP_Y] - chip8.V[OP_X];
 }
 inline void exec8XYE() {
     /* 0x8XYE: shifts VX left by one. VF is set to the value of
        the most significant bit of VX before the shift. */
     chip8.V[0xF] = (chip8.V[OP_X] & 0x80) >> 7;
-    chip8.quirks.shift_quirk ? chip8.V[OP_X] <<= 1 : chip8.V[OP_X] = chip8.V[OP_Y] << 1;
+    chip8.quirks.shift_quirk ? (chip8.V[OP_X] <<= 1) : (chip8.V[OP_X] = chip8.V[OP_Y] << 1);
 }
 
 inline void exec9XY0() {
@@ -272,5 +276,9 @@ inline void execFX65() {
 inline void execUnknown() {
     fprintf (stderr, "Unknown opcode: 0x%X\n", chip8.opcode);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // OPCODES_H
