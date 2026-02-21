@@ -90,6 +90,9 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
 
 # Pattern rules for incremental compilation
+%.o: src/%.cc
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
+
 %.o: ../external/imgui/%.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
