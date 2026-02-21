@@ -8,6 +8,10 @@ extern "C" {
 #include <SDL2/SDL.h>
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define TAU (2.0 * M_PI)
 #define AMPLITUDE 28000 // Max amplitude for signed 16-bit
 #define SAMPLE_RATE 48000
