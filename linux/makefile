@@ -15,9 +15,9 @@ APP_EXE = $(APP_NAME)
 
 CC = gcc
 CXX = g++
-CFLAGS = -std=c11
+CFLAGS = -std=gnu11
 CPPFLAGS = -Wall -MMD -MP -DAPP_NAME='"$(APP_NAME)"' -DVERSION='"$(VERSION)"' -DSUB_VERSION='"$(SUB_VERSION)"'
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=gnu++11
 
 INCLUDE_DIRS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
 
