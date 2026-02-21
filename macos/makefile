@@ -104,7 +104,7 @@ release/$(APP_BUNDLE)/Contents/Resources/profiles.ini: $(PROFILES_INI)
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p debug
 	cp $(SDL_LIB) debug/libSDL2-2.0.0.dylib
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -g $(INCLUDE_DIRS) $(LDFLAGS) $(OBJS) -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -g $(INCLUDE_DIRS) $(OBJS) -o $@ $(LDFLAGS)
 
 	# Set the dylib's install name to be relative to the bundle
 	install_name_tool -id @executable_path/libSDL2-2.0.0.dylib debug/libSDL2-2.0.0.dylib
@@ -115,7 +115,7 @@ debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
 # release executable (inside .app bundle)
 release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	mkdir -p release/$(APP_BUNDLE)/Contents/MacOS
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) $(LDFLAGS) $(OBJS) -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) $(OBJS) -o $@ $(LDFLAGS)
 
 	# Fix executable's reference to SDL (from @rpath to bundle-relative path)
 	install_name_tool -change @rpath/libSDL2-2.0.0.dylib @executable_path/../Frameworks/libSDL2-2.0.0.dylib release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE)
