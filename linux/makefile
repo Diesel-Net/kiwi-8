@@ -26,7 +26,8 @@ CPPFLAGS = -Wall \
 
 CXXFLAGS = -std=gnu++11
 
-INCLUDE_DIRS = -I../external/sdl/build/include/ \
+INCLUDE_DIRS = -I../shared \
+	-I../external/sdl/build/include/ \
 	-I../external/imgui/ \
 	-I../external/stb/ \
 	-I../external/lekkit/
@@ -75,8 +76,7 @@ OBJS = audio.o \
 	imgui.o \
 	imgui_draw.o \
 	imgui_impl_sdl.o \
-	sha256.o \
-	file_dialog.o
+	sha256.o
 
 DEPS = $(OBJS:.o=.d)
 

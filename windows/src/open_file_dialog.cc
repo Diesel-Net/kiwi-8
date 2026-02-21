@@ -38,3 +38,7 @@ int open_file_dialog(char *rom_name, char *filters) {
     strcpy(rom_name, szFile);
     return 0;
 }
+
+int open_file_dialog(char *rom_name) {
+    return open_file_dialog(rom_name, "Chip8\0*.ch8\0All\0*.*\0");
+}

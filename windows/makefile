@@ -72,15 +72,14 @@ OBJS = audio.obj \
 	chip8.obj \
 	display.obj \
 	gui.obj \
-	imgui_impl_sdl.obj \
 	input.obj \
 	main.obj \
 	toast.obj \
 	profiles.obj \
 	open_file_dialog.obj \
+	imgui_impl_sdl.obj \
 	imgui.obj \
 	imgui_draw.obj \
-	file_dialog.obj \
 	sha256.obj
 
 PROFILES_INI = ..\shared\profiles.ini
