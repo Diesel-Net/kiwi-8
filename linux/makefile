@@ -21,7 +21,7 @@ CXXFLAGS = -std=gnu++11
 
 INCLUDE_DIRS = -I../external/sdl/build/include/ -I../external/imgui/ -I../external/stb/ -I../external/lekkit/
 
-LDFLAGS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL -lm -ldl -lpthread -Wl,-rpath,'$$ORIGIN'
+LDFLAGS = -L../external/sdl/build/lib -lSDL2-2.0 -lGL $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS) -lm -ldl -lpthread -Wl,-rpath,'$$ORIGIN'
 
 # Use pkg-config to get GTK3 and audio backend flags
 GTK3_CFLAGS = $(shell pkg-config --cflags gtk+-3.0)
@@ -38,7 +38,7 @@ JACK_CFLAGS = $(shell pkg-config --cflags jack)
 JACK_LIBS = $(shell pkg-config --libs jack)
 
 CPPFLAGS += $(GTK3_CFLAGS) $(ALSA_CFLAGS) $(PULSE_CFLAGS) $(PIPEWIRE_CFLAGS) $(JACK_CFLAGS)
-LDFLAGS += $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS)
+#LDFLAGS += $(GTK3_LIBS) $(ALSA_LIBS) $(PULSE_LIBS) $(PIPEWIRE_LIBS) $(JACK_LIBS)
 
 SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.so.0
 
