@@ -107,44 +107,6 @@ int chip8_load_bootrom(void);
 void chip8_fetch_opcode(void);
 void chip8_execute_opcode(void);
 
-/* opcode helpers */
-// void exec_00E0(void);
-// void exec_00EE(void);
-// void exec_0NNN(void);
-// void exec_1NNN(void);
-// void exec_2NNN(void);
-// void exec_3XNN(void);
-// void exec_4XNN(void);
-// void exec_5XY0(void);
-// void exec_6XNN(void);
-// void exec_7XNN(void);
-// void exec_8XY0(void);
-// void exec_8XY1(void);
-// void exec_8XY2(void);
-// void exec_8XY3(void);
-// void exec_8XY4(void);
-// void exec_8XY5(void);
-// void exec_8XY6(void);
-// void exec_8XY7(void);
-// void exec_8XYE(void);
-// void exec_9XY0(void);
-// void exec_ANNN(void);
-// void exec_BNNN(void);
-// void exec_CXNN(void);
-// void exec_DXYN(void);
-// void exec_EX9E(void);
-// void exec_EXA1(void);
-// void exec_FX07(void);
-// void exec_FX0A(void);
-// void exec_FX15(void);
-// void exec_FX18(void);
-// void exec_FX1E(void);
-// void exec_FX29(void);
-// void exec_FX33(void);
-// void exec_FX55(void);
-// void exec_FX65(void);
-// void exec_unknown(void);
-
 #ifdef __cplusplus
 }
 #endif
