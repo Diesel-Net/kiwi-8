@@ -1,6 +1,10 @@
 #ifndef USAGE_H
 #define USAGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Centralized usage/help text for CLI and GUI */
 static const char *USAGE_TEXT =
     "Usage: Kiwi8 [options] [rom_file]\n"
@@ -11,5 +15,9 @@ static const char *USAGE_TEXT =
     "  -h, --help               Show this help message\n"
     "\n"
     "Note: Quirks are configured per-ROM via profiles.ini or GUI.\n";
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* USAGE_H */
