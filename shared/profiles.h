@@ -1,6 +1,10 @@
 #ifndef PROFILES_H
 #define PROFILES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "quirks.h"
 #include "sha256.h"
@@ -24,5 +28,9 @@ const struct profile* profile_lookup(const sha256_hash_t *sha256);
  * Requires: chip8.rom, chip8.rom_size, chip8.rom_filename, chip8.quirks
  * Also adds profile to runtime hashmap immediately */
 void profiles_save_current(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PROFILES_H */

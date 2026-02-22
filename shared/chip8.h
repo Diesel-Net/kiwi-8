@@ -1,9 +1,14 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
 #include "quirks.h"
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define MEM_SIZE 4096
 #define NUM_REGISTERS 16
@@ -14,6 +19,24 @@
 #define MIN_CYCLES_PER_STEP 1
 #define MAX_CYCLES_PER_STEP 50
 #define TICKS 60 /* hz - Timer count down rate */
+
+static const unsigned char chip8_fontset[FONTS_SIZE] = {
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0x20, 0x60, 0x20, 0x20, 0x70, // B
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // C
+        0xF0, 0x80, 0xF0, 0x80, 0x80, // D
+        0xF0, 0x90, 0x90, 0xF0, 0x90  // F
+    };
 
 struct chip8 {
     /* number of cycles per step */
@@ -63,23 +86,7 @@ struct chip8 {
     /* 1-bit encoded screen pixels (64x32) */
     unsigned char **vram;
 
-    const unsigned char chip8_fontset[FONTS_SIZE] = {
-        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-        0x20, 0x60, 0x20, 0x20, 0x70, // 1
-        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-        0x20, 0x60, 0x20, 0x20, 0x70, // B
-        0xF0, 0x80, 0xF0, 0x80, 0xF0, // C
-        0xF0, 0x80, 0xF0, 0x80, 0x80, // D
-        0xF0, 0x90, 0x90, 0xF0, 0x90  // F
-    };
+
 };
 
 /* Global chip8 instance */
@@ -100,42 +107,8 @@ int chip8_load_bootrom(void);
 void chip8_fetch_opcode(void);
 void chip8_execute_opcode(void);
 
-/* opcode helpers */
-void exec00E0(void);
-void exec00EE(void);
-void exec0NNN(void);
-void exec1NNN(void);
-void exec2NNN(void);
-void exec3XNN(void);
-void exec4XNN(void);
-void exec5XY0(void);
-void exec6XNN(void);
-void exec7XNN(void);
-void exec8XY0(void);
-void exec8XY1(void);
-void exec8XY2(void);
-void exec8XY3(void);
-void exec8XY4(void);
-void exec8XY5(void);
-void exec8XY6(void);
-void exec8XY7(void);
-void exec8XYE(void);
-void exec9XY0(void);
-void execANNN(void);
-void execBNNN(void);
-void execCXNN(void);
-void execDXYN(void);
-void execEX9E(void);
-void execEXA1(void);
-void execFX07(void);
-void execFX0A(void);
-void execFX15(void);
-void execFX18(void);
-void execFX1E(void);
-void execFX29(void);
-void execFX33(void);
-void execFX55(void);
-void execFX65(void);
-void execUnknown(void);
-
+#ifdef __cplusplus
+}
 #endif
+
+#endif // CHIP8_H

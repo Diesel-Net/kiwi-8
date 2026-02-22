@@ -1,6 +1,10 @@
 #ifndef OPEN_FILE_DIALOG_H
 #define OPEN_FILE_DIALOG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef __APPLE__
 #include <limits.h> /* PATH_MAX */
 #endif
@@ -15,5 +19,9 @@
 #endif
 
 int open_file_dialog(char *rom_name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
