@@ -346,53 +346,53 @@ void chip8_execute_opcode(){
     switch (OP) {
         case 0x0:
             switch (OP_NNN) {
-                case 0x0E0: exec00E0(); break;
-                case 0x0EE: exec00EE(); break;
-                default: exec0NNN(); break;
+                case 0x0E0: exec_00E0(); break;
+                case 0x0EE: exec_00EE(); break;
+                default: exec_0NNN(); break;
             } break;
-        case 0x1: exec1NNN(); break;
-        case 0x2: exec2NNN(); break;
-        case 0x3: exec3XNN(); break;
-        case 0x4: exec4XNN(); break;
-        case 0x5: exec5XY0(); break;
-        case 0x6: exec6XNN(); break;
-        case 0x7: exec7XNN(); break;
+        case 0x1: exec_1NNN(); break;
+        case 0x2: exec_2NNN(); break;
+        case 0x3: exec_3XNN(); break;
+        case 0x4: exec_4XNN(); break;
+        case 0x5: exec_5XY0(); break;
+        case 0x6: exec_6XNN(); break;
+        case 0x7: exec_7XNN(); break;
         case 0x8:
             switch (OP_N) {
-                case 0x0: exec8XY0(); break;
-                case 0x1: exec8XY1(); break;
-                case 0x2: exec8XY2(); break;
-                case 0x3: exec8XY3(); break;
-                case 0x4: exec8XY4(); break;
-                case 0x5: exec8XY5(); break;
-                case 0x6: exec8XY6(); break;
-                case 0x7: exec8XY7(); break;
-                case 0xE: exec8XYE(); break;
-                default: execUnknown(); break;
+                case 0x0: exec_8XY0(); break;
+                case 0x1: exec_8XY1(); break;
+                case 0x2: exec_8XY2(); break;
+                case 0x3: exec_8XY3(); break;
+                case 0x4: exec_8XY4(); break;
+                case 0x5: exec_8XY5(); break;
+                case 0x6: exec_8XY6(); break;
+                case 0x7: exec_8XY7(); break;
+                case 0xE: exec_8XYE(); break;
+                default: exec_unknown(); break;
             } break;
-        case 0x9: exec9XY0(); break;
-        case 0xA: execANNN(); break;
-        case 0xB: execBNNN(); break;
-        case 0xC: execCXNN(); break;
-        case 0xD: execDXYN(); break;
+        case 0x9: exec_9XY0(); break;
+        case 0xA: exec_ANNN(); break;
+        case 0xB: exec_BNNN(); break;
+        case 0xC: exec_CXNN(); break;
+        case 0xD: exec_DXYN(); break;
         case 0xE:
             switch(OP_NN) {
-                case 0x9E: execEX9E(); break;
-                case 0xA1: execEXA1(); break;
-                default: execUnknown(); break;
+                case 0x9E: exec_EX9E(); break;
+                case 0xA1: exec_EXA1(); break;
+                default: exec_unknown(); break;
             } break;
         case 0xF:
             switch (OP_NN) {
-                case 0x07: execFX07(); break;
-                case 0x0A: execFX0A(); break;
-                case 0x15: execFX15(); break;
-                case 0x18: execFX18(); break;
-                case 0x1E: execFX1E(); break;
-                case 0x29: execFX29(); break;
-                case 0x33: execFX33(); break;
-                case 0x55: execFX55(); break;
-                case 0x65: execFX65(); break;
-                default: execUnknown(); break;
+                case 0x07: exec_FX07(); break;
+                case 0x0A: exec_FX0A(); break;
+                case 0x15: exec_FX15(); break;
+                case 0x18: exec_FX18(); break;
+                case 0x1E: exec_FX1E(); break;
+                case 0x29: exec_FX29(); break;
+                case 0x33: exec_FX33(); break;
+                case 0x55: exec_FX55(); break;
+                case 0x65: exec_FX65(); break;
+                default: exec_unknown(); break;
             } break;
     }
 }
