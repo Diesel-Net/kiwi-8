@@ -1,17 +1,18 @@
 #include "open_file_dialog.h"
+#include "compat.h"
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-int open_file_dialog(char *rom_name, char *filters) {
+int open_file_dialog(char *rom_filepath, char *filters) {
     /* open file dialogue */
-    char cwd[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, cwd);
+    char cwd[PATH_MAX];
+    GetCurrentDirectory(PATH_MAX, cwd);
 
     OPENFILENAME ofn;
 
-    char szFile[MAX_PATH];
+    char szFile[PATH_MAX];
 
     /* open a file name */
     ZeroMemory( &ofn , sizeof( ofn));
@@ -35,10 +36,10 @@ int open_file_dialog(char *rom_name, char *filters) {
         return 1;
     }
 
-    strcpy(rom_name, szFile);
+    strcpy(rom_filepath, szFile);
     return 0;
 }
 
-int open_file_dialog(char *rom_name) {
-    return open_file_dialog(rom_name, "Chip8\0*.ch8\0All\0*.*\0");
+int open_file_dialog(char *rom_filepath) {
+    return open_file_dialog(rom_filepath, "Chip8\0*.ch8\0All\0*.*\0");
 }

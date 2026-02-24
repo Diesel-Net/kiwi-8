@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include "compat.h"
 #include "bootrom.h" // Generated at build time from roms/Kiwi8_logo_2.ch8
 #include "quirks.h"
 #include <stdlib.h>
@@ -62,7 +63,7 @@ struct chip8 {
     unsigned int rom_size;
 
     /* rom profile tracking */
-    char rom_filename[256];  /* basename of currently loaded ROM */
+    char rom_filename[FILENAME_MAX];  /* basename of currently loaded ROM */
     int rom_loaded;          /* 1 if user ROM loaded, 0 if bootrom */
 
     /* registers */
