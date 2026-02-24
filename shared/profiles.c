@@ -1,4 +1,5 @@
 #include "profiles.h"
+#include "compat.h"
 #define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 #include "sha256.h"
@@ -13,7 +14,7 @@
 static struct { sha256_hash_t key; struct profile value; } *profile_map = NULL;
 
 /* Track which path we loaded profiles.ini from */
-static char loaded_profiles_path[512] = "";
+static char loaded_profiles_path[FILENAME_MAX] = "";
 
 /* Quirk field descriptor table — generated from QUIRK_FIELDS X-macro in quirks.h */
 static const struct {
@@ -58,7 +59,7 @@ static void parse_profiles_ini(void) {
     FILE *file = fopen(loaded_profiles_path, "r");
     if (!file) return;
 
-    char line[512];
+    char line[LINE_MAX];
     sha256_hash_t current_sha256 = {0};
     int has_current = 0;
     struct profile current_profile;
@@ -164,7 +165,7 @@ static int resolve_profiles_path(void) {
     }
 
     /* Build search paths relative to executable */
-    char search_paths[2][512];
+    char search_paths[2][LINE_MAX];
     char *base_path = SDL_GetBasePath();
     if (!base_path) {
         printf("Warning: Could not determine executable path. Trying current directory.\n");

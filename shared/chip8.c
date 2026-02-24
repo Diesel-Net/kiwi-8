@@ -7,6 +7,7 @@
 #include "profiles.h"
 #include "sha256.h"
 #include "toast.h"
+#include "compat.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -193,10 +194,10 @@ int chip8_load_rom(const char *rom_filepath) {
 
     } else {
         /* load ROM from GUI */
-        char new_rom_name[PATH_MAX];
-        open_file_dialog(new_rom_name) ?
+        char new_rom_filepath[PATH_MAX];
+        open_file_dialog(new_rom_filepath) ?
             printf("User aborted the open file dialog.\n") :
-            chip8_load_rom(new_rom_name);
+            chip8_load_rom(new_rom_filepath);
 
         /* flip GUI toggle */
         gui.load_rom_flag = 0;
