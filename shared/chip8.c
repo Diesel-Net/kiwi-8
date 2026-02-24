@@ -128,6 +128,8 @@ int chip8_load_bootrom() {
 int chip8_load_rom(const char *rom_filepath) {
     if (rom_filepath) {
         /* open the file */
+        printf("Opening file: %s\n", rom_filepath);
+
         FILE *file;
         file = fopen(rom_filepath, "rb");
         if(file == NULL){
