@@ -4,8 +4,10 @@
 #include <limits.h>
 
 // Handle missing PATH_MAX on some systems
-#if defined(__APPLE__) || defined(__linux__)
+#if defined(__APPLE__)
     #include <sys/syslimits.h>
+#elif defined(__linux__)
+    #include <linux/limits.h>
 #elif defined(_WIN32)
     #include <windows.h>
     #ifndef PATH_MAX
