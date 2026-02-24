@@ -1,4 +1,5 @@
 #include "open_file_dialog.h"
+#include "compat.h"
 #include <gtk/gtk.h>
 #include <cstring>
 #include <vector>
@@ -73,6 +74,6 @@ int open_file_dialog(char *rom_filepath) {
     const char* defaultDir = ""; // unify behavior: let OS choose last-used/home
     std::vector<std::string> files = open_file_dialog("Chip8", defaultDir, fileTypes);
     if (files.empty()) return 1;
-    snprintf(rom_filepath, 256, "%s", files[0].c_str());
+    snprintf(rom_filepath, PATH_MAX, "%s", files[0].c_str());
     return 0;
 }

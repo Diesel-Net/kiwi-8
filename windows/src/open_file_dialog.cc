@@ -1,4 +1,5 @@
 #include "open_file_dialog.h"
+#include "compat.h"
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,12 +7,12 @@
 
 int open_file_dialog(char *rom_filepath, char *filters) {
     /* open file dialogue */
-    char cwd[MAX_PATH];
-    GetCurrentDirectory(MAX_PATH, cwd);
+    char cwd[PATH_MAX];
+    GetCurrentDirectory(PATH_MAX, cwd);
 
     OPENFILENAME ofn;
 
-    char szFile[MAX_PATH];
+    char szFile[PATH_MAX];
 
     /* open a file name */
     ZeroMemory( &ofn , sizeof( ofn));
