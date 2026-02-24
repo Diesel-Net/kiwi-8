@@ -14,13 +14,13 @@
 #endif
 
 #ifndef PATH_MAX
-    #define PATH_MAX 2048
+    #define PATH_MAX 4096
 #endif
 #ifndef FILENAME_MAX
-    #define FILENAME_MAX 2048
+    #define FILENAME_MAX 256
 #endif
 #ifndef LINE_MAX
-    #define LINE_MAX 4096
+    #define LINE_MAX 2048
 #endif
 
 #endif // COMPAT_H
