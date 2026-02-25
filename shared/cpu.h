@@ -1,6 +1,6 @@
 
-#ifndef OPCODES_H
-#define OPCODES_H
+#ifndef CPU_H
+#define CPU_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -281,4 +281,4 @@ static inline void exec_unknown() {
 }
 #endif
 
-#endif // OPCODES_H
+#endif // CPU_H

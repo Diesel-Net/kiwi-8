@@ -1,13 +1,13 @@
 #include "chip8.h"
+#include "compat.h"
+#include "cpu.h"
+#include "input.h"
 #include "display.h"
 #include "gui.h"
-#include "input.h"
+#include "toast.h"
 #include "audio.h"
-#include "opcodes.h"
 #include "profiles.h"
 #include "sha256.h"
-#include "toast.h"
-#include "compat.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
