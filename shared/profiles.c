@@ -144,18 +144,18 @@ static int resolve_profiles_path(void) {
         FILE *file = fopen(loaded_profiles_path, "r");
         if (file) {
             fclose(file);
-            char msg[256];
+            char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles: %s", loaded_profiles_path);
             toast_show(TOAST_INFO, msg);
             return 1;
         }
         /* Doesn't exist yet — create it */
         if (create_profiles_file(loaded_profiles_path)) {
-            char msg[256];
+            char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles created: %s", loaded_profiles_path);
             toast_show(TOAST_SUCCESS, msg);
         } else {
-            char msg[256];
+            char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "Failed to create: %s", loaded_profiles_path);
             toast_show(TOAST_ERROR, msg);
             printf("Error: Unable to create profiles.ini at: %s\n", loaded_profiles_path);
@@ -182,7 +182,7 @@ static int resolve_profiles_path(void) {
         if (file) {
             fclose(file);
             set_path(loaded_profiles_path, sizeof(loaded_profiles_path), search_paths[i]);
-            char msg[256];
+            char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles: %s", search_paths[i]);
             toast_show(TOAST_INFO, msg);
             return 1;
@@ -192,7 +192,7 @@ static int resolve_profiles_path(void) {
     /* Not found — create at first search path */
     if (create_profiles_file(search_paths[0])) {
         set_path(loaded_profiles_path, sizeof(loaded_profiles_path), search_paths[0]);
-        char msg[256];
+        char msg[TOAST_MSG_MAX];
         snprintf(msg, sizeof(msg), "ROM profiles created: %s", search_paths[0]);
         toast_show(TOAST_INFO, msg);
     } else {
@@ -276,7 +276,7 @@ void profiles_save_current(void) {
     char hash_hex[65];
     bytes_to_hex(sha256.bytes, hash_hex, sizeof(hash_hex));
     printf("Saved ROM profile for: %s (SHA256: %s)\n", chip8.rom_filename, hash_hex);
-    char msg[256];
+    char msg[TOAST_MSG_MAX];
     snprintf(msg, sizeof(msg), "Profile saved: %s", chip8.rom_filename);
     toast_show(TOAST_SUCCESS, msg);
 }

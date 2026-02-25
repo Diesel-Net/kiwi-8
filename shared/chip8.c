@@ -175,7 +175,7 @@ int chip8_load_rom(const char *rom_filepath) {
 
         /* Mark as user ROM (not bootrom) */
         chip8.rom_loaded = 1;
-        char notif_msg[256];
+        char notif_msg[TOAST_MSG_MAX];
         snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
         toast_show(TOAST_SUCCESS, notif_msg);
 
