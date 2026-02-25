@@ -7,7 +7,6 @@ extern "C" {
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-#include "chip8.h"
 
 #define MENU_HEIGHT 38
 
