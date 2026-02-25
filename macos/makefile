@@ -53,6 +53,7 @@ OBJS = audio.o \
 	main.o \
 	toast.o \
 	open_file_dialog.o \
+	stb_ds.o \
 	profiles.o \
 	imgui.o \
 	imgui_draw.o \
@@ -98,6 +99,9 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
 %.o: ../external/lekkit/%.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
+
+%.o: ../external/stb/%.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
 %.o: ../shared/%.c $(LICENSE_HEADER) $(BOOTROM_HEADER)

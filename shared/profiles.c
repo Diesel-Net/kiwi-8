@@ -1,6 +1,5 @@
 #include "profiles.h"
 #include "compat.h"
-#define STB_DS_IMPLEMENTATION
 #include "stb_ds.h"
 #include "sha256.h"
 #include "chip8.h"
