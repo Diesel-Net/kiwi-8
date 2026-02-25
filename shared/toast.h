@@ -5,18 +5,22 @@
 extern "C" {
 #endif
 
-/* Toast struct definition */
-struct toast {
-    char message[256];
-    int type;
-    double time_remaining;
-    int active;
-};
+#define MAX_TOASTS 8
+#define TOAST_DURATION 3.0
+#define TOAST_MSG_MAX 256
 
 /* Toast types */
 #define TOAST_INFO 0
 #define TOAST_SUCCESS 1
 #define TOAST_ERROR 2
+
+/* Toast struct definition */
+struct toast {
+    char message[TOAST_MSG_MAX];
+    int type;
+    double time_remaining;
+    int active;
+};
 
 /* Initialize toast system */
 void toast_init(void);

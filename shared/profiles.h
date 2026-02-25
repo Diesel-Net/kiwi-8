@@ -26,7 +26,6 @@ void profiles_init(const char *custom_path);
 const struct profile* profile_lookup(const sha256_hash_t *sha256);
 
 /* Save current ROM's quirks to the profile database and INI file
- * Requires: chip8.rom, chip8.rom_size, chip8.rom_filename, chip8.quirks
  * Also adds profile to runtime hashmap immediately */
 void profiles_save_current(void);
 

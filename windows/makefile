@@ -75,6 +75,7 @@ OBJS = audio.obj \
 	input.obj \
 	main.obj \
 	toast.obj \
+	stb_ds.obj \
 	profiles.obj \
 	open_file_dialog.obj \
 	imgui_impl_sdl.obj \
@@ -110,6 +111,9 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 
 {..\external\imgui}.cpp{}.obj:
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<
+
+{..\external\stb}.c{}.obj:
+	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<
 
 {..\external\lekkit}.c{}.obj:
 	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<

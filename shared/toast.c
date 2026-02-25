@@ -1,9 +1,6 @@
 #include "toast.h"
 #include <string.h>
 
-#define MAX_TOASTS 8
-#define TOAST_DURATION 3.0
-
 static struct toast toasts[MAX_TOASTS];
 
 void toast_init(void) {

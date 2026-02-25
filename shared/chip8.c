@@ -1,13 +1,13 @@
 #include "chip8.h"
+#include "compat.h"
+#include "cpu.h"
+#include "input.h"
 #include "display.h"
 #include "gui.h"
-#include "input.h"
+#include "toast.h"
 #include "audio.h"
-#include "opcodes.h"
 #include "profiles.h"
 #include "sha256.h"
-#include "toast.h"
-#include "compat.h"
 #include "open_file_dialog.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
@@ -128,6 +128,8 @@ int chip8_load_bootrom() {
 int chip8_load_rom(const char *rom_filepath) {
     if (rom_filepath) {
         /* open the file */
+        printf("Opening file: %s\n", rom_filepath);
+
         FILE *file;
         file = fopen(rom_filepath, "rb");
         if(file == NULL){
@@ -173,7 +175,7 @@ int chip8_load_rom(const char *rom_filepath) {
 
         /* Mark as user ROM (not bootrom) */
         chip8.rom_loaded = 1;
-        char notif_msg[256];
+        char notif_msg[TOAST_MSG_MAX];
         snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
         toast_show(TOAST_SUCCESS, notif_msg);
 

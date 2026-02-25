@@ -1,5 +1,6 @@
 #include "display.h"
 #include "chip8.h"
+#include "meta.h"
 #include "gui.h"
 #include <SDL2/SDL_opengl.h>
 #include <stdio.h>
@@ -70,7 +71,7 @@ int display_init(bool fullscreen) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
     display.window = SDL_CreateWindow(
-        "Kiwi8",
+        APP_NAME,
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         display.WINDOW_WIDTH,

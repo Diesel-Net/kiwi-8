@@ -72,6 +72,7 @@ OBJS = audio.o \
 	main.o \
 	toast.o \
 	open_file_dialog.o \
+	stb_ds.o \
 	profiles.o \
 	imgui.o \
 	imgui_draw.o \
@@ -111,6 +112,9 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 
 %.o: ../external/imgui/%.cpp
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
+
+%.o: ../external/stb/%.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
 %.o: ../external/lekkit/%.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
