@@ -7,9 +7,7 @@
 [![Lint](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml)
 <br>
 
-![boot_windows](/images/screenshots/boot_windows.png)
 ![boot_macos](/images/screenshots/boot_macos.png)
-![boot_linux](/images/screenshots/boot_linux.png)
 
 A cross-platform Chip-8 interpreter written
 in C-style C++ using SDL2, ImGui, and OpenGL.
@@ -75,7 +73,7 @@ The following must be installed and added to your **PATH**:
 1. Change current working directory
 
    ```cmd
-   cd Windows
+   cd windows
    ```
 
 1. Configure environment for your architecture (x64 or arm64)
@@ -96,6 +94,7 @@ The following must be installed and added to your **PATH**:
 
 >install_name_tool<br>
 >clang<br>
+>clang++<br>
 >python3<br>
 >cmake<br>
 >make<br>
@@ -103,7 +102,7 @@ The following must be installed and added to your **PATH**:
 1. Change current working directory
 
    ```bash
-   cd MacOS
+   cd macos
    ```
 
 1. Compile with GNU's `make` utility
@@ -116,6 +115,7 @@ The following must be installed and added to your **PATH**:
 
 The following must be added to your **PATH**:
 
+>gcc<br>
 >g++<br>
 >make<br>
 >cmake<br>
@@ -125,7 +125,7 @@ The following must be added to your **PATH**:
 You'll also need the GTK3, openGL, PulseAudio/Pipewire headers:
 
 ```bash
-sudo apt install libgtk-3-dev xorg-dev libgl1-mesa-dev libasound2-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev
+sudo apt install libgtk-3-dev xorg-dev libgl1-mesa-dev libasound2-dev libpulse-dev libjack-dev libpipewire-0.3-dev libdbus-1-dev
 ```
 
 1. Change current working directory
