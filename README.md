@@ -7,7 +7,9 @@
 [![Lint](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml/badge.svg)](https://github.com/Diesel-Net/kiwi-8/actions/workflows/lint.yml)
 <br>
 
-![boot](/images/screenshots/boot.png)
+![boot_windows](/images/screenshots/boot_windows.png)
+![boot_macos](/images/screenshots/boot_macos.png)
+![boot_linux](/images/screenshots/boot_linux.png)
 
 A cross-platform Chip-8 interpreter written
 in C-style C++ using SDL2, ImGui, and OpenGL.
