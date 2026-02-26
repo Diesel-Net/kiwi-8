@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include <stdio.h>
 
 /*
  * X-macro list of all quirk fields.
@@ -37,6 +38,15 @@ static inline struct quirks quirks_get_defaults(void) {
     QUIRK_FIELDS(QUIRK_X_DEFAULT)
 #undef QUIRK_X_DEFAULT
     return defaults;
+}
+
+/* Print all quirk values with a caller-provided prefix */
+static inline void quirks_print(const struct quirks *quirks, const char *prefix) {
+    printf("%s", prefix ? prefix : "Quirks:");
+#define QUIRK_X_PRINT(name, default_val) printf(" " #name "=%d", quirks->name);
+    QUIRK_FIELDS(QUIRK_X_PRINT)
+#undef QUIRK_X_PRINT
+    printf("\n");
 }
 
 #ifdef __cplusplus
