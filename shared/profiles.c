@@ -76,7 +76,7 @@ static void parse_profiles_ini(void) {
         if (line[0] == '[') {
             if (has_current){
                 hmput(profile_map, current_sha256, current_profile);
-                printf("Loaded profile: %s\n", current_profile.rom_name);
+                printf("Profile loaded: %s\n", current_profile.rom_name);
                 quirks_print(&current_profile.quirks, "Quirks:");
             }
 
@@ -133,7 +133,7 @@ static void parse_profiles_ini(void) {
     /* Commit last entry */
     if (has_current) {
         hmput(profile_map, current_sha256, current_profile);
-        printf("Loaded profile: %s\n", current_profile.rom_name);
+        printf("Profile loaded: %s\n", current_profile.rom_name);
         quirks_print(&current_profile.quirks, "Quirks:");
     }
     fclose(file);
