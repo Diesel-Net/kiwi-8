@@ -188,7 +188,6 @@ int chip8_load_rom(const char *rom_filepath) {
             /* Apply profile quirks */
             chip8.quirks = profile->quirks;
             quirks_print(&chip8.quirks, "Applied quirks:");
-
             toast_show(TOAST_SUCCESS, "Profile applied");
         } else {
             toast_show(TOAST_INFO, "No profile found");
