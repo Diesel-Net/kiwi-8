@@ -13,22 +13,23 @@
 static struct { sha256_hash_t key; struct profile value; } *profile_map = NULL;
 
 /* Track which path we loaded profiles.ini from */
-static char loaded_profiles_path[FILENAME_MAX] = "";
-
-/* Quirk field descriptor table — generated from QUIRK_FIELDS X-macro in quirks.h */
-static const struct {
-    const char *name;
-    size_t offset;
-} quirk_fields[] = {
-#define QUIRK_X_ENTRY(name, default_val) { #name, offsetof(struct quirks, name) },
-    QUIRK_FIELDS(QUIRK_X_ENTRY)
-#undef QUIRK_X_ENTRY
-};
-#define NUM_QUIRK_FIELDS (sizeof(quirk_fields) / sizeof(quirk_fields[0]))
+static char loaded_profiles_path[PATH_MAX] = "";
 
 static void set_path(char *dst, size_t dst_size, const char *src) {
     strncpy(dst, src, dst_size - 1);
     dst[dst_size - 1] = '\0';
+}
+
+static int quirks_set_field_by_name(struct quirks *quirks, const char *field_name, int value) {
+    bool enabled = value != 0;
+#define QUIRK_X_SET(name, default_val) \
+    if (strcmp(field_name, #name) == 0) { \
+        quirks->name = enabled; \
+        return 1; \
+    }
+    QUIRK_FIELDS(QUIRK_X_SET)
+#undef QUIRK_X_SET
+    return 0;
 }
 
 /* Convert 32-byte digest to lowercase hex (null-terminated) */
@@ -44,7 +45,7 @@ static void bytes_to_hex(const uint8_t *bytes, char *hex_out, size_t dst_size) {
 }
 
 /* Write the empty profiles.ini header to a new file. Returns 1 on success. */
-static int create_profiles_file(const char *path) {
+static int create_profiles_ini(const char *path) {
     FILE *file = fopen(path, "w");
     if (!file) return 0;
     fprintf(file, "# ROM Profiles Database\n");
@@ -73,7 +74,11 @@ static void parse_profiles_ini(void) {
 
         /* Section header [0xHEXVALUE] - 64 hex chars for SHA256 */
         if (line[0] == '[') {
-            if (has_current) hmput(profile_map, current_sha256, current_profile);
+            if (has_current){
+                hmput(profile_map, current_sha256, current_profile);
+                printf("Profile loaded: %s\n", current_profile.rom_name);
+                quirks_print(&current_profile.quirks, "Quirks:");
+            }
 
             char hex_str[65];
             if (sscanf(line, "[%64[0-9a-fA-F]]", hex_str) != 1) {
@@ -117,13 +122,7 @@ static void parse_profiles_ini(void) {
         char str_value[256];
 
         if (sscanf(line, "%255[^=]=%d", key, &value) == 2) {
-            /* Match against quirk field table */
-            for (size_t i = 0; i < NUM_QUIRK_FIELDS; i++) {
-                if (strcmp(key, quirk_fields[i].name) == 0) {
-                    *(bool *)((char *)&current_profile.quirks + quirk_fields[i].offset) = value;
-                    break;
-                }
-            }
+            quirks_set_field_by_name(&current_profile.quirks, key, value);
         } else if (sscanf(line, "%255[^=]=%255[^\n]", key, str_value) == 2) {
             if (strcmp(key, "name") == 0) {
                 set_path(current_profile.rom_name, sizeof(current_profile.rom_name), str_value);
@@ -132,7 +131,11 @@ static void parse_profiles_ini(void) {
     }
 
     /* Commit last entry */
-    if (has_current) hmput(profile_map, current_sha256, current_profile);
+    if (has_current) {
+        hmput(profile_map, current_sha256, current_profile);
+        printf("Profile loaded: %s\n", current_profile.rom_name);
+        quirks_print(&current_profile.quirks, "Quirks:");
+    }
     fclose(file);
 }
 
@@ -150,7 +153,7 @@ static int resolve_profiles_path(void) {
             return 1;
         }
         /* Doesn't exist yet — create it */
-        if (create_profiles_file(loaded_profiles_path)) {
+        if (create_profiles_ini(loaded_profiles_path)) {
             char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles created: %s", loaded_profiles_path);
             toast_show(TOAST_SUCCESS, msg);
@@ -190,7 +193,7 @@ static int resolve_profiles_path(void) {
     }
 
     /* Not found — create at first search path */
-    if (create_profiles_file(search_paths[0])) {
+    if (create_profiles_ini(search_paths[0])) {
         set_path(loaded_profiles_path, sizeof(loaded_profiles_path), search_paths[0]);
         char msg[TOAST_MSG_MAX];
         snprintf(msg, sizeof(msg), "ROM profiles created: %s", search_paths[0]);
@@ -214,8 +217,21 @@ void profiles_init(const char *custom_path) {
 }
 
 const struct profile* profile_lookup(const sha256_hash_t *sha256) {
+    char hash_hex[65];
+    bytes_to_hex(sha256->bytes, hash_hex, sizeof(hash_hex));
+    printf("Lookup SHA256: %s\n", hash_hex);
+
     ptrdiff_t idx = hmgeti(profile_map, *sha256);
-    return (idx >= 0) ? &profile_map[idx].value : NULL;
+    if (idx < 0) {
+        printf("Lookup result: not found\n");
+        return NULL;
+    }
+
+    char matched_hash_hex[65];
+    bytes_to_hex(profile_map[idx].key.bytes, matched_hash_hex, sizeof(matched_hash_hex));
+    printf("Lookup result: found idx=%td name=%s\n", idx, matched_hash_hex, profile_map[idx].value.rom_name);
+    quirks_print(&profile_map[idx].value.quirks, "Lookup quirks:");
+    return &profile_map[idx].value;
 }
 
 /* Write entire profile hashmap to INI file */
@@ -241,10 +257,10 @@ static void profiles_write_to_file(void) {
         bytes_to_hex(p->sha256.bytes, hash_hex, sizeof(hash_hex));
         fprintf(file, "[%s]\n", hash_hex);
         if (p->rom_name[0] != '\0') fprintf(file, "name=%s\n", p->rom_name);
-        for (size_t q = 0; q < NUM_QUIRK_FIELDS; q++) {
-            bool val = *(bool *)((char *)&p->quirks + quirk_fields[q].offset);
-            fprintf(file, "%s=%d\n", quirk_fields[q].name, val);
-        }
+        #define QUIRK_X_WRITE(name, default_val) \
+            fprintf(file, "%s=%d\n", #name, p->quirks.name ? 1 : 0);
+        QUIRK_FIELDS(QUIRK_X_WRITE)
+        #undef QUIRK_X_WRITE
         fprintf(file, "\n");
     }
 

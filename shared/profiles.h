@@ -5,16 +5,16 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#include "compat.h"
 #include "quirks.h"
 #include "sha256.h"
-#include "compat.h"
+#include <stdint.h>
 
 typedef struct { uint8_t bytes[32]; } sha256_hash_t;
 
 struct profile {
     sha256_hash_t sha256;
-    char rom_name[FILENAME_MAX];
+    char rom_name[PATH_MAX];
     struct quirks quirks;
 };
 
