@@ -187,6 +187,16 @@ int chip8_load_rom(const char *rom_filepath) {
         if (profile) {
             /* Apply profile quirks */
             chip8.quirks = profile->quirks;
+
+            printf("Profile applied: load_store_quirk = %d\n", profile->quirks.load_store_quirk);
+            printf("Profile applied: shift_quirk = %d\n", profile->quirks.shift_quirk);
+            printf("Profile applied: jump_quirk = %d\n", profile->quirks.jump_quirk);
+            printf("Profile applied: logic_vf_quirk = %d\n", profile->quirks.logic_vf_quirk);
+            printf("Profile applied: i_overflow_quirk = %d\n", profile->quirks.i_overflow_quirk);
+            printf("Profile applied: draw_flag_quirk = %d\n", profile->quirks.draw_flag_quirk);
+            printf("Profile applied: vwrap = %d\n", profile->quirks.vwrap);
+            printf("Profile applied: hwrap = %d\n", profile->quirks.hwrap);
+
             toast_show(TOAST_SUCCESS, "Profile applied");
         } else {
             toast_show(TOAST_INFO, "No profile found");

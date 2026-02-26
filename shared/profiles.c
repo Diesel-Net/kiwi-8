@@ -44,7 +44,7 @@ static void bytes_to_hex(const uint8_t *bytes, char *hex_out, size_t dst_size) {
 }
 
 /* Write the empty profiles.ini header to a new file. Returns 1 on success. */
-static int create_profiles_file(const char *path) {
+static int create_profiles_ini(const char *path) {
     FILE *file = fopen(path, "w");
     if (!file) return 0;
     fprintf(file, "# ROM Profiles Database\n");
@@ -73,7 +73,10 @@ static void parse_profiles_ini(void) {
 
         /* Section header [0xHEXVALUE] - 64 hex chars for SHA256 */
         if (line[0] == '[') {
-            if (has_current) hmput(profile_map, current_sha256, current_profile);
+            if (has_current){
+                hmput(profile_map, current_sha256, current_profile);
+                printf("hashmap update for profile: %s\n", current_profile.rom_name);
+            }
 
             char hex_str[65];
             if (sscanf(line, "[%64[0-9a-fA-F]]", hex_str) != 1) {
@@ -117,9 +120,13 @@ static void parse_profiles_ini(void) {
         char str_value[256];
 
         if (sscanf(line, "%255[^=]=%d", key, &value) == 2) {
+
             /* Match against quirk field table */
             for (size_t i = 0; i < NUM_QUIRK_FIELDS; i++) {
                 if (strcmp(key, quirk_fields[i].name) == 0) {
+
+                    printf("Parsed quirk: %s=%d\n", key, value);
+
                     *(bool *)((char *)&current_profile.quirks + quirk_fields[i].offset) = value;
                     break;
                 }
@@ -150,7 +157,7 @@ static int resolve_profiles_path(void) {
             return 1;
         }
         /* Doesn't exist yet — create it */
-        if (create_profiles_file(loaded_profiles_path)) {
+        if (create_profiles_ini(loaded_profiles_path)) {
             char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles created: %s", loaded_profiles_path);
             toast_show(TOAST_SUCCESS, msg);
@@ -190,7 +197,7 @@ static int resolve_profiles_path(void) {
     }
 
     /* Not found — create at first search path */
-    if (create_profiles_file(search_paths[0])) {
+    if (create_profiles_ini(search_paths[0])) {
         set_path(loaded_profiles_path, sizeof(loaded_profiles_path), search_paths[0]);
         char msg[TOAST_MSG_MAX];
         snprintf(msg, sizeof(msg), "ROM profiles created: %s", search_paths[0]);
