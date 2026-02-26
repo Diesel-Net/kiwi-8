@@ -63,7 +63,7 @@ struct chip8 {
     unsigned int rom_size;
 
     /* rom profile tracking */
-    char rom_filename[FILENAME_MAX];  /* basename of currently loaded ROM */
+    char rom_filename[PATH_MAX];  /* basename of currently loaded ROM */
     int rom_loaded;          /* 1 if user ROM loaded, 0 if bootrom */
 
     /* registers */
