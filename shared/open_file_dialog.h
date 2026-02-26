@@ -5,7 +5,14 @@
 extern "C" {
 #endif
 
-int open_file_dialog(char *rom_filepath);
+#include <stddef.h>
+
+/* Opens a file dialog to select a ROM file.
+ * The selected file path is copied to `rom_filepath`.
+ * The `size` parameter specifies the size of the `rom_filepath` buffer.
+ * Returns 1 if a file was selected, 0 if cancelled, or -1 on error.
+ */
+int open_file_dialog(char *rom_filepath, size_t size);
 
 #ifdef __cplusplus
 }

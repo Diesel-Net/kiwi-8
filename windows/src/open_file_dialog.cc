@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int open_file_dialog(char *rom_filepath, char *filters) {
+int open_file_dialog(char *rom_filepath, char *filters, size_t size) {
     /* open file dialogue */
     char cwd[PATH_MAX];
     GetCurrentDirectory(PATH_MAX, cwd);
@@ -36,10 +36,10 @@ int open_file_dialog(char *rom_filepath, char *filters) {
         return 1;
     }
 
-    strcpy(rom_filepath, szFile);
+    strncpy(rom_filepath, szFile, size);
     return 0;
 }
 
-int open_file_dialog(char *rom_filepath) {
-    return open_file_dialog(rom_filepath, "Chip8\0*.ch8\0All\0*.*\0");
+int open_file_dialog(char *rom_filepath, size_t size) {
+    return open_file_dialog(rom_filepath, "Chip8\0*.ch8\0All\0*.*\0", size);
 }
