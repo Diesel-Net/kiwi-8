@@ -36,7 +36,7 @@ CC = CL
 CXX = CL
 CFLAGS = /std:c11
 CPPFLAGS = /W4 \
-	/MD \
+	/MT \
 	/nologo \
 	/w44996 \
 	"/DAPP_NAME=\"$(APP_NAME)\"" \
