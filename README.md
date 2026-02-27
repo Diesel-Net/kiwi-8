@@ -113,7 +113,7 @@ The following must be installed and added to your **PATH**:
 
 ## Building on Linux (Debian)
 
-The following must be added to your **PATH**:
+The following must be installed and added to your **PATH**:
 
 >gcc<br>
 >g++<br>
