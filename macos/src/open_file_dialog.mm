@@ -45,6 +45,8 @@ std::vector<std::string>open_file_dialog(
 }
 
 int open_file_dialog(char *rom_filepath, size_t size) {
+    if (rom_filepath == nullptr || size == 0) return -1;
+
     std::vector<std::string> fileTypes = {"ch8", "CH8", "chip-8", "CHIP-8", "Chip-8"};
     const char* defaultDir = ""; // unify behavior: let OS choose last-used/home
     std::vector<std::string> files = open_file_dialog("Chip8", defaultDir, fileTypes);

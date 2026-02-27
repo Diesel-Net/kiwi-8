@@ -4,23 +4,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
-int open_file_dialog(char *rom_filepath, size_t size, char *filters) {
+int open_file_dialog(char *rom_filepath, size_t size, const char *filters) {
+    if (rom_filepath == NULL || size == 0 || size > MAXDWORD) {
+        return -1;
+    }
+
+    const DWORD buffer_size = (DWORD)size;
+
     /* open file dialogue */
-    char cwd[size];
-    GetCurrentDirectory(size, cwd);
+    std::vector<char> cwd(MAX_PATH, '\0');
+    if (GetCurrentDirectoryA((DWORD)cwd.size(), cwd.data()) == 0) {
+        return -1;
+    }
 
     OPENFILENAME ofn;
 
-    char szFile[size];
+    std::vector<char> szFile(buffer_size, '\0');
 
     /* open a file name */
     ZeroMemory( &ofn , sizeof( ofn));
     ofn.lStructSize = sizeof ( ofn );
     ofn.hwndOwner = NULL  ;
-    ofn.lpstrFile = szFile ;
+    ofn.lpstrFile = szFile.data() ;
     ofn.lpstrFile[0] = '\0';
-    ofn.nMaxFile = sizeof( szFile );
+    ofn.nMaxFile = buffer_size;
     ofn.lpstrFilter = filters;
     ofn.nFilterIndex =1;
     ofn.lpstrFileTitle = NULL ;
@@ -36,7 +45,7 @@ int open_file_dialog(char *rom_filepath, size_t size, char *filters) {
         return 1;
     }
 
-    strncpy(rom_filepath, szFile, size);
+    snprintf(rom_filepath, size, "%s", szFile.data());
     return 0;
 }
 
