@@ -5,14 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-int open_file_dialog(char *rom_filepath, char *filters, size_t size) {
+int open_file_dialog(char *rom_filepath, size_t size, char *filters) {
     /* open file dialogue */
-    char cwd[PATH_MAX];
-    GetCurrentDirectory(PATH_MAX, cwd);
+    char cwd[size];
+    GetCurrentDirectory(size, cwd);
 
     OPENFILENAME ofn;
 
-    char szFile[PATH_MAX];
+    char szFile[size];
 
     /* open a file name */
     ZeroMemory( &ofn , sizeof( ofn));
@@ -21,7 +21,7 @@ int open_file_dialog(char *rom_filepath, char *filters, size_t size) {
     ofn.lpstrFile = szFile ;
     ofn.lpstrFile[0] = '\0';
     ofn.nMaxFile = sizeof( szFile );
-    ofn.lpstrFilter = "Chip8\0*.ch8\0All\0*.*\0";
+    ofn.lpstrFilter = filters;
     ofn.nFilterIndex =1;
     ofn.lpstrFileTitle = NULL ;
     ofn.nMaxFileTitle = 0 ;
@@ -41,5 +41,5 @@ int open_file_dialog(char *rom_filepath, char *filters, size_t size) {
 }
 
 int open_file_dialog(char *rom_filepath, size_t size) {
-    return open_file_dialog(rom_filepath, "Chip8\0*.ch8\0All\0*.*\0", size);
+    return open_file_dialog(rom_filepath, size, "Chip8\0*.ch8\0All\0*.*\0");
 }
