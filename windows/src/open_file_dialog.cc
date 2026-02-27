@@ -38,7 +38,7 @@ int open_file_dialog(char *rom_filepath, size_t size, const char *filters) {
     ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 
     /* change current working directory back to location of executable */
-    SetCurrentDirectory(cwd);
+    SetCurrentDirectoryA(cwd.data());
 
     if (!GetOpenFileName( &ofn)) {
         /* user hit cancel */
