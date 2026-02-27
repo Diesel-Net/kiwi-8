@@ -155,10 +155,10 @@ release\$(APP_EXE): $(SDL_LIB) $(OBJS) $(APP_RES)
 	COPY ..\external\sdl\build\bin\SDL2.dll release\SDL2.dll
 	MOVE $(APP_EXE) $@
 
-run-debug:
+run-debug: debug\$(APP_EXE) debug\profiles.ini
 	debug\$(APP_EXE)
 
-run-release:
+run-release: release\$(APP_EXE) release\profiles.ini
 	release\$(APP_EXE)
 
 # Clean any leftover build files (keeps SDL)

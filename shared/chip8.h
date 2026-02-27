@@ -18,7 +18,7 @@ extern "C" {
 #define FONTS_SIZE 80
 #define CYCLES_PER_STEP 12 /* ~720 inst/sec if ticking at 60hz */
 #define MIN_CYCLES_PER_STEP 1
-#define MAX_CYCLES_PER_STEP 50
+#define MAX_CYCLES_PER_STEP 150 /* You've reached level 9000! */
 #define TICKS 60 /* hz - Timer count down rate */
 
 static const unsigned char chip8_fontset[FONTS_SIZE] = {

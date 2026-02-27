@@ -145,10 +145,10 @@ release/$(APP_EXE): $(SDL_LIB) $(OBJS)
 	cp $(SDL_LIB) release/libSDL2-2.0.so.0
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) $(OBJS) -o $@ $(LDFLAGS)
 
-run-debug: debug/$(APP_EXE)
+run-debug: debug/$(APP_EXE) debug/profiles.ini
 	./debug/$(APP_EXE)
 
-run-release: release/$(APP_EXE)
+run-release: release/$(APP_EXE) release/profiles.ini
 	./release/$(APP_EXE)
 
 # Removes build artifacts (objects, executables) but keeps SDL

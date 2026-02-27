@@ -64,7 +64,7 @@ static void gui_help_windows(void) {
             "A cross-platform Chip-8 interpreter written\n"
             "in C-Style C++ using SDL2, ImGui, and OpenGL.\n"
             "\n"
-            "<https://github.com/Diesel-Net/kiwi-8>\n"
+            "https://github.com/Diesel-Net/kiwi-8\n"
         );
 
         ImGui::End();
