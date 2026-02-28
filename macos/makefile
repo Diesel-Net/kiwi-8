@@ -43,7 +43,9 @@ SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
 # Generated headers
 LICENSE_HEADER = ../shared/license.h
 BOOTROM_HEADER = ../shared/bootrom.h
-BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
+
+# ROM Profiles database (source of truth)
+PROFILES_INI = ../shared/profiles.ini
 
 OBJS = audio.o \
 	chip8.o \
@@ -60,11 +62,8 @@ OBJS = audio.o \
 	imgui_impl_sdl.o \
 	sha256.o
 
-DEPS = $(OBJS:.o=.d)
-
-PROFILES_INI = ../shared/profiles.ini
-
 # Include auto-generated dependency files (must be before targets)
+DEPS = $(OBJS:.o=.d)
 -include $(DEPS)
 
 .DEFAULT_GOAL := all
@@ -81,11 +80,11 @@ $(SDL_LIB):
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ../LICENSE
-	python3 ../tools/generate_license_header.py $< $(LICENSE_HEADER)
+	python3 ../tools/generate_license_header.py $< $@
 
 # Generate bootrom header from ROM file
 $(BOOTROM_HEADER): ../roms/Kiwi8_logo_2.ch8
-	python3 ../tools/generate_bootrom_header.py $< $(BOOTROM_HEADER)
+	python3 ../tools/generate_bootrom_header.py $< $@
 
 # Generate Info.plist from template with version substitution
 $(APP_MANIFEST): src/Info.plist.in
@@ -115,11 +114,11 @@ $(APP_MANIFEST): src/Info.plist.in
 
 debug/profiles.ini: $(PROFILES_INI)
 	mkdir -p debug
-	cp $(PROFILES_INI) debug/profiles.ini
+	cp $(PROFILES_INI) $@
 
 release/$(APP_BUNDLE)/Contents/Resources/profiles.ini: $(PROFILES_INI)
 	mkdir -p release/$(APP_BUNDLE)/Contents/Resources
-	cp $(PROFILES_INI) release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
+	cp $(PROFILES_INI) $@
 
 # debug executable
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)

@@ -66,7 +66,9 @@ SDL_LIB = ..\external\sdl\build\lib\SDL2.lib
 # Generated headers
 LICENSE_HEADER = ..\shared\license.h
 BOOTROM_HEADER = ..\shared\bootrom.h
-BOOTROM_SOURCE = ..\roms\Kiwi8_logo_2.ch8
+
+# ROM Profiles database (source of truth)
+PROFILES_INI = ..\shared\profiles.ini
 
 OBJS = audio.obj \
 	chip8.obj \
@@ -83,11 +85,8 @@ OBJS = audio.obj \
 	imgui_draw.obj \
 	sha256.obj
 
-PROFILES_INI = ..\shared\profiles.ini
-
 # Default target
 all: debug\profiles.ini debug\$(APP_EXE) release\profiles.ini release\$(APP_EXE)
-
 
 # Build SDL (force rebuild with: nmake sdl)
 sdl:
@@ -99,11 +98,11 @@ $(SDL_LIB):
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ..\LICENSE
-	python3 ..\tools\generate_license_header.py ..\LICENSE $(LICENSE_HEADER)
+	python3 ..\tools\generate_license_header.py $< $@
 
 # Generate bootrom header from ROM file
-$(BOOTROM_HEADER): $(BOOTROM_SOURCE)
-	python3 ..\tools\generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
+$(BOOTROM_HEADER): ..\roms\Kiwi8_logo_2.ch8
+	python3 ..\tools\generate_bootrom_header.py $< $@
 
 # Inference rules for incremental compilation
 {src}.cc{}.obj:
@@ -126,10 +125,10 @@ $(BOOTROM_HEADER): $(BOOTROM_SOURCE)
 
 # Explicit rules for files depending on generated headers
 gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)
-	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) ..\shared\gui.cc
+	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<
 
 chip8.obj: ..\shared\chip8.c $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) ..\shared\chip8.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
@@ -137,11 +136,11 @@ $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 
 debug\profiles.ini: $(PROFILES_INI)
 	IF NOT EXIST debug MKDIR debug
-	COPY $(PROFILES_INI) debug\profiles.ini
+	COPY $(PROFILES_INI) $@
 
 release\profiles.ini: $(PROFILES_INI)
 	IF NOT EXIST release MKDIR release
-	COPY $(PROFILES_INI) release\profiles.ini
+	COPY $(PROFILES_INI) $@
 
 debug\$(APP_EXE): $(SDL_LIB) $(OBJS) $(APP_RES)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) /Zi /Fe$(APP_NAME) $(INCLUDE_DIRS) $(OBJS) $(APP_RES) $(LDFLAGS) /SUBSYSTEM:CONSOLE
