@@ -98,11 +98,11 @@ $(SDL_LIB):
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ..\LICENSE
-	python3 ..\tools\generate_license_header.py $< $@
+	python3 ..\tools\generate_license_header.py ..\LICENSE $@
 
 # Generate bootrom header from ROM file
 $(BOOTROM_HEADER): ..\roms\Kiwi8_logo_2.ch8
-	python3 ..\tools\generate_bootrom_header.py $< $@
+	python3 ..\tools\generate_bootrom_header.py ..\roms\Kiwi8_logo_2.ch8 $@
 
 # Inference rules for incremental compilation
 {src}.cc{}.obj:
@@ -125,10 +125,10 @@ $(BOOTROM_HEADER): ..\roms\Kiwi8_logo_2.ch8
 
 # Explicit rules for files depending on generated headers
 gui.obj: ..\shared\gui.cc $(LICENSE_HEADER)
-	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) ..\shared\gui.cc
 
 chip8.obj: ..\shared\chip8.c $(BOOTROM_HEADER)
-	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) $<
+	$(CC) $(CFLAGS) $(CPPFLAGS) /c $(INCLUDE_DIRS) ..\shared\chip8.c
 
 $(APP_RES): src\Kiwi8.rc resources\Kiwi8.ico
 	RC src\Kiwi8.rc
