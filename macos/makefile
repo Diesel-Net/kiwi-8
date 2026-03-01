@@ -43,7 +43,9 @@ SDL_LIB = ../external/sdl/build/lib/libSDL2-2.0.0.dylib
 # Generated headers
 LICENSE_HEADER = ../shared/license.h
 BOOTROM_HEADER = ../shared/bootrom.h
-BOOTROM_SOURCE = ../roms/Kiwi8_logo_2.ch8
+
+# ROM Profiles database (source of truth)
+PROFILES_INI = ../shared/profiles.ini
 
 OBJS = audio.o \
 	chip8.o \
@@ -60,11 +62,8 @@ OBJS = audio.o \
 	imgui_impl_sdl.o \
 	sha256.o
 
-DEPS = $(OBJS:.o=.d)
-
-PROFILES_INI = ../shared/profiles.ini
-
 # Include auto-generated dependency files (must be before targets)
+DEPS = $(OBJS:.o=.d)
 -include $(DEPS)
 
 .DEFAULT_GOAL := all
@@ -81,14 +80,14 @@ $(SDL_LIB):
 
 # Generate license header from LICENSE file
 $(LICENSE_HEADER): ../LICENSE
-	python3 ../tools/generate_license_header.py ../LICENSE $(LICENSE_HEADER)
+	python3 ../tools/generate_license_header.py $< $@
 
 # Generate bootrom header from ROM file
-$(BOOTROM_HEADER): $(BOOTROM_SOURCE)
-	python3 ../tools/generate_bootrom_header.py $(BOOTROM_SOURCE) $(BOOTROM_HEADER)
+$(BOOTROM_HEADER): ../roms/Kiwi8_logo_2.ch8
+	python3 ../tools/generate_bootrom_header.py $< $@
 
 # Generate Info.plist from template with version substitution
-$(APP_MANIFEST): $(APP_MANIFEST).in
+$(APP_MANIFEST): src/Info.plist.in
 	sed -e 's/@APP_NAME@/$(APP_NAME)/g' -e 's/@VERSION@/$(VERSION)/g' -e 's/@SUB_VERSION@/$(SUB_VERSION)/g' $< > $@
 
 # Pattern rules for incremental compilation
@@ -110,13 +109,16 @@ $(APP_MANIFEST): $(APP_MANIFEST).in
 %.o: ../shared/%.cc $(LICENSE_HEADER) $(BOOTROM_HEADER)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -c $< -o $@
 
+%.i: %.c $(LICENSE_HEADER) $(BOOTROM_HEADER)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(INCLUDE_DIRS) -E $< -o $@
+
 debug/profiles.ini: $(PROFILES_INI)
 	mkdir -p debug
-	cp $(PROFILES_INI) debug/profiles.ini
+	cp $(PROFILES_INI) $@
 
 release/$(APP_BUNDLE)/Contents/Resources/profiles.ini: $(PROFILES_INI)
 	mkdir -p release/$(APP_BUNDLE)/Contents/Resources
-	cp $(PROFILES_INI) release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
+	cp $(PROFILES_INI) $@
 
 # debug executable
 debug/$(APP_EXE): $(SDL_LIB) $(OBJS)
@@ -161,10 +163,10 @@ release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib: $(SDL_LIB)
 # .app bundle
 release/$(APP_BUNDLE): release/$(APP_BUNDLE)/Contents/MacOS/$(APP_EXE) release/$(APP_BUNDLE)/Contents/Info.plist release/$(APP_BUNDLE)/Contents/Resources/Kiwi8.icns release/$(APP_BUNDLE)/Contents/Frameworks/libSDL2-2.0.0.dylib
 
-run-debug: debug/$(APP_EXE)
+run-debug: debug/$(APP_EXE) debug/profiles.ini
 	./debug/$(APP_EXE)
 
-run-release: release/$(APP_BUNDLE)
+run-release: release/$(APP_BUNDLE) release/$(APP_BUNDLE)/Contents/Resources/profiles.ini
 	open release/$(APP_BUNDLE)
 
 # Removes build artifacts (objects, app bundle) but keeps SDL

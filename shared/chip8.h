@@ -18,7 +18,7 @@ extern "C" {
 #define FONTS_SIZE 80
 #define CYCLES_PER_STEP 12 /* ~720 inst/sec if ticking at 60hz */
 #define MIN_CYCLES_PER_STEP 1
-#define MAX_CYCLES_PER_STEP 50
+#define MAX_CYCLES_PER_STEP 150 /* You've reached level 9000! */
 #define TICKS 60 /* hz - Timer count down rate */
 
 static const unsigned char chip8_fontset[FONTS_SIZE] = {
@@ -46,7 +46,7 @@ struct chip8 {
     /* whether or not cpu is currently halted by opcode FX0A */
     bool cpu_halt;
 
-    /* whether or not emulation is currently paused. */
+    /* whether or not emulation is currently paused via user. */
     bool paused;
 
     /* All quirk toggles */
@@ -64,7 +64,7 @@ struct chip8 {
 
     /* rom profile tracking */
     char rom_filename[PATH_MAX];  /* basename of currently loaded ROM */
-    int rom_loaded;          /* 1 if user ROM loaded, 0 if bootrom */
+    bool rom_loaded;
 
     /* registers */
     unsigned char V[NUM_REGISTERS];

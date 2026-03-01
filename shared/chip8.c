@@ -119,7 +119,7 @@ int chip8_load_bootrom() {
     memcpy(chip8.memory + ENTRY_POINT, bootrom, BOOTROM_SIZE);
 
     /* Mark as bootrom (not user ROM) */
-    chip8.rom_loaded = 0;
+    chip8.rom_loaded = false;
     chip8.rom_filename[0] = '\0';
 
     return 0;
@@ -174,7 +174,7 @@ int chip8_load_rom(const char *rom_filepath) {
         chip8.rom_filename[sizeof(chip8.rom_filename) - 1] = '\0';
 
         /* Mark as user ROM (not bootrom) */
-        chip8.rom_loaded = 1;
+        chip8.rom_loaded = true;
         char notif_msg[TOAST_MSG_MAX];
         snprintf(notif_msg, sizeof(notif_msg), "ROM loaded: %s", chip8.rom_filename);
         toast_show(TOAST_SUCCESS, notif_msg);

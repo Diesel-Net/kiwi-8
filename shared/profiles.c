@@ -229,7 +229,7 @@ const struct profile* profile_lookup(const sha256_hash_t *sha256) {
 
     char matched_hash_hex[65];
     bytes_to_hex(profile_map[idx].key.bytes, matched_hash_hex, sizeof(matched_hash_hex));
-    printf("Lookup result: found idx=%td name=%s\n", idx, matched_hash_hex, profile_map[idx].value.rom_name);
+    printf("Lookup result: found idx=%td name=%s\n", idx, profile_map[idx].value.rom_name);
     quirks_print(&profile_map[idx].value.quirks, "Lookup quirks:");
     return &profile_map[idx].value;
 }
