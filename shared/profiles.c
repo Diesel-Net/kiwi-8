@@ -150,6 +150,7 @@ static int resolve_profiles_path(void) {
             char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles: %s", loaded_profiles_path);
             toast_show(TOAST_INFO, msg);
+            printf("%s\n", msg);
             return 1;
         }
         /* Doesn't exist yet — create it */
@@ -157,11 +158,12 @@ static int resolve_profiles_path(void) {
             char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles created: %s", loaded_profiles_path);
             toast_show(TOAST_SUCCESS, msg);
+            printf("%s\n", msg);
         } else {
             char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "Failed to create: %s", loaded_profiles_path);
             toast_show(TOAST_ERROR, msg);
-            printf("Error: Unable to create profiles.ini at: %s\n", loaded_profiles_path);
+            printf("%s\n", msg);
         }
         return 0;
     }
@@ -188,6 +190,7 @@ static int resolve_profiles_path(void) {
             char msg[TOAST_MSG_MAX];
             snprintf(msg, sizeof(msg), "ROM profiles: %s", search_paths[i]);
             toast_show(TOAST_INFO, msg);
+            printf("%s\n", msg);
             return 1;
         }
     }
@@ -198,9 +201,12 @@ static int resolve_profiles_path(void) {
         char msg[TOAST_MSG_MAX];
         snprintf(msg, sizeof(msg), "ROM profiles created: %s", search_paths[0]);
         toast_show(TOAST_INFO, msg);
+        printf("%s\n", msg);
     } else {
-        toast_show(TOAST_ERROR, "Failed to create profiles.ini");
-        printf("Error: Unable to create profiles.ini at: %s\n", search_paths[0]);
+        char msg[TOAST_MSG_MAX];
+        snprintf(msg, sizeof(msg), "Failed to create: %s", search_paths[0]);
+        toast_show(TOAST_ERROR, msg);
+        printf("%s\n", msg);
     }
     return 0;
 }
@@ -229,7 +235,7 @@ const struct profile* profile_lookup(const sha256_hash_t *sha256) {
 
     char matched_hash_hex[65];
     bytes_to_hex(profile_map[idx].key.bytes, matched_hash_hex, sizeof(matched_hash_hex));
-    printf("Lookup result: found idx=%td name=%s\n", idx, profile_map[idx].value.rom_name);
+    printf("Lookup result: FOUND! name=%s\n", profile_map[idx].value.rom_name);
     quirks_print(&profile_map[idx].value.quirks, "Lookup quirks:");
     return &profile_map[idx].value;
 }
