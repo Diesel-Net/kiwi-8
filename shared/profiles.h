@@ -28,9 +28,10 @@ const struct profile* profile_lookup(const sha256_hash_t *sha256);
 
 /* Save a ROM's quirks to the profile database and INI file.
  * rom_name should be the display name or basename stored in the profile.
- * Also adds the profile to the runtime hashmap immediately. */
-void profiles_save(const uint8_t *rom, size_t rom_size, const char *rom_name,
-                   const struct quirks *quirks);
+ * Also adds the profile to the runtime hashmap immediately.
+ * Returns 0 on success, non-zero on failure. */
+int profiles_save(const uint8_t *rom, size_t rom_size, const char *rom_name,
+                  const struct quirks *quirks);
 
 #ifdef __cplusplus
 }
