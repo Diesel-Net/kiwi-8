@@ -55,7 +55,7 @@ OBJS = audio.o \
 	main.o \
 	toast.o \
 	open_file_dialog.o \
-	stb_ds.o \
+	stb_impl.o \
 	profiles.o \
 	imgui.o \
 	imgui_draw.o \
