@@ -252,7 +252,7 @@ void chip8_reset(bool verbose) {
 }
 
 void chip8_save_profile(void){
-    profiles_save_current();
+    profiles_save(chip8.rom, chip8.rom_size, chip8.rom_filename, &chip8.quirks);
     gui.save_profile_flag = 0;
 }
 
