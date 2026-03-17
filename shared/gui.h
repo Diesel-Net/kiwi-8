@@ -21,7 +21,7 @@ struct gui {
     bool show_about;
     bool show_usage;
 
-    bool soft_reset_flag;
+    bool reset_flag;
     bool load_rom_flag;
     bool save_profile_flag;
     bool quit_flag;

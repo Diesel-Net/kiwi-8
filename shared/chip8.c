@@ -245,7 +245,7 @@ void chip8_reset(bool verbose) {
     chip8.paused = 0;
 
     /* flip the GUI bit */
-    gui.soft_reset_flag = 0;
+    gui.reset_flag = 0;
 
     if (verbose) toast_show(TOAST_INFO, "Reset");
 
@@ -276,9 +276,9 @@ void chip8_run(){
         event = input_poll();
 
         /* do something based on response... */
-        if (event & USER_QUIT) return;
+        if (event & QUIT) return;
         if (event & LOAD_ROM) chip8_load_rom(NULL);
-        if (event & SOFT_RESET) chip8_reset(true);
+        if (event & RESET) chip8_reset(true);
         if (event & SAVE_PROFILE) chip8_save_profile();
 
         /* Update toast timers */
