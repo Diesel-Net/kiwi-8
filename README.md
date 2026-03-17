@@ -51,7 +51,7 @@ in C-style C++ using SDL2, ImGui, and OpenGL.
 
 ## Usage
 
-      Kiwi8 [options] [rom_file]
+      Kiwi8 [options] [rom_filepath]
       Options:
          -f, --fullscreen         Start in fullscreen
          -m, --muted              Start with audio muted

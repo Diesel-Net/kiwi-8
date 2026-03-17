@@ -9,7 +9,7 @@ extern "C" {
 
 /* Centralized usage/help text for CLI and GUI */
 static const char *USAGE_TEXT =
-    "Usage: " APP_NAME " [options] [rom_file]\n"
+    "Usage: " APP_NAME " [options] [rom_filepath]\n"
     "Options:\n"
     "  -f, --fullscreen         Start in fullscreen\n"
     "  -m, --muted              Start with audio muted\n"

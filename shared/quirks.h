@@ -7,6 +7,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 /*
  * X-macro list of all quirk fields.
@@ -47,6 +48,18 @@ static inline void quirks_print(const struct quirks *quirks, const char *prefix)
     QUIRK_FIELDS(QUIRK_X_PRINT)
 #undef QUIRK_X_PRINT
     printf("\n");
+}
+
+static inline int quirks_set_field_by_name(struct quirks *quirks, const char *field_name, int value) {
+    bool enabled = value != 0;
+#define QUIRK_X_SET(name, default_val) \
+    if (strcmp(field_name, #name) == 0) { \
+        quirks->name = enabled; \
+        return 1; \
+    }
+    QUIRK_FIELDS(QUIRK_X_SET)
+#undef QUIRK_X_SET
+    return 0;
 }
 
 #ifdef __cplusplus

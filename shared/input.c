@@ -41,12 +41,12 @@ static int input_process_events(void) {
     int response = CONTINUE;
 
     /* cose when the user clicks 'X' */
-    if (input.event.type == SDL_QUIT) response = USER_QUIT;
+    if (input.event.type == SDL_QUIT) response = QUIT;
 
     /* keystroke events */
     if (input.event.type == SDL_KEYDOWN) {
-        if (input.state[SDL_SCANCODE_ESCAPE]) response = USER_QUIT;
-        if (input.state[SDL_SCANCODE_F5]) response = SOFT_RESET;
+        if (input.state[SDL_SCANCODE_ESCAPE]) response = QUIT;
+        if (input.state[SDL_SCANCODE_F5]) response = RESET;
         if (input.state[SDL_SCANCODE_RETURN]) display_toggle_fullscreen();
         if (input.state[SDL_SCANCODE_P]) {
             chip8.paused = !chip8.paused;
@@ -78,7 +78,7 @@ static int input_process_events(void) {
         }
 
         /* the window manager requests that the window be closed */
-        if (input.event.window.event == SDL_WINDOWEVENT_CLOSE) response = USER_QUIT;
+        if (input.event.window.event == SDL_WINDOWEVENT_CLOSE) response = QUIT;
     }
 
     return response;
@@ -99,8 +99,8 @@ int input_poll(void) {
 
         /* check GUI */
         gui_process_events(&input.event);
-        if (gui.quit_flag) response |= USER_QUIT;
-        if (gui.soft_reset_flag) response |= SOFT_RESET;
+        if (gui.quit_flag) response |= QUIT;
+        if (gui.reset_flag) response |= RESET;
         if (gui.load_rom_flag) response |= LOAD_ROM;
         if (gui.save_profile_flag) response |= SAVE_PROFILE;
 

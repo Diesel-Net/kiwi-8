@@ -210,7 +210,7 @@ static void gui_main_menu(void) {
             }
 
             if (ImGui::BeginMenu("Emulation")) {
-                ImGui::MenuItem("Reset", "F5", &gui.soft_reset_flag);
+                ImGui::MenuItem("Reset", "F5", &gui.reset_flag);
                 before = chip8.paused;
                 ImGui::MenuItem("Pause", "P", &chip8.paused);
                 if (before != chip8.paused) {
@@ -316,7 +316,7 @@ void gui_cleanup(void) {
 }
 
 void gui_init(void) {
-    gui.soft_reset_flag = 0;
+    gui.reset_flag = 0;
     gui.load_rom_flag = 0;
     gui.save_profile_flag = 0;
     gui.quit_flag = 0;

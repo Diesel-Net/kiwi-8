@@ -8,6 +8,7 @@ extern "C" {
 #include "compat.h"
 #include "quirks.h"
 #include "sha256.h"
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct { uint8_t bytes[32]; } sha256_hash_t;
@@ -25,9 +26,12 @@ void profiles_init(const char *custom_path);
 /* Lookup a ROM profile by SHA256. Returns NULL if not found. */
 const struct profile* profile_lookup(const sha256_hash_t *sha256);
 
-/* Save current ROM's quirks to the profile database and INI file
- * Also adds profile to runtime hashmap immediately */
-void profiles_save_current(void);
+/* Save a ROM's quirks to the profile database and INI file.
+ * rom_name should be the display name or basename stored in the profile.
+ * Also adds the profile to the runtime hashmap immediately.
+ * Returns 0 on success, non-zero on failure. */
+int profiles_save(const uint8_t *rom, size_t rom_size, const char *rom_name,
+                  const struct quirks *quirks);
 
 #ifdef __cplusplus
 }

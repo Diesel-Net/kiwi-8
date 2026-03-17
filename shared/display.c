@@ -1,5 +1,4 @@
 #include "display.h"
-#include "chip8.h"
 #include "meta.h"
 #include "gui.h"
 #include <SDL2/SDL_opengl.h>

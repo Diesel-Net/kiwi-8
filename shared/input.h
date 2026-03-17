@@ -13,8 +13,8 @@ extern "C" {
 /* there is a 4 ( and no 3), so each value
 can represent a unique bit position */
 #define CONTINUE 0
-#define USER_QUIT 1
-#define SOFT_RESET 2
+#define QUIT 1
+#define RESET 2
 #define LOAD_ROM 4
 #define SAVE_PROFILE 8
 

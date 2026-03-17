@@ -193,7 +193,7 @@ int chip8_load_rom(const char *rom_filepath) {
             toast_show(TOAST_INFO, "No profile found");
         }
 
-        chip8_soft_reset();
+        chip8_reset(false);
 
     } else {
         /* load ROM from GUI */
@@ -210,7 +210,7 @@ int chip8_load_rom(const char *rom_filepath) {
     return 0;
 }
 
-void chip8_soft_reset() {
+void chip8_reset(bool verbose) {
     /* clear the vram */
     for (int i = 0; i < WIDTH; i++) {
         memset(chip8.vram[i], 0, HEIGHT * sizeof(unsigned char));
@@ -245,8 +245,15 @@ void chip8_soft_reset() {
     chip8.paused = 0;
 
     /* flip the GUI bit */
-    gui.soft_reset_flag = 0;
+    gui.reset_flag = 0;
 
+    if (verbose) toast_show(TOAST_INFO, "Reset");
+
+}
+
+void chip8_save_profile(void){
+    profiles_save(chip8.rom, chip8.rom_size, chip8.rom_filename, &chip8.quirks);
+    gui.save_profile_flag = 0;
 }
 
 void chip8_run(){
@@ -269,16 +276,10 @@ void chip8_run(){
         event = input_poll();
 
         /* do something based on response... */
-        if (event & USER_QUIT) return;
+        if (event & QUIT) return;
         if (event & LOAD_ROM) chip8_load_rom(NULL);
-        if (event & SOFT_RESET) {
-            chip8_soft_reset();
-            toast_show(TOAST_INFO, "Reset");
-        }
-        if (event & SAVE_PROFILE) {
-            profiles_save_current();
-            gui.save_profile_flag = 0;
-        }
+        if (event & RESET) chip8_reset(true);
+        if (event & SAVE_PROFILE) chip8_save_profile();
 
         /* Update toast timers */
         toast_update((double)interval / 1000.0);
