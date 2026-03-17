@@ -105,8 +105,10 @@ void chip8_update_timers(void);
 void chip8_step_cpu(int cycles);
 void chip8_reset(bool verbose);
 int chip8_load_bootrom(void);
+void chip8_save_profile(void);
 void chip8_fetch_opcode(void);
 void chip8_execute_opcode(void);
+
 
 #ifdef __cplusplus
 }

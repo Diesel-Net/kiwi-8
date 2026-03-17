@@ -251,6 +251,11 @@ void chip8_reset(bool verbose) {
 
 }
 
+void chip8_save_profile(void){
+    profiles_save_current();
+    gui.save_profile_flag = 0;
+}
+
 void chip8_run(){
     int event;
     unsigned int t1;
@@ -274,10 +279,7 @@ void chip8_run(){
         if (event & USER_QUIT) return;
         if (event & LOAD_ROM) chip8_load_rom(NULL);
         if (event & SOFT_RESET) chip8_reset(true);
-        if (event & SAVE_PROFILE) {
-            profiles_save_current();
-            gui.save_profile_flag = 0;
-        }
+        if (event & SAVE_PROFILE) chip8_save_profile();
 
         /* Update toast timers */
         toast_update((double)interval / 1000.0);

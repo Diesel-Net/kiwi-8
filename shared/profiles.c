@@ -273,7 +273,7 @@ static void profiles_write_to_file(void) {
     fclose(file);
 }
 
-void profiles_save_current(void) {
+void profiles_save_current() {
     if (!chip8.rom_loaded || !chip8.rom || chip8.rom_size == 0) {
         toast_show(TOAST_ERROR, "No ROM loaded. Cannot save profile.");
         return;
