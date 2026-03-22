@@ -77,7 +77,7 @@ OBJS = audio.obj \
 	input.obj \
 	main.obj \
 	toast.obj \
-	stb_ds.obj \
+	stb_impl.obj \
 	profiles.obj \
 	open_file_dialog.obj \
 	imgui_impl_sdl.obj \
